@@ -49,15 +49,17 @@ def one_hot(arr):
 
 
 def filter_batch(batch, percentile):
-    rewards = list(map(lambda s: s.reward, batch))
-    reward_bound = np.percentile(rewards, percentile)
+    rewards = list(map(lambda s: s.reward, batch)) # isolates only the rewards
+    reward_bound = np.percentile(rewards, percentile) # https://www.statisticshowto.datasciencecentral.com/probability-and-statistics/percentiles-rank-range/ --> not sure why not the mean
     reward_mean = float(np.mean(rewards))
     train_obs = []
     train_act = []
     for example in batch:
-        if example.reward >= reward_bound:
-            train_obs.extend(map(lambda step: step.observation, example.steps))
-            train_act.extend(map(lambda step: step.action, example.steps))
+        if example.reward >= reward_bound:  # check for every episode if the reward is >= the percentile bound
+            #train_obs.extend(map(lambda step: step.observation, example.steps))
+            #train_act.extend(map(lambda step: step.action, example.steps))
+            train_obs.extend([step.observation for step in example.steps])
+            train_act.extend([step.action for step in example.steps])
 
     train_obs_v = np.array(np.squeeze(train_obs))
     train_act_v = np.array(one_hot(train_act), dtype=np.dtype(np.int8))
@@ -65,7 +67,7 @@ def filter_batch(batch, percentile):
 
 
 if __name__ == "__main__":
-    env = gym.make('CartPole-v0')
+    env = gym.make('CartPole-v1')
     observation_size = env.observation_space.shape[0]
     action_count = env.action_space.n
 
