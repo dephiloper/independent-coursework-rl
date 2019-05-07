@@ -38,12 +38,13 @@ class DiscreteOneHotWrapper(gym.ObservationWrapper):
     def __init__(self, env):
         super(DiscreteOneHotWrapper, self).__init__(env)
         assert isinstance(env.observation_space, gym.spaces.Discrete)
-        self.observation_space = gym.spaces.Box(0.0, 1.0, (env.observation_space.n, ), dtype=np.float32)
+        self.observation_space = gym.spaces.Box(0.0, 1.0, (env.observation_space.n,), dtype=np.float32)
 
     def observation(self, observation):
         res = np.copy(self.observation_space.low)
         res[observation] = 1.0
         return res
+
 
 def iterate_batches(env, net, batch_size):
     batch = []
@@ -85,8 +86,8 @@ def filter_batch(batch, percentile):
             train_act.extend(map(lambda step: step.action, example.steps))
             elite_batch.append(example)
 
-    #train_obs_v = torch.FloatTensor(train_obs)
-    #train_act_v = torch.LongTensor(train_act)
+    # train_obs_v = torch.FloatTensor(train_obs)
+    # train_act_v = torch.LongTensor(train_act)
     return elite_batch, train_obs, train_act, reward_bound
 
 
@@ -122,7 +123,8 @@ if __name__ == "__main__":
         loss_v.backward()
         optimizer.step()
 
-        print("%d: loss=%.3f, reward_mean=%.3f, reward_bound=%.3f, batch=%d" % (iter_no, loss_v.item(), reward_mean, reward_bound, len(full_batch)))
+        print("%d: loss=%.3f, reward_mean=%.3f, reward_bound=%.3f, batch=%d" % (
+        iter_no, loss_v.item(), reward_mean, reward_bound, len(full_batch)))
         # writer.add_scalar("loss", loss_v.item(), iter_no)
         # writer.add_scalar("reward_bound", reward_b, iter_no)
         # writer.add_scalar("reward_mean", reward_m, iter_no)
@@ -144,7 +146,7 @@ if __name__ == "__main__":
         obs_v = torch.FloatTensor([obs])
         act_probs_v = sm(net(obs_v))
         act_probs = act_probs_v.data.numpy()[0]
-        #action = np.random.choice(len(act_probs), p=act_probs)
+        # action = np.random.choice(len(act_probs), p=act_probs)
         action = np.argmax(act_probs)
         env.step(action=action)
         obs, _, is_done, _ = env.step(action)
