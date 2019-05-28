@@ -26,12 +26,12 @@ DQN-Algorithm
 
 ENV_NAME = "RoboschoolPong-v1"
 MEAN_REWARD_BOUND = 10      # initial value:    10 (randomly guessed) <- this needs to be checked
-HIDDEN_SIZE = 128           # initial value:   128 (randomly guessed)
+HIDDEN_SIZE = 64            # initial value:   128 (randomly guessed)
 GAMMA = 0.99                # initial value:    99 (bellman equation, used for conv's eventually 0.9 would fit better)
 BATCH_SIZE = 32             # initial value:    32 (sample size of experiences from replay buffer)
 REPLAY_START_SIZE = 10000   # initial value: 10000 (min amount of experiences in replay buffer)
 REPLAY_SIZE = 10000         # initial value: 10000 (max capacity of replay buffer)
-LEARNING_RATE = 1e-4        # initial value:  1e-4 (also quite low eventually using default 1e-3)
+LEARNING_RATE = 5e-4        # initial value:  1e-4 (also quite low eventually using default 1e-3)
 SYNC_TARGET_FRAMES = 1000   # initial value   1000 (how frequently we sync target net with net)
 
 # used for epsilon decay schedule
@@ -42,6 +42,8 @@ EPSILON_START = 1.0
 EPSILON_FINAL = 0.02
 
 DEVICE = "cpu"
+MONITOR_DIRECTORY = './vids'
+VIDEO_INTERVAL = 200
 
 # stay, left, right, back, forward, left-down, right-down, left-forward, right-forward 
 actions = np.array([[0, 0], [-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [1, -1], [-1, 1], [1, 1]])
@@ -171,14 +173,17 @@ def calc_loss(batch, net, tgt_net, device="cpu"):
 
 if __name__ == "__main__":
     env = gym.make(ENV_NAME)
-    env.reset()
+
+    video_env = gym.make(ENV_NAME)
+    video_env = gym.wrappers.Monitor(video_env, MONITOR_DIRECTORY, video_callable=lambda _: True, force=True)
+
+    # env.reset()
 
     observation_size = env.observation_space.shape[0]
     action_size = len(actions)
 
     net = Net(observation_size, HIDDEN_SIZE, action_size).to(DEVICE)
     target_net = Net(observation_size, HIDDEN_SIZE, action_size).to(DEVICE)
-    print(net)
 
     buffer = ExperienceBuffer(REPLAY_SIZE)
     agent = Agent(env, buffer)
@@ -191,6 +196,7 @@ if __name__ == "__main__":
     # counter of frames to track current speed
     frame_idx = 0
     ts_frame = 0
+    game_idx = 0
     ts = time.time()
     best_mean_reward = None  # every time mean reward beats record, we'll save model in file
 
@@ -202,6 +208,12 @@ if __name__ == "__main__":
 
         reward = agent.play_step(net, epsilon, device=DEVICE)  # single step in env
         if reward is not None:
+            game_idx += 1
+
+            if game_idx % VIDEO_INTERVAL == 0:
+                agent.env = video_env
+            else:
+                agent.env = env
             total_rewards.append(reward)
             speed = (frame_idx - ts_frame) / (time.time() - ts)
             ts_frame = frame_idx
@@ -245,3 +257,4 @@ if __name__ == "__main__":
         optimizer.step()
 
     writer.close()
+    video_env.env.close()

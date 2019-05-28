@@ -3,17 +3,16 @@ import gym
 import torch
 import numpy as np
 
-from roboschool_pong_deep_q_learning import Net, HIDDEN_SIZE, actions
+from roboschool_pong_deep_q_learning import Net, HIDDEN_SIZE, MONITOR_DIRECTORY, actions
 
 
 ENV_NAME = 'RoboschoolPong-v1'
 MODEL_NAME = 'RoboschoolPong-v1-best.dat'
-MONITOR_DIRECTORY = './vids'
 
 
 if __name__ == '__main__':
     env = gym.make(ENV_NAME)
-    env = gym.wrappers.Monitor(env, '/tmp/video', video_callable=lambda _: True, force=True)
+    # env = gym.wrappers.Monitor(env, MONITOR_DIRECTORY, video_callable=lambda _: True, force=True)
 
     state = env.reset()
 
