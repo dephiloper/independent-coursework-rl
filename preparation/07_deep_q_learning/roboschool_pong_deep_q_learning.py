@@ -43,7 +43,8 @@ EPSILON_FINAL = 0.02
 
 DEVICE = "cpu"
 
-actions = np.array([[0, -1], [0, 0], [0, 1]])
+# stay, left, right, back, forward, left-down, right-down, left-forward, right-forward 
+actions = np.array([[0, 0], [-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [1, -1], [-1, 1], [1, 1]])
 
 Experience = collections.namedtuple('Experience', field_names=['state', 'action', 'reward', 'done', 'new_state'])
 
@@ -185,7 +186,8 @@ if __name__ == "__main__":
 
     optimizer = optim.Adam(net.parameters(), lr=LEARNING_RATE)
     total_rewards = []
-
+    total_loss = [0]
+    
     # counter of frames to track current speed
     frame_idx = 0
     ts_frame = 0
@@ -193,7 +195,7 @@ if __name__ == "__main__":
     best_mean_reward = None  # every time mean reward beats record, we'll save model in file
 
     writer = SummaryWriter()
-
+    
     while True:
         frame_idx += 1
         epsilon = max(EPSILON_FINAL, EPSILON_START - frame_idx / EPSILON_DECAY_LAST_FRAME)  # decrease epsilon
@@ -206,6 +208,7 @@ if __name__ == "__main__":
             ts = time.time()
 
             mean_reward = np.mean(total_rewards[-100:])
+            mean_loss = np.mean(total_loss)
             print("%d: done %d games, mean reward %.3f, eps %.2f, speed %.2f f/s" % (
                 frame_idx, len(total_rewards), mean_reward, epsilon, speed))
 
@@ -213,6 +216,8 @@ if __name__ == "__main__":
             writer.add_scalar("speed", speed, frame_idx)
             writer.add_scalar("reward_100", mean_reward, frame_idx)
             writer.add_scalar("reward", reward, frame_idx)
+            writer.add_scalar("loss", mean_loss, frame_idx)
+            total_loss = [0]
 
             if best_mean_reward is None or best_mean_reward < mean_reward:
                 torch.save(net.state_dict(), ENV_NAME + "-best.dat")
@@ -235,6 +240,7 @@ if __name__ == "__main__":
 
         # perform optimization by minimizing the loss
         loss_t = calc_loss(batch, net, target_net, device=DEVICE)
+        total_loss.append(loss_t.item())
         loss_t.backward()
         optimizer.step()
 
