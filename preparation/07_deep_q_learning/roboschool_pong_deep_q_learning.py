@@ -177,7 +177,9 @@ if __name__ == "__main__":
     video_env = gym.make(ENV_NAME)
     video_env = gym.wrappers.Monitor(video_env, MONITOR_DIRECTORY, video_callable=lambda _: True, force=True)
 
-    # env.reset()
+    video_env.reset()
+
+    env.reset()
 
     observation_size = env.observation_space.shape[0]
     action_size = len(actions)
@@ -209,11 +211,6 @@ if __name__ == "__main__":
         reward = agent.play_step(net, epsilon, device=DEVICE)  # single step in env
         if reward is not None:
             game_idx += 1
-
-            if game_idx % VIDEO_INTERVAL == 0:
-                agent.env = video_env
-            else:
-                agent.env = env
             total_rewards.append(reward)
             speed = (frame_idx - ts_frame) / (time.time() - ts)
             ts_frame = frame_idx
@@ -239,6 +236,12 @@ if __name__ == "__main__":
             if mean_reward > MEAN_REWARD_BOUND:  # when boundary reached --> game finished
                 print("Solved in %d frames!" % frame_idx)
                 break
+
+            if game_idx % VIDEO_INTERVAL == 0:
+                video_env.reset()
+                agent.env = video_env
+            else:
+                agent.env = env
 
         if len(buffer) < REPLAY_START_SIZE:  # check if buffer is large enough for training
             continue
