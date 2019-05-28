@@ -25,11 +25,11 @@ DQN-Algorithm
 ENV_NAME = "RoboschoolPong-v1"
 MEAN_REWARD_BOUND = 10      # initial value:    10 (randomly guessed) <- this needs to be checked
 HIDDEN_SIZE = 128           # initial value:   128 (randomly guessed)
-GAMMA = 0.99                # initial value:    99 (bellman equation, used for conv's eventually 0.9 would fit better)
+GAMMA = 0.9                 # initial value:    99 (bellman equation, used for conv's eventually 0.9 would fit better)
 BATCH_SIZE = 32             # initial value:    32 (sample size of experiences from replay buffer)
 REPLAY_START_SIZE = 10000   # initial value: 10000 (min amount of experiences in replay buffer)
 REPLAY_SIZE = 10000         # initial value: 10000 (max capacity of replay buffer)
-LEARNING_RATE = 1e-4        # initial value:  1e-4 (also quite low eventually using default 1e-3)
+LEARNING_RATE = 1e-3        # initial value:  1e-4 (also quite low eventually using default 1e-3)
 SYNC_TARGET_FRAMES = 1000   # initial value   1000 (how frequently we sync target net with net)
 
 # used for epsilon decay schedule
@@ -38,6 +38,8 @@ SYNC_TARGET_FRAMES = 1000   # initial value   1000 (how frequently we sync targe
 EPSILON_DECAY_LAST_FRAME = 10 ** 5
 EPSILON_START = 1.0
 EPSILON_FINAL = 0.02
+
+DEVICE = "cpu"
 
 actions = np.array([[0, -1], [0, 0], [0, 1]])
 
@@ -77,7 +79,7 @@ class ExperienceBuffer:
         indices = np.random.choice(len(self.buffer), batch_size, replace=False)
         states, actions, rewards, dones, next_states = zip(*[self.buffer[idx] for idx in indices])
         return np.array(states, dtype=np.float32), \
-               np.array(actions), \
+               np.array(actions, dtype=np.int64), \
                np.array(rewards, dtype=np.float32), \
                np.array(dones, dtype=np.uint8), \
                np.array(next_states, dtype=np.float32)
@@ -171,8 +173,8 @@ if __name__ == "__main__":
     observation_size = env.observation_space.shape[0]
     action_size = len(actions)
 
-    net = Net(observation_size, HIDDEN_SIZE, action_size)
-    target_net = Net(observation_size, HIDDEN_SIZE, action_size)
+    net = Net(observation_size, HIDDEN_SIZE, action_size).to(DEVICE)
+    target_net = Net(observation_size, HIDDEN_SIZE, action_size).to(DEVICE)
     print(net)
 
     buffer = ExperienceBuffer(REPLAY_SIZE)
@@ -192,7 +194,7 @@ if __name__ == "__main__":
         frame_idx += 1
         epsilon = max(EPSILON_FINAL, EPSILON_START - frame_idx / EPSILON_DECAY_LAST_FRAME)  # decrease epsilon
 
-        reward = agent.play_step(net, epsilon)  # single step in env
+        reward = agent.play_step(net, epsilon, device=DEVICE)  # single step in env
         if reward is not None:
             total_rewards.append(reward)
             speed = (frame_idx - ts_frame) / (time.time() - ts)
@@ -223,6 +225,6 @@ if __name__ == "__main__":
         batch = buffer.sample(BATCH_SIZE)
 
         # perform optimization by minimizing the loss
-        loss_t = calc_loss(batch, net, target_net)
+        loss_t = calc_loss(batch, net, target_net, device=DEVICE)
         loss_t.backward()
         optimizer.step()
