@@ -1,3 +1,4 @@
+tensorboardX
 absl-py==0.7.1
 astor==0.7.1
 atari-py==0.1.7

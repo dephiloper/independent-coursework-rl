@@ -8,6 +8,8 @@ import torch
 from future.moves import collections
 from torch import nn, optim
 
+from tensorboardX import SummaryWriter
+
 '''
 DQN-Algorithm
 1. Initialize parameters for Q(s,a) and Q'(s,a) with random weights, epsilon with 1.0 and create empty replay buffer
@@ -25,11 +27,11 @@ DQN-Algorithm
 ENV_NAME = "RoboschoolPong-v1"
 MEAN_REWARD_BOUND = 10      # initial value:    10 (randomly guessed) <- this needs to be checked
 HIDDEN_SIZE = 128           # initial value:   128 (randomly guessed)
-GAMMA = 0.9                 # initial value:    99 (bellman equation, used for conv's eventually 0.9 would fit better)
+GAMMA = 0.99                # initial value:    99 (bellman equation, used for conv's eventually 0.9 would fit better)
 BATCH_SIZE = 32             # initial value:    32 (sample size of experiences from replay buffer)
 REPLAY_START_SIZE = 10000   # initial value: 10000 (min amount of experiences in replay buffer)
 REPLAY_SIZE = 10000         # initial value: 10000 (max capacity of replay buffer)
-LEARNING_RATE = 1e-3        # initial value:  1e-4 (also quite low eventually using default 1e-3)
+LEARNING_RATE = 1e-4        # initial value:  1e-4 (also quite low eventually using default 1e-3)
 SYNC_TARGET_FRAMES = 1000   # initial value   1000 (how frequently we sync target net with net)
 
 # used for epsilon decay schedule
@@ -95,11 +97,11 @@ class Agent:
         self.state = env.reset()
         self.total_reward = 0.0
 
-    # perform a step in the environemt and store the result in the replay buffer
+    # perform a step in the environment and store the result in the replay buffer
     def play_step(self, net, epsilon=0.0, device="cpu"):
         done_reward = None
 
-        # w/ probability epsilon take random action (explore)
+        # with probability epsilon take random action (explore)
         if np.random.random() < epsilon:
             index = np.random.randint(0, len(actions))
         else:  # otherwise use use the past model to obtain the q-values for all possible actions, choose the best
@@ -190,6 +192,8 @@ if __name__ == "__main__":
     ts = time.time()
     best_mean_reward = None  # every time mean reward beats record, we'll save model in file
 
+    writer = SummaryWriter()
+
     while True:
         frame_idx += 1
         epsilon = max(EPSILON_FINAL, EPSILON_START - frame_idx / EPSILON_DECAY_LAST_FRAME)  # decrease epsilon
@@ -204,6 +208,11 @@ if __name__ == "__main__":
             mean_reward = np.mean(total_rewards[-100:])
             print("%d: done %d games, mean reward %.3f, eps %.2f, speed %.2f f/s" % (
                 frame_idx, len(total_rewards), mean_reward, epsilon, speed))
+
+            writer.add_scalar("epsilon", epsilon, frame_idx)
+            writer.add_scalar("speed", speed, frame_idx)
+            writer.add_scalar("reward_100", mean_reward, frame_idx)
+            writer.add_scalar("reward", reward, frame_idx)
 
             if best_mean_reward is None or best_mean_reward < mean_reward:
                 torch.save(net.state_dict(), ENV_NAME + "-best.dat")
@@ -228,3 +237,5 @@ if __name__ == "__main__":
         loss_t = calc_loss(batch, net, target_net, device=DEVICE)
         loss_t.backward()
         optimizer.step()
+
+    writer.close()
