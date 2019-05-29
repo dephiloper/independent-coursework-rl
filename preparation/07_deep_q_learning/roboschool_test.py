@@ -19,6 +19,9 @@ if __name__ == '__main__':
     net = Net(env.observation_space.shape[0], HIDDEN_SIZE, len(actions))
     net.load_state_dict(torch.load(MODEL_NAME, map_location=lambda storage, loc: storage))
 
+    game_counter = 0
+    reward_sum = 0
+
     for i in range(1000):
         env.render()
         state_v = torch.tensor(np.array([state], copy=False, dtype=np.float32))
@@ -27,7 +30,11 @@ if __name__ == '__main__':
         action_index = np.argmax(q_vals)
         action = actions[action_index]
         state, reward, done, _ = env.step(action)
-        if done:
-            break
+        if reward != 0:
+            print('game {} reward: {}'.format(game_counter, reward))
+            game_counter += 1
+            reward_sum += reward
+
+    print('average reward: {}'.format(reward_sum/game_counter))
 
     env.env.close()
