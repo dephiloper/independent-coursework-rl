@@ -1,3 +1,5 @@
+import datetime
+
 import roboschool
 import gym
 import torch
@@ -7,19 +9,22 @@ from roboschool_pong_deep_q_learning import Net, HIDDEN_SIZE, MONITOR_DIRECTORY,
 
 
 ENV_NAME = 'RoboschoolPong-v1'
-MODEL_NAME = 'RoboschoolPong-v1-best.dat'
+MODEL_NAME = 'models/LR5-10L2x64.dat'
 
 
 if __name__ == '__main__':
     env = gym.make(ENV_NAME)
-    # env = gym.wrappers.Monitor(env, MONITOR_DIRECTORY, video_callable=lambda _: True, force=True)
-
     state = env.reset()
+
+    video_recorder = gym.monitoring.video_recorder.VideoRecorder(
+        env=env,
+        base_path='vids/pong_{}'.format(datetime.datetime.now())
+    )
 
     net = Net(env.observation_space.shape[0], HIDDEN_SIZE, len(actions))
     net.load_state_dict(torch.load(MODEL_NAME, map_location=lambda storage, loc: storage))
 
-    for i in range(1000):
+    for i in range(10000):
         env.render()
         state_v = torch.tensor(np.array([state], copy=False, dtype=np.float32))
 
