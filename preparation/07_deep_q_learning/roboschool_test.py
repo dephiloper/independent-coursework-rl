@@ -23,9 +23,6 @@ if __name__ == '__main__':
     reward_sum = 0
 
     while game_counter < 100:
-        if game_counter % 10 == 0:
-            pass
-
         if not env.render():
             break
 

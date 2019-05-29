@@ -43,7 +43,7 @@ EPSILON_FINAL = 0.02
 
 DEVICE = "cpu"
 MONITOR_DIRECTORY = './vids'
-VIDEO_INTERVAL = 200
+VIDEO_INTERVAL = 100
 
 # stay, left, right, back, forward, left-down, right-down, left-forward, right-forward 
 actions = np.array([[0, 0], [-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [1, -1], [-1, 1], [1, 1]])
@@ -175,13 +175,21 @@ def calc_loss(batch, net, tgt_net, device="cpu"):
     return nn.MSELoss()(state_action_values, expected_state_action_values)
 
 
+def x(episode_id):
+    if episode_id % VIDEO_INTERVAL == 0:
+        print('capturing episode: {}'.format(episode_id))
+        return True
+    return False
+
+
 if __name__ == "__main__":
     env = gym.make(ENV_NAME)
-
-    # video_env = gym.make(ENV_NAME)
-    # video_env = gym.wrappers.Monitor(video_env, MONITOR_DIRECTORY, video_callable=lambda _: True, force=True)
-
-    # video_env.reset()
+    env = gym.wrappers.Monitor(
+        env,
+        MONITOR_DIRECTORY,
+        video_callable=x,
+        force=True
+    )
 
     env.reset()
 
@@ -241,12 +249,6 @@ if __name__ == "__main__":
                 print("Solved in %d frames!" % frame_idx)
                 break
 
-            # if game_idx % VIDEO_INTERVAL == 0:
-                # video_env.reset()
-                # agent.env = video_env
-            # else:
-                # agent.env = env
-
         if len(buffer) < REPLAY_START_SIZE:  # check if buffer is large enough for training
             continue
 
@@ -264,4 +266,4 @@ if __name__ == "__main__":
         optimizer.step()
 
     writer.close()
-    # video_env.env.close()
+    env.env.close()
