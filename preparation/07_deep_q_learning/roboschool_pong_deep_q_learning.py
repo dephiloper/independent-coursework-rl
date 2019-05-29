@@ -31,7 +31,7 @@ GAMMA = 0.99                # initial value:    99 (bellman equation, used for c
 BATCH_SIZE = 32             # initial value:    32 (sample size of experiences from replay buffer)
 REPLAY_START_SIZE = 10000   # initial value: 10000 (min amount of experiences in replay buffer)
 REPLAY_SIZE = 10000         # initial value: 10000 (max capacity of replay buffer)
-LEARNING_RATE = 5e-4        # initial value:  1e-4 (also quite low eventually using default 1e-3)
+LEARNING_RATE = 1e-5        # initial value:  1e-4 (also quite low eventually using default 1e-3)
 SYNC_TARGET_FRAMES = 1000   # initial value   1000 (how frequently we sync target net with net)
 
 # used for epsilon decay schedule
@@ -56,6 +56,10 @@ class Net(nn.Module):
         super(Net, self).__init__()
         self.net = nn.Sequential(
             nn.Linear(input_size, hidden_size),
+            nn.ReLU(),
+            nn.Linear(hidden_size, hidden_size),
+            nn.ReLU(),
+            nn.Linear(hidden_size, hidden_size),
             nn.ReLU(),
             nn.Linear(hidden_size, output_size)
         )
@@ -174,10 +178,10 @@ def calc_loss(batch, net, tgt_net, device="cpu"):
 if __name__ == "__main__":
     env = gym.make(ENV_NAME)
 
-    video_env = gym.make(ENV_NAME)
-    video_env = gym.wrappers.Monitor(video_env, MONITOR_DIRECTORY, video_callable=lambda _: True, force=True)
+    # video_env = gym.make(ENV_NAME)
+    # video_env = gym.wrappers.Monitor(video_env, MONITOR_DIRECTORY, video_callable=lambda _: True, force=True)
 
-    video_env.reset()
+    # video_env.reset()
 
     env.reset()
 
@@ -237,11 +241,11 @@ if __name__ == "__main__":
                 print("Solved in %d frames!" % frame_idx)
                 break
 
-            if game_idx % VIDEO_INTERVAL == 0:
-                video_env.reset()
-                agent.env = video_env
-            else:
-                agent.env = env
+            # if game_idx % VIDEO_INTERVAL == 0:
+                # video_env.reset()
+                # agent.env = video_env
+            # else:
+                # agent.env = env
 
         if len(buffer) < REPLAY_START_SIZE:  # check if buffer is large enough for training
             continue
@@ -260,4 +264,4 @@ if __name__ == "__main__":
         optimizer.step()
 
     writer.close()
-    video_env.env.close()
+    # video_env.env.close()
