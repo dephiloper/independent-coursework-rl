@@ -1,3 +1,5 @@
+import datetime
+
 import roboschool
 import gym
 import torch
@@ -7,13 +9,11 @@ from roboschool_pong_deep_q_learning import Net, HIDDEN_SIZE, MONITOR_DIRECTORY,
 
 
 ENV_NAME = 'RoboschoolPong-v1'
-MODEL_NAME = 'RoboschoolPong-v1-best.dat'
+MODEL_NAME = 'models/V56_L3_LR-4.dat'
 
 
 if __name__ == '__main__':
     env = gym.make(ENV_NAME)
-    # env = gym.wrappers.Monitor(env, MONITOR_DIRECTORY, video_callable=lambda _: True, force=True)
-
     state = env.reset()
 
     net = Net(env.observation_space.shape[0], HIDDEN_SIZE, len(actions))
@@ -22,19 +22,23 @@ if __name__ == '__main__':
     game_counter = 0
     reward_sum = 0
 
-    for i in range(1000):
-        env.render()
+    while game_counter < 100:
+        if not env.render():
+            break
+
         state_v = torch.tensor(np.array([state], copy=False, dtype=np.float32))
 
         q_vals = net(state_v).data.numpy()[0]
         action_index = np.argmax(q_vals)
         action = actions[action_index]
         state, reward, done, _ = env.step(action)
-        if reward != 0:
+
+        if reward == 1.0 or reward == -1.0:
             print('game {} reward: {}'.format(game_counter, reward))
             game_counter += 1
             reward_sum += reward
 
-    print('average reward: {}'.format(reward_sum/game_counter))
+    if game_counter != 0:
+        print('average reward: {}'.format(reward_sum/game_counter))
 
     env.env.close()
