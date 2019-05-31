@@ -25,6 +25,7 @@ DQN-Algorithm
 '''
 
 ENV_NAME = "RoboschoolPong-v1"
+MODEL_NAME = 'L4'
 MEAN_REWARD_BOUND = 10      # initial value:    10 (randomly guessed) <- this needs to be checked
 HIDDEN_SIZE = 64            # initial value:   128 (randomly guessed)
 GAMMA = 0.99                # initial value:    99 (bellman equation, used for conv's eventually 0.9 would fit better)
@@ -43,7 +44,7 @@ EPSILON_FINAL = 0.02
 
 DEVICE = "cpu"
 MONITOR_DIRECTORY = './vids'
-VIDEO_INTERVAL = 100
+VIDEO_INTERVAL = 12
 
 # stay, left, right, back, forward, left-down, right-down, left-forward, right-forward 
 actions = np.array([[0, 0], [-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [1, -1], [-1, 1], [1, 1]])
@@ -186,12 +187,12 @@ def x(episode_id):
 
 if __name__ == "__main__":
     env = gym.make(ENV_NAME)
-    env = gym.wrappers.Monitor(
-        env,
-        MONITOR_DIRECTORY,
-        video_callable=x,
-        force=True
-    )
+    # env = gym.wrappers.Monitor(
+        # env,
+        # MONITOR_DIRECTORY,
+        # video_callable=x,
+        # force=True
+    # )
     env.reset()
 
     observation_size = env.observation_space.shape[0]
@@ -255,6 +256,9 @@ if __name__ == "__main__":
 
         if frame_idx % SYNC_TARGET_FRAMES == 0:  # sync nets (copy weights)
             target_net.load_state_dict(net.state_dict())
+
+        if (frame_idx % (1000 * VIDEO_INTERVAL)) == 0:
+            torch.save(net.state_dict(), 'live_models/{}_frame{}.dat'.format(MODEL_NAME, frame_idx))
 
         # learning
         optimizer.zero_grad()
