@@ -9,7 +9,7 @@ from roboschool_pong_deep_q_learning import Net, HIDDEN_SIZE, MONITOR_DIRECTORY,
 
 
 ENV_NAME = 'RoboschoolPong-v1'
-MODEL_NAME = 'models/V56_L3_LR-4.dat'
+MODEL_NAME = 'models/V69_L4.dat'
 
 
 if __name__ == '__main__':

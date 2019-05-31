@@ -31,7 +31,7 @@ GAMMA = 0.99                # initial value:    99 (bellman equation, used for c
 BATCH_SIZE = 32             # initial value:    32 (sample size of experiences from replay buffer)
 REPLAY_START_SIZE = 10000   # initial value: 10000 (min amount of experiences in replay buffer)
 REPLAY_SIZE = 10000         # initial value: 10000 (max capacity of replay buffer)
-LEARNING_RATE = 1e-5        # initial value:  1e-4 (also quite low eventually using default 1e-3)
+LEARNING_RATE = 1e-4        # initial value:  1e-4 (also quite low eventually using default 1e-3)
 SYNC_TARGET_FRAMES = 1000   # initial value   1000 (how frequently we sync target net with net)
 
 # used for epsilon decay schedule
@@ -192,7 +192,6 @@ if __name__ == "__main__":
         video_callable=x,
         force=True
     )
-
     env.reset()
 
     observation_size = env.observation_space.shape[0]
