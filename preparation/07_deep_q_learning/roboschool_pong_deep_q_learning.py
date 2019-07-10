@@ -62,8 +62,6 @@ class Net(nn.Module):
             nn.ReLU(),
             nn.Linear(hidden_size, hidden_size),
             nn.ReLU(),
-            nn.Linear(hidden_size, hidden_size),
-            nn.ReLU(),
             nn.Linear(hidden_size, output_size)
         )
 
@@ -187,12 +185,12 @@ def x(episode_id):
 
 if __name__ == "__main__":
     env = gym.make(ENV_NAME)
-    # env = gym.wrappers.Monitor(
-        # env,
-        # MONITOR_DIRECTORY,
-        # video_callable=x,
-        # force=True
-    # )
+    env = gym.wrappers.Monitor(
+         env,
+         MONITOR_DIRECTORY,
+         video_callable=x,
+         force=True
+     )
     env.reset()
 
     observation_size = env.observation_space.shape[0]
@@ -257,8 +255,8 @@ if __name__ == "__main__":
         if frame_idx % SYNC_TARGET_FRAMES == 0:  # sync nets (copy weights)
             target_net.load_state_dict(net.state_dict())
 
-        if (frame_idx % (1000 * VIDEO_INTERVAL)) == 0:
-            torch.save(net.state_dict(), 'live_models/{}_frame{}.dat'.format(MODEL_NAME, frame_idx))
+        #if (frame_idx % (1000 * VIDEO_INTERVAL)) == 0:
+        #    torch.save(net.state_dict(), 'live_models/{}_frame{}.dat'.format(MODEL_NAME, frame_idx))
 
         # learning
         optimizer.zero_grad()

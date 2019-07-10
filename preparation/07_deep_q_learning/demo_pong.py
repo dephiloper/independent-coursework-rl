@@ -23,6 +23,9 @@ def play(env, net):
                 break
         #  break
 
+
+print("test")
+
 if len(sys.argv) == 1:
     import roboschool.multiplayer
 
