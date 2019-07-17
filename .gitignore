@@ -9,3 +9,4 @@ live_models/
 mon/
 rec/
 *.dat
+/teeworlds_env/config.txt
