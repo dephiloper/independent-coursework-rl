@@ -6,3 +6,6 @@ runs
 vids/
 models/
 live_models/
+mon/
+rec/
+*.dat
