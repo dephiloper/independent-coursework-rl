@@ -1,4 +1,5 @@
 #! /usr/bin/env python3
+import random
 import struct
 import subprocess
 import time
@@ -40,15 +41,19 @@ print("waiting for connections")
 socket = context.socket(zmq.PUSH)
 socket.bind("tcp://*:5555")
 
+controls = Controls()
+controls.mouse_x = 1
+controls.mouse_y = 1
+i = 0
 while True:
-    controls = Controls()
-    controls.mouse_x = -45
-    controls.mouse_y = 12
+    controls.mouse_x = random.randrange(-200, 200)
+    controls.mouse_y = random.randrange(-200, 200)
     controls.direction = 1 if controls.direction < 0 else -1
-    controls.jump = True
+    controls.jump = i % 3
     controls.hook = False
-    controls.shoot = True
+    controls.shoot = i % 5
 
     socket.send(controls.to_bytes())
-    print("message send")
+    #print("message send")
     time.sleep(1)
+    i+=1
