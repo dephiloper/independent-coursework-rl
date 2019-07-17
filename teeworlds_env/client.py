@@ -1,9 +1,11 @@
 #! /usr/bin/env python3
+import struct
+import subprocess
 import time
 
 import zmq
-import struct
-import inputs
+
+PATH_TO_TEEWORLDS = "/home/phil/Development/university/imi_master/2019sose/teeworlds/build/x86_64/debug/"
 
 
 class Controls:
@@ -26,43 +28,23 @@ class Controls:
         return struct.pack("!hhB", self.mouse_x, self.mouse_y, action_mask)
 
 
+subprocess.Popen([PATH_TO_TEEWORLDS + "teeworlds_srv"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+time.sleep(0.2)
+subprocess.Popen([PATH_TO_TEEWORLDS + "teeworlds", "gfx_screen_width 480", "gfx_screen_height 320", "gfx_fullscreen 0",
+                  "connect localhost:8303"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
 context = zmq.Context()
 
 # Socket to talk to server
-print("Connecting to hello world server…")
+print("waiting for connections")
 socket = context.socket(zmq.PUSH)
 socket.bind("tcp://*:5555")
-
-
-# while 1:
-#     controls = Controls()
-#     mouse_events = inputs.get_mouse()
-#     for event in mouse_events:
-#         print(event.ev_type, event.code, event.state)
-#         #if event.code == "KEY_A" and event.state > 0:
-#         #    controls.direction += -1
-#         #if event.code == "KEY_A" and event.state > 0:
-#         #    controls.direction += 1
-#         #if event.code == "KEY_SPACE" and event.state > 0:
-#         #    controls.jump = 1
-#
-#     print("before")
-#     key_events = inputs.get_key()
-#     if key_events:
-#         for event in key_events:
-#             if event.code == "KEY_A" and event.state > 0:
-#                 controls.direction += -1
-#             if event.code == "KEY_A" and event.state > 0:
-#                 controls.direction += 1
-#             if event.code == "KEY_SPACE" and event.state > 0:
-#                 controls.jump = 1
-#     print("after")
 
 while True:
     controls = Controls()
     controls.mouse_x = -45
     controls.mouse_y = 12
-    controls.direction = -1
+    controls.direction = 1 if controls.direction < 0 else -1
     controls.jump = True
     controls.hook = False
     controls.shoot = True
@@ -70,5 +52,3 @@ while True:
     socket.send(controls.to_bytes())
     print("message send")
     time.sleep(1)
-    #message = socket.recv()
-    #print("Received reply \n %s" % message.decode("utf-8"))
