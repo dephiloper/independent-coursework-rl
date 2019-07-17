@@ -6,7 +6,10 @@ import time
 
 import zmq
 
-PATH_TO_TEEWORLDS = "/home/phil/Development/university/imi_master/2019sose/teeworlds/build/x86_64/debug/"
+
+with open('config.txt', 'r') as f:
+    l = f.readline()
+    path_to_teeworlds = l.strip()
 
 
 class Controls:
@@ -28,11 +31,24 @@ class Controls:
 
         return struct.pack("!hhB", self.mouse_x, self.mouse_y, action_mask)
 
+def move_window_to(x, y):
+    time.sleep(0.5)
+    subprocess.call(['xdotool', 'getactivewindow', 'windowmove', '--sync', str(x), str(y)])
 
-subprocess.Popen([PATH_TO_TEEWORLDS + "teeworlds_srv"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+# start server
+subprocess.Popen([path_to_teeworlds + "teeworlds_srv"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 time.sleep(0.2)
-subprocess.Popen([PATH_TO_TEEWORLDS + "teeworlds", "gfx_screen_width 480", "gfx_screen_height 320", "gfx_fullscreen 0",
+
+# start client1
+subprocess.Popen([path_to_teeworlds + "teeworlds", "gfx_screen_width 480", "gfx_screen_height 320", "gfx_fullscreen 0",
                   "connect localhost:8303"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+move_window_to(0, 0)
+
+# start client2
+subprocess.Popen([path_to_teeworlds + "teeworlds", "gfx_screen_width 480", "gfx_screen_height 320", "gfx_fullscreen 0",
+                  "connect localhost:8303"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+move_window_to(480, 0)
 
 context = zmq.Context()
 
