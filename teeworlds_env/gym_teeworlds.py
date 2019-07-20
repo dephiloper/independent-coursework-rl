@@ -1,6 +1,7 @@
 import struct
 import subprocess
 import time
+import screeninfo
 
 import gym
 import numpy
@@ -9,6 +10,9 @@ from gym.spaces import Box
 from mss import mss
 
 mon = {'top': 1, 'left': 1, 'width': 480, 'height': 320}
+info = {'x': -1, 'y': -1, 'got_hit': False, 'enemy_hit': False}
+_starting_port = 5000
+_open_window_count = 0
 
 
 class Action:
@@ -37,18 +41,33 @@ with open('config.txt', 'r') as f:
 
 
 class TeeworldsEnv(gym.Env):
-    def __init__(self, action_port: str, game_information_port: str, ip="*"):
+    """
+    Creates a single teeworlds environment (one tee, no competitors).
+
+    :arg actions_port specifies the port for sending actions to the teeworlds client
+    :arg game_information_port specifies the port for receiving game information like player position
+         and if the player has been shot or shot somebody
+    :arg teeworlds_srv_port specifies the port the teeworlds server is running on
+    :arg ip specifies the ip address of the teeworlds server (use * for running locally)
+    """
+
+    def __init__(self, actions_port="5000", game_information_port="5001", teeworlds_srv_port="8303", ip="*"):
         self.observation_space = Box(0, 255, [mon['width'], mon['height'], 3])
         self.action_space = Box(-1, 1, [5, ])
-
-        self.x_position = -1
-        self.y_position = -1
 
         # init video capturing
         self.sct = mss()
 
         # start server
-        subprocess.Popen([path_to_teeworlds + "teeworlds_srv"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        subprocess.Popen(
+            [
+                "{}teeworlds_srv".format(path_to_teeworlds),
+                "sv_max_clients_per_ip 16",
+                "sv_port {}".format(teeworlds_srv_port)
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT
+        )
         time.sleep(0.2)
 
         # start client
@@ -59,10 +78,13 @@ class TeeworldsEnv(gym.Env):
                 "gfx_screen_height {}".format(mon["height"]),
                 "gfx_screen_x {}".format(mon["left"]),
                 "gfx_screen_y {}".format(mon["top"]),
+                "snd_volume 0",
                 "gfx_fullscreen 0",
                 "gfx_borderless 1",
                 "cl_skip_start_menu 1",
-                "connect localhost:8303"
+                "actions_port {}".format(actions_port),
+                "game_information_port {}".format(game_information_port),
+                "connect localhost:{}".format(teeworlds_srv_port)
             ],
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT
@@ -71,7 +93,7 @@ class TeeworldsEnv(gym.Env):
         # create network context
         context = zmq.Context()
         self.socket = context.socket(zmq.PUSH)
-        address = "tcp://{}:{}".format(ip, action_port)
+        address = "tcp://{}:{}".format(ip, actions_port)
         self.socket.bind(address)
 
         self.game_information_socket = context.socket(zmq.PULL)
@@ -93,17 +115,83 @@ class TeeworldsEnv(gym.Env):
                 break
         if msg:
             x, y = struct.unpack('<ii', msg)
-            self.x_position = x
-            self.y_position = y
+            # todo check if it is possible for the player to go in an negative area
+            if x != -1 and y != -1:
+                info["x"] = x
+                info["y"] = y
 
     def step(self, action: Action):
+        """
+        Performs a step in the environment by executing the passed action.
+        :param action: defines what action to take on the current step
+        :return: tuple of observation, reward, done, info
+        """
         self.socket.send(action.to_bytes())
         observation = numpy.asarray(self.sct.grab(mon))
 
         self._try_update_position()
 
-        # reward, done, info = self.socket.recv()
-        return observation  # , reward, done, info
+        reward = 0
+        done = 0
+        return observation, reward, done, info
+
+    def reset(self):
+        pass
+
+    def render(self, mode='human'):
+        pass
+
+
+class TeeworldsMultiEnv(gym.Env):
+    def __init__(self, n: int, teeworlds_srv_port="8303"):
+        """
+        Creates multiple teeworlds environments on the same teeworlds server (n tee's).
+        :param n: number of environments / clients / tee's
+        :param teeworlds_srv_port: port of the teeworlds server
+        """
+        global _starting_port
+        global _open_window_count
+
+        # setup for window positioning
+        top_spacing = 30
+        # top_spacing = 0
+        mon["width"] = int(screeninfo.get_monitors()[0].width / 4)
+        mon["height"] = int((screeninfo.get_monitors()[0].height - top_spacing) / 4)
+
+        self.envs = []
+        self.env_id = 0
+
+        for i in range(_open_window_count, n + _open_window_count):
+            # window position adjustments
+            mon["left"] = i % 4 * mon["width"]
+            mon["top"] = int(i / 4) * mon["height"] + top_spacing
+
+            print(_starting_port)
+
+            self.envs.append(TeeworldsEnv(actions_port=str(_starting_port),
+                                          game_information_port=str(_starting_port + 1),
+                                          teeworlds_srv_port=teeworlds_srv_port))
+            _open_window_count += 1
+            _starting_port += 2
+
+    def step(self, action: Action):
+        """
+        Performs a step in one of the environments round robin principle.
+        :param action: defines what action to take on the current step in the sampled environment
+        :return: tuple of observation, reward, done, info from this environment
+        """
+        index = self.env_id
+        self.env_id = (self.env_id + 1) % len(self.envs)
+        return self.envs[index].step(action)
+
+    def step_by_id(self, action: Action, index: int):
+        """
+        Performs a step in the selected environment.
+        :param action: defines what action to take
+        :param index: identifier of the environment in which the action must be executed
+        :return: tuple of observation, reward, done, info from this environment
+        """
+        return self.envs[index].step(action)
 
     def reset(self):
         pass
