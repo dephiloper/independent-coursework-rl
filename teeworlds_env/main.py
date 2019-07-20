@@ -6,7 +6,7 @@ from gym_teeworlds import Action, TeeworldsEnv
 action = Action()
 action.direction = 1
 i = 0
-env = TeeworldsEnv("5555")
+env = TeeworldsEnv("5555", "5556")
 
 while True:
     action.mouse_x = random.randrange(-200, 200)

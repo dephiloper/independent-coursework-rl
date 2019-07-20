@@ -8,7 +8,7 @@ import zmq
 from gym.spaces import Box
 from mss import mss
 
-mon = {'top': 0, 'left': 0, 'width': 480, 'height': 320}
+mon = {'top': 1, 'left': 1, 'width': 480, 'height': 320}
 
 
 class Action:
@@ -37,9 +37,12 @@ with open('config.txt', 'r') as f:
 
 
 class TeeworldsEnv(gym.Env):
-    def __init__(self, port: str, ip="*"):
+    def __init__(self, action_port: str, game_information_port: str, ip="*"):
         self.observation_space = Box(0, 255, [mon['width'], mon['height'], 3])
         self.action_space = Box(-1, 1, [5, ])
+
+        self.x_position = -1
+        self.y_position = -1
 
         # init video capturing
         self.sct = mss()
@@ -49,25 +52,56 @@ class TeeworldsEnv(gym.Env):
         time.sleep(0.2)
 
         # start client
-        subprocess.Popen(["{}teeworlds".format(path_to_teeworlds), "gfx_screen_width {}".format(str(mon["width"])),
-                          "gfx_screen_height {}".format(str(mon["height"])), "gfx_fullscreen 0", "gfx_borderless 1",
-                          "cl_skip_start_menu 1", "connect localhost:8303"], stdout=subprocess.PIPE,
-                         stderr=subprocess.STDOUT)
-
-        move_window_to(0, 0)
+        subprocess.Popen(
+            [
+                "{}teeworlds".format(path_to_teeworlds),
+                "gfx_screen_width {}".format(mon["width"]),
+                "gfx_screen_height {}".format(mon["height"]),
+                "gfx_screen_x {}".format(mon["left"]),
+                "gfx_screen_y {}".format(mon["top"]),
+                "gfx_fullscreen 0",
+                "gfx_borderless 1",
+                "cl_skip_start_menu 1",
+                "connect localhost:8303"
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT
+        )
 
         # create network context
         context = zmq.Context()
         self.socket = context.socket(zmq.PUSH)
-        address = "tcp://{}:{}".format(ip, port)
+        address = "tcp://{}:{}".format(ip, action_port)
         self.socket.bind(address)
+
+        self.game_information_socket = context.socket(zmq.PULL)
+        game_information_address = "tcp://{}:{}".format("localhost", game_information_port)
+        self.game_information_socket.connect(game_information_address)
 
         # waiting for everything to build up
         time.sleep(2)
 
+    def _try_update_position(self):
+        """
+        Fetches new game information from game_information_socket and updates the x_position and y_position.
+        """
+        msg = None
+        while True:
+            try:
+                msg = self.game_information_socket.recv(zmq.DONTWAIT)
+            except zmq.Again:
+                break
+        if msg:
+            x, y = struct.unpack('<ii', msg)
+            self.x_position = x
+            self.y_position = y
+
     def step(self, action: Action):
         self.socket.send(action.to_bytes())
         observation = numpy.asarray(self.sct.grab(mon))
+
+        self._try_update_position()
+
         # reward, done, info = self.socket.recv()
         return observation  # , reward, done, info
 
@@ -76,8 +110,3 @@ class TeeworldsEnv(gym.Env):
 
     def render(self, mode='human'):
         pass
-
-
-def move_window_to(x, y):
-    time.sleep(0.5)
-    subprocess.call(['xdotool', 'getactivewindow', 'windowmove', '--sync', str(x), str(y)])
