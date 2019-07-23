@@ -1,0 +1,9 @@
+screeninfo
+atari-py==0.1.6
+gym==0.10.9
+mss==4.0.3
+numpy==1.15.4
+opencv-python==3.4.3.18
+pyzmq==18.0.2
+roboschool==1.0.46
+screeninfo==0.3.1
