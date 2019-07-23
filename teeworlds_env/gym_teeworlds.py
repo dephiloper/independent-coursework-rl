@@ -1,13 +1,19 @@
 import struct
 import subprocess
 import time
+from collections import deque
+
+import cv2
 import screeninfo
 
 import gym
-import numpy
+import numpy as np
 import zmq
-from gym.spaces import Box
+from future.moves import collections
+from gym.spaces import Box, Discrete
 from mss import mss
+
+NUMBER_OF_IMAGES = 3
 
 mon = {'top': 1, 'left': 1, 'width': 480, 'height': 320}
 info = {'x': -1, 'y': -1, 'got_hit': False, 'enemy_hit': False}
@@ -23,6 +29,7 @@ class Action:
         self.hook = False
         self.shoot = False
         self.direction = 0  # -1, 0, 1
+        self.resetgit  = False
 
     def to_bytes(self) -> bytes:
         action_mask = 0
@@ -31,7 +38,7 @@ class Action:
         action_mask += 4 if self.shoot else 0
         action_mask += 8 if self.direction == 1 else 0
         action_mask += 16 if self.direction == -1 else 0
-
+        action_mask += 32 if self.reset else 0
         return struct.pack("!hhB", self.mouse_x, self.mouse_y, action_mask)
 
 
@@ -52,8 +59,9 @@ class TeeworldsEnv(gym.Env):
     """
 
     def __init__(self, actions_port="5000", game_information_port="5001", teeworlds_srv_port="8303", ip="*"):
-        self.observation_space = Box(0, 255, [mon['width'], mon['height'], 3])
-        self.action_space = Box(-1, 1, [5, ])
+        self.observation_space = Box(0, 255, [NUMBER_OF_IMAGES, mon['width'], mon['height']])
+        self.action_space = Discrete(3)
+        self.image_buffer = collections.deque(maxlen=NUMBER_OF_IMAGES)
 
         # init video capturing
         self.sct = mss()
@@ -61,7 +69,7 @@ class TeeworldsEnv(gym.Env):
         # start server
         subprocess.Popen(
             [
-                "{}teeworlds_srv".format(path_to_teeworlds),
+                "{}teeworlds_srv -f".format(path_to_teeworlds),
                 "sv_max_clients_per_ip 16",
                 "sv_port {}".format(teeworlds_srv_port)
             ],
@@ -127,15 +135,25 @@ class TeeworldsEnv(gym.Env):
         :return: tuple of observation, reward, done, info
         """
         self.socket.send(action.to_bytes())
-        observation = numpy.asarray(self.sct.grab(mon))
+        img = np.asarray(self.sct.grab(mon))
+        observation = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
+
+        if len(self.image_buffer) != NUMBER_OF_IMAGES:
+            self.image_buffer = deque([observation] * 3)
+        else:
+            self.image_buffer.pop()
+            self.image_buffer.appendleft(observation)
 
         self._try_update_position()
 
+        observation = np.array(self.image_buffer)
         reward = 0
         done = 0
+
         return observation, reward, done, info
 
     def reset(self):
+        self.image_buffer.clear()
         pass
 
     def render(self, mode='human'):
