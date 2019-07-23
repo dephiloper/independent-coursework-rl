@@ -15,7 +15,7 @@ from mss import mss
 
 NUMBER_OF_IMAGES = 3
 
-mon = {'top': 1, 'left': 1, 'width': 480, 'height': 320}
+mon = {'top': 1, 'left': 1, 'width': 1280, 'height': 720}
 info = {'x': -1, 'y': -1, 'got_hit': False, 'enemy_hit': False}
 _starting_port = 5000
 _open_window_count = 0
@@ -29,7 +29,7 @@ class Action:
         self.hook = False
         self.shoot = False
         self.direction = 0  # -1, 0, 1
-        self.resetgit  = False
+        self.reset = False
 
     def to_bytes(self) -> bytes:
         action_mask = 0
@@ -41,6 +41,9 @@ class Action:
         action_mask += 32 if self.reset else 0
         return struct.pack("!hhB", self.mouse_x, self.mouse_y, action_mask)
 
+
+reset_action = Action()
+reset_action.reset = True
 
 with open('config.txt', 'r') as f:
     l = f.readline()
@@ -69,14 +72,17 @@ class TeeworldsEnv(gym.Env):
         # start server
         subprocess.Popen(
             [
-                "{}teeworlds_srv -f".format(path_to_teeworlds),
+                "./teeworlds_srv",
+                "sv_rcon_password 123",
                 "sv_max_clients_per_ip 16",
+                "sv_register 1",
                 "sv_port {}".format(teeworlds_srv_port)
-            ],
+            ], cwd=path_to_teeworlds,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT
         )
-        time.sleep(0.2)
+
+        time.sleep(2)
 
         # start client
         subprocess.Popen(
@@ -154,7 +160,7 @@ class TeeworldsEnv(gym.Env):
 
     def reset(self):
         self.image_buffer.clear()
-        pass
+        self.socket.send(reset_action.to_bytes())
 
     def render(self, mode='human'):
         pass
@@ -212,7 +218,7 @@ class TeeworldsMultiEnv(gym.Env):
         return self.envs[index].step(action)
 
     def reset(self):
-        pass
+        self.envs[0].reset()
 
     def render(self, mode='human'):
         pass
