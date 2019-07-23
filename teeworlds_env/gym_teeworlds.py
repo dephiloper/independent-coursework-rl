@@ -134,10 +134,11 @@ class TeeworldsEnv(gym.Env):
                 info["x"] = x
                 info["y"] = y
 
-    def step(self, action: Action):
+    def step(self, action: Action, wait_time=0.03):
         """
         Performs a step in the environment by executing the passed action.
         :param action: defines what action to take on the current step
+        :param wait_time: TODO
         :return: tuple of observation, reward, done, info
         """
         self.socket.send(action.to_bytes())
@@ -190,32 +191,32 @@ class TeeworldsMultiEnv(gym.Env):
             mon["left"] = i % 4 * mon["width"]
             mon["top"] = int(i / 4) * mon["height"] + top_spacing
 
-            print(_starting_port)
-
             self.envs.append(TeeworldsEnv(actions_port=str(_starting_port),
                                           game_information_port=str(_starting_port + 1),
                                           teeworlds_srv_port=teeworlds_srv_port))
             _open_window_count += 1
             _starting_port += 2
 
-    def step(self, action: Action):
+    def step(self, action: Action, wait_time=0.03):
         """
         Performs a step in one of the environments round robin principle.
         :param action: defines what action to take on the current step in the sampled environment
+        :param wait_time: TODO!
         :return: tuple of observation, reward, done, info from this environment
         """
         index = self.env_id
         self.env_id = (self.env_id + 1) % len(self.envs)
-        return self.envs[index].step(action)
+        return self.envs[index].step(action, wait_time)
 
-    def step_by_id(self, action: Action, index: int):
+    def step_by_id(self, action: Action, index: int, wait_time=0.03):
         """
         Performs a step in the selected environment.
         :param action: defines what action to take
         :param index: identifier of the environment in which the action must be executed
+        :param wait_time: TODO!
         :return: tuple of observation, reward, done, info from this environment
         """
-        return self.envs[index].step(action)
+        return self.envs[index].step(action, wait_time)
 
     def reset(self):
         self.envs[0].reset()

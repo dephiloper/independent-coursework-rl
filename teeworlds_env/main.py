@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 import random
+import time
 
 from gym_teeworlds import Action, TeeworldsEnv, TeeworldsMultiEnv
 
@@ -14,7 +15,6 @@ multi_envs = [TeeworldsMultiEnv(n=2, teeworlds_srv_port="8303")]#, TeeworldsMult
 while True:
     if i % 200 == 0:
         multi_envs[0].reset()
-        print("reset send")
     action.mouse_x = random.randrange(-200, 200)
     action.mouse_y = random.randrange(-200, 200)
     action.direction *= -1 if i % 30 == 0 else 1
