@@ -16,8 +16,10 @@ from mss import mss
 NUMBER_OF_IMAGES = 4
 STEP_INTERVAL = 1 / 60
 
+ARMOR_REWARD = 1
+HEALTH_REWARD = 10
+
 start_mon = {'top': 1, 'left': 1, 'width': 84, 'height': 84}
-info = {'x': -1, 'y': -1, 'got_hit': False, 'enemy_hit': False}
 _starting_port = 5000
 _open_window_count = 0
 
@@ -58,6 +60,32 @@ with open('config.txt', 'r') as f:
     path_to_teeworlds = line.strip()
 
 
+class GameInformation:
+    def __init__(self, x_position, y_position, armor_collected, health_collected):
+        self.x_position = x_position
+        self.y_position = y_position
+        self.armor_collected = armor_collected
+        self.health_collected = health_collected
+
+    def to_dict(self):
+        return {
+            "x": self.x_position,
+            "y": self.y_position,
+            "armor_collected": self.armor_collected,
+            "health_collected": self.health_collected
+        }
+
+    def get_reward(self):
+        return ARMOR_REWARD * self.armor_collected + HEALTH_REWARD * self.health_collected
+
+    def reset(self):
+        self.health_collected = 0
+        self.armor_collected = 0
+
+    def is_done(self):
+        return bool(self.health_collected)
+
+
 class TeeworldsEnv(gym.Env):
     """
     Creates a single teeworlds environment (one tee, no competitors).
@@ -78,6 +106,7 @@ class TeeworldsEnv(gym.Env):
             ip="*",
             map_name="level_0"
     ):
+        self.game_information = GameInformation(-1, -1, 0, 0)
         self.mon = mon.copy()
         self.observation_space = Box(0, 255, [NUMBER_OF_IMAGES, self.mon['width'], self.mon['height']])
         self.action_space = Discrete(3)
@@ -138,7 +167,7 @@ class TeeworldsEnv(gym.Env):
         # waiting for everything to build up
         time.sleep(2)
 
-    def _try_update_position(self):
+    def _try_fetch_game_state(self):
         """
         Fetches new game information from game_information_socket and updates the x_position and y_position.
         """
@@ -149,11 +178,10 @@ class TeeworldsEnv(gym.Env):
             except zmq.Again:
                 break
         if msg:
-            x, y = struct.unpack('<ii', msg)
+            x, y, armor_collected, health_collected = struct.unpack('<iiii', msg)
             # todo check if it is possible for the player to go in an negative area
             if x != -1 and y != -1:
-                info["x"] = x
-                info["y"] = y
+                self.game_information = GameInformation(x, y, armor_collected, health_collected)
 
     def step(self, action: Action, wait_time=0.03):
         """
@@ -161,7 +189,7 @@ class TeeworldsEnv(gym.Env):
 
         :param action: defines what action to take on the current step
         :param wait_time: TODO
-        :return: tuple of observation, reward, done, info
+        :return: tuple of observation, reward, done, game_information
         """
         self._wait_for_frame()
         self.socket.send(action.to_bytes())
@@ -175,13 +203,15 @@ class TeeworldsEnv(gym.Env):
             self.image_buffer.pop()
             self.image_buffer.appendleft(observation)
 
-        self._try_update_position()
+        self._try_fetch_game_state()
 
         observation = np.array(self.image_buffer)
-        reward = 0
-        done = 0
+        reward = self.game_information.get_reward()
+        done = self.game_information.is_done()
 
-        return observation, reward, done, info
+        self.game_information.reset()
+
+        return observation, reward, done, self.game_information.to_dict()
 
     def _wait_for_frame(self):
         t = time.time()
@@ -241,7 +271,7 @@ class TeeworldsMultiEnv(gym.Env):
         Performs a step in one of the environments round robin principle.
         :param action: defines what action to take on the current step in the sampled environment
         :param wait_time: TODO!
-        :return: tuple of observation, reward, done, info from this environment
+        :return: tuple of observation, reward, done, game_information from this environment
         """
         index = self.env_id
         self.env_id = (self.env_id + 1) % len(self.envs)
@@ -253,7 +283,7 @@ class TeeworldsMultiEnv(gym.Env):
         :param action: defines what action to take
         :param index: identifier of the environment in which the action must be executed
         :param wait_time: TODO!
-        :return: tuple of observation, reward, done, info from this environment
+        :return: tuple of observation, reward, done, game_information from this environment
         """
         return self.envs[index].step(action, wait_time)
 

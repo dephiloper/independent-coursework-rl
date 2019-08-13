@@ -24,7 +24,7 @@ while True:
     action.hook = 1 if i % 40 else 0
     action.shoot = 1 if i % 50 else 0
     i += 1
-    # observation, reward, done, info = single_env.step(action)
+    # observation, reward, done, game_information = single_env.step(action)
     observation, reward, done, info = single_env.step(action)
     cv2.imshow("x", observation[0])
     cv2.waitKey()
