@@ -10,7 +10,7 @@ from torch import nn, optim
 
 from tensorboardX import SummaryWriter
 
-from gym_teeworlds import TeeworldsEnv
+from gym_teeworlds import TeeworldsEnv, Action
 
 '''
 DQN-Algorithm
@@ -127,7 +127,7 @@ class Agent:
 
         # with probability epsilon take random action (explore)
         if np.random.random() < epsilon:
-            index = np.random.choice(actions)
+            index = np.random.randint(len(actions))  # np.random.choice(actions)
         else:  # otherwise use the past model to obtain the q-values for all possible actions, choose the best
             state_a = np.array(self.state, copy=False, dtype=np.float32)
             state_v = torch.tensor(state_a).to(device)
@@ -137,7 +137,7 @@ class Agent:
         action = actions[index]  # extracting action from index ([0,-1], [0,0], [0,1]) <- (0, 1, 2)
 
         # do step in the environment
-        new_state, reward, is_done, _ = self.env.step(action)
+        new_state, reward, is_done, _ = self.env.step(Action.from_list(action))
         self.total_reward += reward
 
         # store experience in exp_buffer
@@ -203,7 +203,7 @@ if __name__ == "__main__":
     env = TeeworldsEnv()
     env.reset()
 
-    observation_size = env.observation_space.shape[0]
+    observation_size = env.observation_space.shape
 
     net = Net(observation_size, n_actions=len(actions)).to(DEVICE)
     target_net = Net(observation_size, n_actions=len(actions)).to(DEVICE)

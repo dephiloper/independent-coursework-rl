@@ -15,7 +15,8 @@ from mss import mss
 
 NUMBER_OF_IMAGES = 3
 
-mon = {'top': 1, 'left': 1, 'width': 1280, 'height': 720}
+mon = {'top': 1, 'left': 1, 'width': 64, 'height': 64
+       }
 info = {'x': -1, 'y': -1, 'got_hit': False, 'enemy_hit': False}
 _starting_port = 5000
 _open_window_count = 0
@@ -41,6 +42,12 @@ class Action:
         action_mask += 32 if self.reset else 0
         return struct.pack("!hhB", self.mouse_x, self.mouse_y, action_mask)
 
+    @staticmethod
+    def from_list(list_action: list):
+        action = Action()
+        action.direction = list_action[0]
+        action.jump = bool(list_action[1])
+        return action
 
 reset_action = Action()
 reset_action.reset = True
@@ -58,13 +65,14 @@ class TeeworldsEnv(gym.Env):
     :arg game_information_port specifies the port for receiving game information like player position
          and if the player has been shot or shot somebody
     :arg teeworlds_srv_port specifies the port the teeworlds server is running on
-    :arg ip specifies the ip address of the teeworlds server (use * for running locally)
+    :arg ip specifies the ip passaddress of the teeworlds server (use * for running locally)
     """
 
     def __init__(self, actions_port="5000", game_information_port="5001", teeworlds_srv_port="8303", ip="*"):
         self.observation_space = Box(0, 255, [NUMBER_OF_IMAGES, mon['width'], mon['height']])
         self.action_space = Discrete(3)
         self.image_buffer = collections.deque(maxlen=NUMBER_OF_IMAGES)
+        mon["top"] = mon["top"] + 40
 
         # init video capturing
         self.sct = mss()
