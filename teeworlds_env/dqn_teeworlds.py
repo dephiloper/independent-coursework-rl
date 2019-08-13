@@ -1,5 +1,4 @@
 import time
-from datetime import datetime
 
 import gym
 import numpy as np
@@ -10,7 +9,7 @@ from torch import nn, optim
 
 from tensorboardX import SummaryWriter
 
-from gym_teeworlds import TeeworldsEnv, Action, NUMBER_OF_IMAGES, mon
+from gym_teeworlds import TeeworldsEnv, Action, NUMBER_OF_IMAGES, start_mon
 
 '''
 DQN-Algorithm
@@ -134,7 +133,7 @@ class Agent:
                 copy=False,
                 dtype=np.float32
             ).reshape(
-                (1, NUMBER_OF_IMAGES, mon['width'], mon['height'])
+                (1, NUMBER_OF_IMAGES, start_mon['width'], start_mon['height'])
             )
             state_v = torch.tensor(state_a, dtype=torch.float32).to(device)
             q_vals_v = net(state_v)  # calculate q values
@@ -163,6 +162,7 @@ class Agent:
 # equations:
 #   https://bit.ly/2I7iBqa <- steps which aren't end of episode
 #   https://bit.ly/2HFsOec <- final steps
+# noinspection PyCallingNonCallable,PyUnresolvedReferences
 def calc_loss(batch, net, tgt_net, device="cpu"):
     states, actions, rewards, dones, next_states = batch  # unpack the sample
 
@@ -206,7 +206,7 @@ def x(episode_id):
 
 
 if __name__ == "__main__":
-    env = TeeworldsEnv()
+    env = TeeworldsEnv(start_mon)
     env.reset()
 
     observation_size = env.observation_space.shape
