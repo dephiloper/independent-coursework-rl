@@ -76,7 +76,8 @@ class GameInformation:
         }
 
     def get_reward(self):
-        return ARMOR_REWARD * self.armor_collected + HEALTH_REWARD * self.health_collected
+        reward = ARMOR_REWARD * self.armor_collected + HEALTH_REWARD * self.health_collected
+        return reward
 
     def reset(self):
         self.health_collected = 0
@@ -124,6 +125,7 @@ class TeeworldsEnv(gym.Env):
                 "sv_max_clients_per_ip 16",
                 "sv_map {}".format(map_name),
                 "sv_register 1",
+                "game_information_port {}".format(game_information_port),
                 "sv_port {}".format(teeworlds_srv_port)
             ], cwd=path_to_teeworlds,
             stdout=subprocess.PIPE,
@@ -145,7 +147,6 @@ class TeeworldsEnv(gym.Env):
                 "gfx_borderless 1",
                 "cl_skip_start_menu 1",
                 "actions_port {}".format(actions_port),
-                "game_information_port {}".format(game_information_port),
                 "connect localhost:{}".format(teeworlds_srv_port)
             ],
             stdout=subprocess.PIPE,
@@ -178,10 +179,9 @@ class TeeworldsEnv(gym.Env):
             except zmq.Again:
                 break
         if msg:
-            x, y, armor_collected, health_collected = struct.unpack('<iiii', msg)
+            armor_collected, health_collected = struct.unpack('<ii', msg)
             # todo check if it is possible for the player to go in an negative area
-            if x != -1 and y != -1:
-                self.game_information = GameInformation(x, y, armor_collected, health_collected)
+            self.game_information = GameInformation(0, 0, armor_collected, health_collected)
 
     def step(self, action: Action, wait_time=0.03):
         """
