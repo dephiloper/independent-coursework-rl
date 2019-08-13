@@ -15,6 +15,8 @@ from mss import mss
 
 NUMBER_OF_IMAGES = 4
 STEP_INTERVAL = 1 / 60
+EPISODE_DURATION = 20
+RESET_DURATION = 1
 
 ARMOR_REWARD = 1
 HEALTH_REWARD = 10
@@ -164,6 +166,7 @@ class TeeworldsEnv(gym.Env):
         self.game_information_socket.connect(game_information_address)
 
         self.last_step_timestamp = time.time()
+        self._last_reset = time.time()
 
         # waiting for everything to build up
         time.sleep(2)
@@ -211,6 +214,9 @@ class TeeworldsEnv(gym.Env):
 
         self.game_information.reset()
 
+        if time.time() - self._last_reset > EPISODE_DURATION:
+            return self.reset()
+
         return observation, reward, done, self.game_information.to_dict()
 
     def _wait_for_frame(self):
@@ -225,6 +231,11 @@ class TeeworldsEnv(gym.Env):
     def reset(self):
         self.image_buffer.clear()
         self.socket.send(reset_action.to_bytes())
+        self.game_information.reset()
+        time.sleep(RESET_DURATION)
+        self._last_reset = time.time()
+
+        return self.step(Action())
 
     def render(self, mode='human'):
         pass
