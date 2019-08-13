@@ -69,7 +69,15 @@ class TeeworldsEnv(gym.Env):
     :arg ip specifies the ip address of the teeworlds server (use * for running locally)
     """
 
-    def __init__(self, mon, actions_port="5000", game_information_port="5001", teeworlds_srv_port="8303", ip="*"):
+    def __init__(
+            self,
+            mon,
+            actions_port="5000",
+            game_information_port="5001",
+            teeworlds_srv_port="8303",
+            ip="*",
+            map_name="level_0"
+    ):
         self.mon = mon.copy()
         self.observation_space = Box(0, 255, [NUMBER_OF_IMAGES, self.mon['width'], self.mon['height']])
         self.action_space = Discrete(3)
@@ -85,6 +93,7 @@ class TeeworldsEnv(gym.Env):
                 "./teeworlds_srv",
                 "sv_rcon_password 123",
                 "sv_max_clients_per_ip 16",
+                "sv_map {}".format(map_name),
                 "sv_register 1",
                 "sv_port {}".format(teeworlds_srv_port)
             ], cwd=path_to_teeworlds,
