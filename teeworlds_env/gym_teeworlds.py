@@ -13,10 +13,9 @@ from future.moves import collections
 from gym.spaces import Box, Discrete
 from mss import mss
 
-NUMBER_OF_IMAGES = 3
+NUMBER_OF_IMAGES = 4
 
-mon = {'top': 1, 'left': 1, 'width': 64, 'height': 64
-       }
+mon = {'top': 1, 'left': 1, 'width': 84, 'height': 84}
 info = {'x': -1, 'y': -1, 'got_hit': False, 'enemy_hit': False}
 _starting_port = 5000
 _open_window_count = 0
@@ -154,7 +153,7 @@ class TeeworldsEnv(gym.Env):
         observation = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
 
         if len(self.image_buffer) != NUMBER_OF_IMAGES:
-            self.image_buffer = deque([observation] * 3)
+            self.image_buffer = deque([observation] * NUMBER_OF_IMAGES)
         else:
             self.image_buffer.pop()
             self.image_buffer.appendleft(observation)

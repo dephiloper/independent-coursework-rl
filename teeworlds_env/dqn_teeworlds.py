@@ -10,7 +10,7 @@ from torch import nn, optim
 
 from tensorboardX import SummaryWriter
 
-from gym_teeworlds import TeeworldsEnv, Action
+from gym_teeworlds import TeeworldsEnv, Action, NUMBER_OF_IMAGES, mon
 
 '''
 DQN-Algorithm
@@ -129,8 +129,14 @@ class Agent:
         if np.random.random() < epsilon:
             index = np.random.randint(len(actions))  # np.random.choice(actions)
         else:  # otherwise use the past model to obtain the q-values for all possible actions, choose the best
-            state_a = np.array(self.state, copy=False, dtype=np.float32)
-            state_v = torch.tensor(state_a).to(device)
+            state_a = np.array(
+                self.state,
+                copy=False,
+                dtype=np.float32
+            ).reshape(
+                (1, NUMBER_OF_IMAGES, mon['width'], mon['height'])
+            )
+            state_v = torch.tensor(state_a, dtype=torch.float32).to(device)
             q_vals_v = net(state_v)  # calculate q values
             index = torch.argmax(q_vals_v)  # get index of value with best outcome
 
@@ -161,10 +167,10 @@ def calc_loss(batch, net, tgt_net, device="cpu"):
     states, actions, rewards, dones, next_states = batch  # unpack the sample
 
     # wrap numpy data in torch tensors <- execution on gpu fast like sonic
-    states_v = torch.tensor(states).to(device)
-    next_states_v = torch.tensor(next_states).to(device)
-    actions_v = torch.tensor(actions).to(device)
-    rewards_v = torch.tensor(rewards).to(device)
+    states_v = torch.tensor(states, dtype=torch.float32).to(device)
+    next_states_v = torch.tensor(next_states, dtype=torch.float32).to(device)
+    actions_v = torch.tensor(actions, dtype=torch.int64).to(device)
+    rewards_v = torch.tensor(rewards, dtype=torch.float32).to(device)
     done_mask = torch.ByteTensor(dones).to(device)
 
     # extract q-values for taken actions using the gather function
