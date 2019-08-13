@@ -15,7 +15,7 @@ from mss import mss
 
 NUMBER_OF_IMAGES = 4
 STEP_INTERVAL = 1 / 60
-EPISODE_DURATION = 20
+EPISODE_DURATION = 5
 RESET_DURATION = 1
 
 ARMOR_REWARD = 1
@@ -81,7 +81,7 @@ class GameInformation:
         reward = ARMOR_REWARD * self.armor_collected + HEALTH_REWARD * self.health_collected
         return reward
 
-    def reset(self):
+    def clear(self):
         self.health_collected = 0
         self.armor_collected = 0
 
@@ -212,10 +212,10 @@ class TeeworldsEnv(gym.Env):
         reward = self.game_information.get_reward()
         done = self.game_information.is_done()
 
-        self.game_information.reset()
+        self.game_information.clear()
 
         if time.time() - self._last_reset > EPISODE_DURATION:
-            return self.reset()
+            return observation, 0, True, self.game_information.to_dict()
 
         return observation, reward, done, self.game_information.to_dict()
 
@@ -231,11 +231,11 @@ class TeeworldsEnv(gym.Env):
     def reset(self):
         self.image_buffer.clear()
         self.socket.send(reset_action.to_bytes())
-        self.game_information.reset()
+        self.game_information.clear()
         time.sleep(RESET_DURATION)
         self._last_reset = time.time()
 
-        return self.step(Action())
+        return self.step(Action())[0]
 
     def render(self, mode='human'):
         pass
