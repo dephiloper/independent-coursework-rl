@@ -92,12 +92,18 @@ class GameInformation:
         return bool(self.health_collected)
 
 
-def teeworlds_env_iterator(n, monitor_width, monitor_height, top_spacing=0):
+def teeworlds_env_iterator(n, monitor_width, monitor_height, top_spacing=0, server_tick_speed=50):
     actions_port = 5000
     teeworlds_server_port = 8303
 
     for monitor in mon_iterator(n, monitor_width, monitor_height, top_spacing=top_spacing):
-        yield TeeworldsEnv(monitor, str(actions_port), str(actions_port+1), str(teeworlds_server_port))
+        yield TeeworldsEnv(
+            monitor,
+            str(actions_port),
+            str(actions_port+1),
+            str(teeworlds_server_port),
+            server_tick_speed=server_tick_speed
+        )
 
         actions_port += 2
         teeworlds_server_port += 1
