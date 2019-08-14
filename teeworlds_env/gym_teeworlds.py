@@ -210,10 +210,12 @@ class TeeworldsEnv(gym.Env):
                 msg = self.game_information_socket.recv(zmq.DONTWAIT)
             except zmq.Again:
                 break
-        if msg:
-            armor_collected, health_collected = struct.unpack('<ii', msg)
-            # todo check if it is possible for the player to go in an negative area
-            self.game_information = GameInformation(0, 0, armor_collected, health_collected)
+            if msg:
+                armor_collected, health_collected = struct.unpack('<ii', msg)
+
+                # todo check if it is possible for the player to go in an negative area
+                self.game_information.armor_collected += armor_collected
+                self.game_information.health_collected += health_collected
 
     def step(self, action: Action):
         """
