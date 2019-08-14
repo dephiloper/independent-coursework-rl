@@ -9,7 +9,7 @@ from torch import nn, optim
 
 from tensorboardX import SummaryWriter
 
-from gym_teeworlds import TeeworldsEnv, Action, NUMBER_OF_IMAGES, start_mon
+from gym_teeworlds import TeeworldsCoopEnv, Action, NUMBER_OF_IMAGES, start_mon, TeeworldsMultiEnv
 
 '''
 DQN-Algorithm
@@ -103,21 +103,27 @@ class ExperienceBuffer:
         # controls whether the sample is returned to the sample pool, for unique samples this should be false
         indices = np.random.choice(len(self.buffer), batch_size, replace=False)
         states, actions, rewards, dones, next_states = zip(*[self.buffer[idx] for idx in indices])
-        return np.array(states, dtype=np.float32), \
-               np.array(actions, dtype=np.int64), \
-               np.array(rewards, dtype=np.float32), \
-               np.array(dones, dtype=np.uint8), \
-               np.array(next_states, dtype=np.float32)
+        try:
+            return np.array(states, dtype=np.float32), \
+                   np.array(actions, dtype=np.int64), \
+                   np.array(rewards, dtype=np.float32), \
+                   np.array(dones, dtype=np.uint8), \
+                   np.array(next_states, dtype=np.float32)
+        except ValueError as e:
+            print(str(e))
 
 
 class Agent:
     def __init__(self, env, exp_buffer):
+        self.state = NotImplementedError()
         self.env = env
         self.exp_buffer = exp_buffer
         self._reset()
 
     def _reset(self):
         self.state = env.reset()
+        if self.state is None:
+            print('None state')
         self.total_reward = 0.0
 
     # perform a step in the environment and store the result in the replay buffer
@@ -128,13 +134,19 @@ class Agent:
         if np.random.random() < epsilon:
             index = np.random.randint(len(actions))  # np.random.choice(actions)
         else:  # otherwise use the past model to obtain the q-values for all possible actions, choose the best
-            state_a = np.array(
-                self.state,
-                copy=False,
-                dtype=np.float32
-            ).reshape(
-                (1, NUMBER_OF_IMAGES, start_mon['width'], start_mon['height'])
-            )
+            try:
+                state_a = np.array(
+                    self.state,
+                    copy=False,
+                    dtype=np.float32
+                ).reshape(
+                    (1, NUMBER_OF_IMAGES, start_mon['width'], start_mon['height'])
+                )
+            except ValueError as e:
+                print('error: {}'.format(e))
+                print('state: {}'.format(self.state))
+                # print('state.shape: {}'.format(self.state.shape))
+                print('')
             state_v = torch.tensor(state_a, dtype=torch.float32).to(device)
             q_vals_v = net(state_v)  # calculate q values
             index = torch.argmax(q_vals_v)  # get index of value with best outcome
@@ -148,6 +160,8 @@ class Agent:
         # store experience in exp_buffer
         exp = Experience(self.state, index, reward, is_done, new_state)
         self.exp_buffer.append(exp)
+        if new_state is None:
+            print('None state')
         self.state = new_state
 
         # end of episode situation
@@ -206,8 +220,8 @@ def x(episode_id):
 
 
 if __name__ == "__main__":
-    env = TeeworldsEnv(start_mon)
-    env.reset()
+    env = TeeworldsMultiEnv(4)
+    # env.reset()
 
     observation_size = env.observation_space.shape
 

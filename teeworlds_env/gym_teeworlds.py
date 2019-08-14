@@ -25,6 +25,9 @@ start_mon = {'top': 1, 'left': 1, 'width': 84, 'height': 84}
 _starting_port = 5000
 _open_window_count = 0
 
+OBSERVATION_SPACE = Box(0, 255, [NUMBER_OF_IMAGES, start_mon['width'], start_mon['height']])
+ACTION_SPACE = Discrete(3)
+
 
 class Action:
     def __init__(self):
@@ -111,8 +114,8 @@ class TeeworldsEnv(gym.Env):
     ):
         self.game_information = GameInformation(-1, -1, 0, 0)
         self.mon = mon.copy()
-        self.observation_space = Box(0, 255, [NUMBER_OF_IMAGES, self.mon['width'], self.mon['height']])
-        self.action_space = Discrete(3)
+        self.observation_space = OBSERVATION_SPACE
+        self.action_space = ACTION_SPACE
         self.image_buffer = collections.deque(maxlen=NUMBER_OF_IMAGES)
         self.mon["top"] = self.mon["top"] + 40
 
@@ -214,6 +217,9 @@ class TeeworldsEnv(gym.Env):
 
         self.game_information.clear()
 
+        if observation is None:
+            print('None observation')
+
         if time.time() - self._last_reset > EPISODE_DURATION:
             return observation, 0, True, self.game_information.to_dict()
 
@@ -235,13 +241,82 @@ class TeeworldsEnv(gym.Env):
         time.sleep(RESET_DURATION)
         self._last_reset = time.time()
 
-        return self.step(Action())[0]
+        observation, reward, done, info = self.step(Action())
+        if observation is None:
+            print('None state')
+        return observation
 
     def render(self, mode='human'):
         pass
 
 
 class TeeworldsMultiEnv(gym.Env):
+    def __init__(self, n: int):
+        """
+        Creates multiple teeworlds environments each on a single server.
+        :param n: number of environments
+        """
+        global _starting_port
+        global _open_window_count
+
+        # setup for window positioning
+        top_spacing = 30
+        mon = start_mon.copy()
+
+        self.observation_space = OBSERVATION_SPACE
+        self.action_space = ACTION_SPACE
+
+        self.envs = []
+        self.env_id = -1
+        server_port = 8303
+        for i in range(_open_window_count, n + _open_window_count):
+            # window position adjustments
+            mon["left"] = i % 4 * mon["width"]
+            mon["top"] = int(i / 4) * mon["height"] + top_spacing
+
+            self.envs.append(
+                TeeworldsEnv(
+                    mon=mon,
+                    actions_port=str(_starting_port),
+                    game_information_port=str(_starting_port + 1),
+                    teeworlds_srv_port=str(server_port)
+                )
+            )
+            _open_window_count += 1
+            _starting_port += 2
+            server_port += 1
+
+    def step(self, action: Action, wait_time=0.03):
+        """
+        Performs a step in one of the environments round robin principle.
+        :param action: defines what action to take on the current step in the sampled environment
+        :param wait_time: TODO!
+        :return: tuple of observation, reward, done, game_information from this environment
+        """
+        self.env_id = (self.env_id + 1) % len(self.envs)
+        observation, reward, done, info = self.envs[self.env_id].step(action, wait_time)
+        if observation is None:
+            print('None observation')
+        return observation, reward, done, info
+
+    def step_by_id(self, action: Action, index: int, wait_time=0.03):
+        """
+        Performs a step in the selected environment.
+        :param action: defines what action to take
+        :param index: identifier of the environment in which the action must be executed
+        :param wait_time: TODO!
+        :return: tuple of observation, reward, done, game_information from this environment
+        """
+        return self.envs[index].step(action, wait_time)
+
+    def reset(self):
+        return self.envs[self.env_id].reset()
+
+    def render(self, mode='human'):
+        pass
+
+
+class TeeworldsCoopEnv(gym.Env):
     def __init__(self, n: int, teeworlds_srv_port="8303"):
         """
         Creates multiple teeworlds environments on the same teeworlds server (n tee's).
@@ -255,8 +330,8 @@ class TeeworldsMultiEnv(gym.Env):
         top_spacing = 30
         # top_spacing = 0
         mon = start_mon.copy()
-        mon["width"] = int(screeninfo.get_monitors()[0].width / 4)
-        mon["height"] = int((screeninfo.get_monitors()[0].height - top_spacing) / 4)
+        # mon["width"] = int(screeninfo.get_monitors()[0].width / 4)
+        # mon["height"] = int((screeninfo.get_monitors()[0].height - top_spacing) / 4)
 
         self.envs = []
         self.env_id = 0

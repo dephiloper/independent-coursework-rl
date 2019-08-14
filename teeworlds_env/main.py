@@ -4,7 +4,7 @@ import time
 
 import cv2
 
-from gym_teeworlds import Action, TeeworldsEnv, TeeworldsMultiEnv, start_mon
+from gym_teeworlds import Action, TeeworldsEnv, TeeworldsCoopEnv, start_mon
 
 action = Action()
 action.direction = 1
