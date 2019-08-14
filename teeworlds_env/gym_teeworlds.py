@@ -1,12 +1,9 @@
-import copy
 import struct
 import subprocess
 import time
 from collections import deque
 
 import cv2
-import screeninfo
-
 import gym
 import numpy as np
 import zmq
@@ -131,7 +128,8 @@ class TeeworldsEnv(gym.Env):
             teeworlds_srv_port="8303",
             ip="*",
             server_tick_speed=50,
-            map_name="level_0"
+            map_name="level_0",
+            is_human=False
     ):
         self.game_information = GameInformation(-1, -1, 0, 0)
         self.monitor = monitor
@@ -161,6 +159,8 @@ class TeeworldsEnv(gym.Env):
             stderr=subprocess.STDOUT
         )
 
+        print("game_information_port", game_information_port)
+
         time.sleep(2)
 
         # start client
@@ -176,7 +176,9 @@ class TeeworldsEnv(gym.Env):
                 "gfx_borderless 1",
                 "cl_skip_start_menu 1",
                 "actions_port {}".format(actions_port),
-                "connect localhost:{}".format(teeworlds_srv_port)
+                "connect localhost:{}".format(teeworlds_srv_port),
+                "tick_speed {}".format(server_tick_speed),
+                "--human" if is_human else "",
             ],
             stdout=client_log,
             stderr=subprocess.STDOUT
@@ -208,10 +210,12 @@ class TeeworldsEnv(gym.Env):
                 msg = self.game_information_socket.recv(zmq.DONTWAIT)
             except zmq.Again:
                 break
-        if msg:
-            armor_collected, health_collected = struct.unpack('<ii', msg)
-            # todo check if it is possible for the player to go in an negative area
-            self.game_information = GameInformation(0, 0, armor_collected, health_collected)
+            if msg:
+                armor_collected, health_collected = struct.unpack('<ii', msg)
+
+                # todo check if it is possible for the player to go in an negative area
+                self.game_information.armor_collected += armor_collected
+                self.game_information.health_collected += health_collected
 
     def step(self, action: Action):
         """
@@ -238,16 +242,16 @@ class TeeworldsEnv(gym.Env):
         observation = np.array(self.image_buffer)
         reward = self.game_information.get_reward()
         done = self.game_information.is_done()
-
+        info = self.game_information.to_dict()
         self.game_information.clear()
 
         if observation is None:
             print('None observation')
 
         if time.time() - self._last_reset > EPISODE_DURATION:
-            return observation, 0, True, self.game_information.to_dict()
+            return observation, 0, True, info
 
-        return observation, reward, done, self.game_information.to_dict()
+        return observation, reward, done, info
 
     def _wait_for_frame(self):
         current = time.time()
