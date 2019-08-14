@@ -1,3 +1,4 @@
+torch
 future
 screeninfo
 atari-py==0.1.6

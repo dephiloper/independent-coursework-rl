@@ -14,9 +14,9 @@ from gym.spaces import Box, Discrete
 from mss import mss
 
 NUMBER_OF_IMAGES = 4
-STEP_INTERVAL = 1 / 60
+STEP_INTERVAL = 1 / 20
 EPISODE_DURATION = 5
-RESET_DURATION = 1
+RESET_DURATION = 0.5
 
 ARMOR_REWARD = 1
 HEALTH_REWARD = 10
@@ -189,17 +189,17 @@ class TeeworldsEnv(gym.Env):
             # todo check if it is possible for the player to go in an negative area
             self.game_information = GameInformation(0, 0, armor_collected, health_collected)
 
-    def step(self, action: Action, wait_time=0.03):
+    def step(self, action: Action):
         """
         Performs a step in the environment by executing the passed action.
 
         :param action: defines what action to take on the current step
-        :param wait_time: TODO
         :return: tuple of observation, reward, done, game_information
         """
         self._wait_for_frame()
+
         self.socket.send(action.to_bytes())
-        # time.sleep(STEP_INTERVAL)
+
         img = np.asarray(self.sct.grab(self.mon))
         observation = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
 
@@ -234,16 +234,17 @@ class TeeworldsEnv(gym.Env):
 
         self.last_step_timestamp = t
 
-    def reset(self):
+    def reset(self, reset_duration=RESET_DURATION):
         self.image_buffer.clear()
         self.socket.send(reset_action.to_bytes())
         self.game_information.clear()
-        time.sleep(RESET_DURATION)
+        time.sleep(reset_duration)
         self._last_reset = time.time()
 
         observation, reward, done, info = self.step(Action())
         if observation is None:
             print('None state')
+
         return observation
 
     def render(self, mode='human'):
@@ -286,28 +287,26 @@ class TeeworldsMultiEnv(gym.Env):
             _starting_port += 2
             server_port += 1
 
-    def step(self, action: Action, wait_time=0.03):
+    def step(self, action: Action):
         """
         Performs a step in one of the environments round robin principle.
         :param action: defines what action to take on the current step in the sampled environment
-        :param wait_time: TODO!
         :return: tuple of observation, reward, done, game_information from this environment
         """
         self.env_id = (self.env_id + 1) % len(self.envs)
-        observation, reward, done, info = self.envs[self.env_id].step(action, wait_time)
+        observation, reward, done, info = self.envs[self.env_id].step(action)
         if observation is None:
             print('None observation')
         return observation, reward, done, info
 
-    def step_by_id(self, action: Action, index: int, wait_time=0.03):
+    def step_by_id(self, action: Action, index: int):
         """
         Performs a step in the selected environment.
         :param action: defines what action to take
         :param index: identifier of the environment in which the action must be executed
-        :param wait_time: TODO!
         :return: tuple of observation, reward, done, game_information from this environment
         """
-        return self.envs[index].step(action, wait_time)
+        return self.envs[index].step(action)
 
     def reset(self):
         return self.envs[self.env_id].reset()
@@ -352,26 +351,24 @@ class TeeworldsCoopEnv(gym.Env):
             _open_window_count += 1
             _starting_port += 2
 
-    def step(self, action: Action, wait_time=0.03):
+    def step(self, action: Action):
         """
         Performs a step in one of the environments round robin principle.
         :param action: defines what action to take on the current step in the sampled environment
-        :param wait_time: TODO!
         :return: tuple of observation, reward, done, game_information from this environment
         """
         index = self.env_id
         self.env_id = (self.env_id + 1) % len(self.envs)
-        return self.envs[index].step(action, wait_time)
+        return self.envs[index].step(action)
 
-    def step_by_id(self, action: Action, index: int, wait_time=0.03):
+    def step_by_id(self, action: Action, index: int):
         """
         Performs a step in the selected environment.
         :param action: defines what action to take
         :param index: identifier of the environment in which the action must be executed
-        :param wait_time: TODO!
         :return: tuple of observation, reward, done, game_information from this environment
         """
-        return self.envs[index].step(action, wait_time)
+        return self.envs[index].step(action)
 
     def reset(self):
         self.envs[0].reset()
