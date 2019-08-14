@@ -110,6 +110,7 @@ class TeeworldsEnv(gym.Env):
             game_information_port="5001",
             teeworlds_srv_port="8303",
             ip="*",
+            server_tick_speed=50,
             map_name="level_0"
     ):
         self.game_information = GameInformation(-1, -1, 0, 0)
@@ -122,6 +123,9 @@ class TeeworldsEnv(gym.Env):
         # init video capturing
         self.sct = mss()
 
+        server_log = open("server_log.txt", "w")
+        client_log = open("client_log.txt", "w")
+
         # start server
         subprocess.Popen(
             [
@@ -131,9 +135,10 @@ class TeeworldsEnv(gym.Env):
                 "sv_map {}".format(map_name),
                 "sv_register 1",
                 "game_information_port {}".format(game_information_port),
-                "sv_port {}".format(teeworlds_srv_port)
+                "sv_port {}".format(teeworlds_srv_port),
+                "tick_speed {}".format(server_tick_speed),
             ], cwd=path_to_teeworlds,
-            stdout=subprocess.PIPE,
+            stdout=server_log,
             stderr=subprocess.STDOUT
         )
 
@@ -154,7 +159,7 @@ class TeeworldsEnv(gym.Env):
                 "actions_port {}".format(actions_port),
                 "connect localhost:{}".format(teeworlds_srv_port)
             ],
-            stdout=subprocess.PIPE,
+            stdout=client_log,
             stderr=subprocess.STDOUT
         )
 
