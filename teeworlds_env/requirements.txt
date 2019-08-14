@@ -1,3 +1,5 @@
+tensorboardX
+tqdm
 torch
 future
 screeninfo

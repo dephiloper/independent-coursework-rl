@@ -1,5 +1,6 @@
+from tensorboardX import SummaryWriter
 from tqdm import tqdm
-from queue import Queue
+from queue import Queue, Empty
 from typing import List
 
 import cv2
@@ -10,14 +11,19 @@ import torch
 
 from dqn_teeworlds import Net, Experience, ExperienceBuffer, REPLAY_SIZE, actions, DEVICE, EPSILON_START,\
     LEARNING_RATE, REPLAY_START_SIZE, SYNC_TARGET_FRAMES, BATCH_SIZE, calc_loss
-from gym_teeworlds import NUMBER_OF_IMAGES, start_mon, Action, TeeworldsEnv, OBSERVATION_SPACE, teeworlds_env_iterator
-from utils import mon_iterator, Monitor
+from gym_teeworlds import NUMBER_OF_IMAGES, Action, TeeworldsEnv, OBSERVATION_SPACE, teeworlds_env_iterator
 
-NUM_WORKERS = 8
-NUM_TRAININGS_PER_EPOCH = 100
+NUM_WORKERS = 4
+NUM_TRAININGS_PER_EPOCH = 10
 COLLECT_EXPERIENCE_SIZE = 200
+SERVER_TICK_SPEED = 100
 MONITOR_WIDTH = 84
 MONITOR_HEIGHT = 84
+
+
+class GameStats:
+    def __init__(self, reward):
+        self.reward = reward
 
 
 class Worker(Thread):
@@ -25,6 +31,7 @@ class Worker(Thread):
             self,
             env: TeeworldsEnv,
             experience_queue: Queue,
+            stats_queue: Queue,
             net: Net,
             action_list: List,
             device: str = 'cpu',
@@ -32,6 +39,7 @@ class Worker(Thread):
         Thread.__init__(self)
 
         self.experience_queue = experience_queue
+        self.stats_queue = stats_queue
         self.net = net
         self.epsilon = 1.0
         self.actions = action_list
@@ -39,6 +47,7 @@ class Worker(Thread):
 
         self.env = env
         self.state = self.env.reset()
+        self.total_reward = 0
 
         self._running = Event()
         self._is_restarting = False
@@ -84,6 +93,8 @@ class Worker(Thread):
 
             assert(new_state is not None)
 
+            self.total_reward += reward
+
             # store experience in exp_buffer
             exp = Experience(self.state, index, reward, is_done, new_state)
             self.experience_queue.put(exp)
@@ -93,12 +104,15 @@ class Worker(Thread):
             # end of episode situation
             if is_done:
                 self.env.reset()
+                self.stats_queue.put(GameStats(self.total_reward))
+                self.total_reward = 0
 
 
 def main():
     workers = []
     assert(SYNC_TARGET_FRAMES % COLLECT_EXPERIENCE_SIZE == 0)
     experience_queue = Queue()
+    stats_queue = Queue()
     observation_size = OBSERVATION_SPACE.shape
     epsilon = EPSILON_START
 
@@ -106,8 +120,14 @@ def main():
     target_net = Net(observation_size, n_actions=len(actions)).to(DEVICE)
     optimizer = torch.optim.Adam(net.parameters(), lr=LEARNING_RATE)
 
-    for env in teeworlds_env_iterator(NUM_WORKERS, MONITOR_WIDTH, MONITOR_HEIGHT, top_spacing=40):
-        worker = Worker(env, experience_queue, net, actions, DEVICE)
+    for env in teeworlds_env_iterator(
+            NUM_WORKERS,
+            MONITOR_WIDTH,
+            MONITOR_HEIGHT,
+            top_spacing=40,
+            server_tick_speed=SERVER_TICK_SPEED
+    ):
+        worker = Worker(env, experience_queue, stats_queue, net, actions, DEVICE)
         workers.append(worker)
 
     experience_buffer = ExperienceBuffer(capacity=REPLAY_SIZE)
@@ -118,12 +138,28 @@ def main():
 
     frame_idx = 0
 
+    writer = SummaryWriter()
+    game_stats = []
+
     while True:
         for _ in tqdm(range(COLLECT_EXPERIENCE_SIZE), desc='collecting data: '):
             experience_buffer.append(experience_queue.get())
             frame_idx += 1
 
-        if len(experience_buffer) < 400:  # check if buffer is large enough for training
+            while True:
+                try:
+                    game_stat = stats_queue.get_nowait()
+                    game_stats.append(game_stat)
+                    writer.add_scalar('reward', game_stat.reward, frame_idx)
+
+                    reward_100 = 0
+                    for gs in game_stats[-10:]:
+                        reward_100 += gs.reward
+                    writer.add_scalar('reward_100', reward_100, frame_idx)
+                except Empty:
+                    break
+
+        if len(experience_buffer) < REPLAY_START_SIZE:  # check if buffer is large enough for training
             continue
 
         if frame_idx % SYNC_TARGET_FRAMES == 0:  # sync nets (copy weights)

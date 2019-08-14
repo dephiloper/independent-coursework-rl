@@ -1,3 +1,5 @@
+import queue
+
 from screeninfo import screeninfo
 
 
@@ -49,6 +51,16 @@ def mon_iterator(n, width, height, top_spacing=0):
             raise ToManyMonitorsError(
                 'Could not create {} monitors of size {}, because insufficient screen space'.format(n, (width, height))
             )
+
+
+def get_all_from_queue(q: queue.Queue) -> list:
+    result_list = []
+    while True:
+        try:
+            result_list.append(q.get_nowait())
+        except queue.Empty:
+            break
+    return result_list
 
 
 class ToManyMonitorsError(Exception):
