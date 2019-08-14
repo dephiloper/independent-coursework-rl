@@ -159,8 +159,9 @@ class TeeworldsEnv(gym.Env):
             stderr=subprocess.STDOUT
         )
 
-        time.sleep(2)
+        print("game_information_port", game_information_port)
 
+        time.sleep(2)
 
         # start client
         subprocess.Popen(
@@ -239,16 +240,16 @@ class TeeworldsEnv(gym.Env):
         observation = np.array(self.image_buffer)
         reward = self.game_information.get_reward()
         done = self.game_information.is_done()
-
+        info = self.game_information.to_dict()
         self.game_information.clear()
 
         if observation is None:
             print('None observation')
 
         if time.time() - self._last_reset > EPISODE_DURATION:
-            return observation, 0, True, self.game_information.to_dict()
+            return observation, 0, True, info
 
-        return observation, reward, done, self.game_information.to_dict()
+        return observation, reward, done, info
 
     def _wait_for_frame(self):
         current = time.time()
