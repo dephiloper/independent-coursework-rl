@@ -3,7 +3,6 @@ from tqdm import tqdm
 from queue import Queue, Empty
 from typing import List
 
-import cv2
 import numpy as np
 from threading import Thread, Event
 
@@ -13,12 +12,14 @@ from dqn_teeworlds import Net, Experience, ExperienceBuffer, REPLAY_SIZE, action
     LEARNING_RATE, REPLAY_START_SIZE, SYNC_TARGET_FRAMES, BATCH_SIZE, calc_loss
 from gym_teeworlds import NUMBER_OF_IMAGES, Action, TeeworldsEnv, OBSERVATION_SPACE, teeworlds_env_iterator
 
-NUM_WORKERS = 4
+NUM_WORKERS = 8
 NUM_TRAININGS_PER_EPOCH = 10
-COLLECT_EXPERIENCE_SIZE = 200
-SERVER_TICK_SPEED = 100
+COLLECT_EXPERIENCE_SIZE = 2000
+SERVER_TICK_SPEED = 50
 MONITOR_WIDTH = 84
 MONITOR_HEIGHT = 84
+EPSILON_DECAY = 0.01
+MIN_EPSILON = 0.02
 
 
 class GameStats:
@@ -50,11 +51,11 @@ class Worker(Thread):
         self.total_reward = 0
 
         self._running = Event()
-        self._is_restarting = False
+        self._should_restart = False
 
     def start_collecting_experience(self):
+        self._should_restart = True
         self._running.set()
-        self._is_restarting = True
 
     def stop_collecting_experience(self):
         self._running.clear()
@@ -62,11 +63,14 @@ class Worker(Thread):
     # noinspection PyCallingNonCallable,PyUnresolvedReferences
     def run(self) -> None:
         while True:
+            if not self._running.is_set():
+                self.env.reset()
+
             self._running.wait()
 
-            if self._is_restarting:
+            if self._should_restart:
                 self.env.reset()
-                self._is_restarting = False
+                self._should_restart = False
 
             # with probability epsilon take random action (explore)
             if np.random.random() < self.epsilon:
@@ -153,9 +157,12 @@ def main():
                     writer.add_scalar('reward', game_stat.reward, frame_idx)
 
                     reward_100 = 0
-                    for gs in game_stats[-10:]:
+                    for gs in game_stats[-100:]:
                         reward_100 += gs.reward
+                    reward_100 /= len(game_stats[-100:])
                     writer.add_scalar('reward_100', reward_100, frame_idx)
+
+                    writer.add_scalar('epsilon', epsilon, frame_idx)
                 except Empty:
                     break
 
@@ -167,6 +174,9 @@ def main():
 
         for worker in workers:
             worker.stop_collecting_experience()
+            worker.epsilon = epsilon
+
+        epsilon = max(MIN_EPSILON, epsilon - EPSILON_DECAY)
 
         # for index, experience in enumerate(experience_buffer.buffer):
         #     cv2.imshow('frame{}'.format(index), experience.state[0])

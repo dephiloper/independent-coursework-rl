@@ -33,7 +33,7 @@ BATCH_SIZE = 256  # initial value:    32 (sample size of experiences from replay
 REPLAY_START_SIZE = 10000  # initial value: 10000 (min amount of experiences in replay buffer)
 REPLAY_SIZE = 10000  # initial value: 10000 (max capacity of replay buffer)
 LEARNING_RATE = 1e-4  # initial value:  1e-4 (also quite low eventually using default 1e-3)
-SYNC_TARGET_FRAMES = 1000  # initial value   1000 (how frequently we sync target net with net)
+SYNC_TARGET_FRAMES = 10000  # initial value   1000 (how frequently we sync target net with net)
 
 # used for epsilon decay schedule
 # -> starting at epsilon 1.0: only explore
