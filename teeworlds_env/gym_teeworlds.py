@@ -1,12 +1,9 @@
-import copy
 import struct
 import subprocess
 import time
 from collections import deque
 
 import cv2
-import screeninfo
-
 import gym
 import numpy as np
 import zmq
@@ -125,7 +122,8 @@ class TeeworldsEnv(gym.Env):
             teeworlds_srv_port="8303",
             ip="*",
             server_tick_speed=50,
-            map_name="level_0"
+            map_name="level_0",
+            is_human=False
     ):
         self.game_information = GameInformation(-1, -1, 0, 0)
         self.monitor = monitor
@@ -157,6 +155,7 @@ class TeeworldsEnv(gym.Env):
 
         time.sleep(2)
 
+
         # start client
         subprocess.Popen(
             [
@@ -170,7 +169,9 @@ class TeeworldsEnv(gym.Env):
                 "gfx_borderless 1",
                 "cl_skip_start_menu 1",
                 "actions_port {}".format(actions_port),
-                "connect localhost:{}".format(teeworlds_srv_port)
+                "connect localhost:{}".format(teeworlds_srv_port),
+                "tick_speed {}".format(server_tick_speed),
+                "--human" if is_human else "",
             ],
             stdout=client_log,
             stderr=subprocess.STDOUT

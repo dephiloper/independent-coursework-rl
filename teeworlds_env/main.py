@@ -1,15 +1,13 @@
 #! /usr/bin/env python3
 import random
-import time
 
-import cv2
-
-from gym_teeworlds import Action, TeeworldsEnv, TeeworldsCoopEnv, start_mon
+from gym_teeworlds import Action, TeeworldsEnv
+from utils import Monitor
 
 action = Action()
 action.direction = 1
 i = 0
-single_env = TeeworldsEnv(mon=start_mon)
+single_env = TeeworldsEnv(monitor=Monitor(0, 40, 840, 840), server_tick_speed=50, is_human=True)
 
 # two multi envs with 2 players each, all controllable
 # multi_envs = [TeeworldsMultiEnv(n=2, teeworlds_srv_port="8303")]  # , TeeworldsMultiEnv(n=2, teeworlds_srv_port="8304")]
@@ -26,6 +24,7 @@ while True:
     i += 1
     # observation, reward, done, game_information = single_env.step(action)
     observation, reward, done, info = single_env.step(action)
+    #print(reward)
     # cv2.imshow("x", observation[0])
     # cv2.waitKey()
     # multi_envs[0].step_by_id(action, 0) # use this if you only want to perform any action with one client
