@@ -4,37 +4,48 @@ from typing import List
 
 import cv2
 import numpy as np
-from threading import Thread, Lock, Event
+from threading import Thread, Event
 
 import torch
 
 from dqn_teeworlds import Net, Experience, ExperienceBuffer, REPLAY_SIZE, actions, DEVICE, EPSILON_START,\
     LEARNING_RATE, REPLAY_START_SIZE, SYNC_TARGET_FRAMES, BATCH_SIZE, calc_loss
-from gym_teeworlds import NUMBER_OF_IMAGES, start_mon, Action, TeeworldsEnv, OBSERVATION_SPACE
+from gym_teeworlds import NUMBER_OF_IMAGES, start_mon, Action, TeeworldsEnv, OBSERVATION_SPACE, teeworlds_env_iterator
+from utils import mon_iterator, Monitor
 
-NUM_WORKERS = 1
+NUM_WORKERS = 8
 NUM_TRAININGS_PER_EPOCH = 100
 COLLECT_EXPERIENCE_SIZE = 200
+MONITOR_WIDTH = 84
+MONITOR_HEIGHT = 84
 
 
 class Worker(Thread):
-    def __init__(self, experience_queue: Queue, net: Net, actions: List, device: str = 'cpu'):
+    def __init__(
+            self,
+            env: TeeworldsEnv,
+            experience_queue: Queue,
+            net: Net,
+            action_list: List,
+            device: str = 'cpu',
+    ):
         Thread.__init__(self)
 
         self.experience_queue = experience_queue
         self.net = net
         self.epsilon = 1.0
-        self.actions = actions
+        self.actions = action_list
         self.device = device
 
-        self.env = TeeworldsEnv(mon=start_mon)
+        self.env = env
         self.state = self.env.reset()
 
         self._running = Event()
+        self._is_restarting = False
 
     def start_collecting_experience(self):
-        self.env.reset()
         self._running.set()
+        self._is_restarting = True
 
     def stop_collecting_experience(self):
         self._running.clear()
@@ -43,6 +54,10 @@ class Worker(Thread):
     def run(self) -> None:
         while True:
             self._running.wait()
+
+            if self._is_restarting:
+                self.env.reset()
+                self._is_restarting = False
 
             # with probability epsilon take random action (explore)
             if np.random.random() < self.epsilon:
@@ -53,7 +68,7 @@ class Worker(Thread):
                     copy=False,
                     dtype=np.float32
                 ).reshape(
-                    (1, NUMBER_OF_IMAGES, start_mon['width'], start_mon['height'])
+                    (1, NUMBER_OF_IMAGES, self.env.monitor.width, self.env.monitor.height)
                 )
                 state_v = torch.tensor(state_a, dtype=torch.float32).to(self.device)
                 if not self._running.is_set():
@@ -91,8 +106,8 @@ def main():
     target_net = Net(observation_size, n_actions=len(actions)).to(DEVICE)
     optimizer = torch.optim.Adam(net.parameters(), lr=LEARNING_RATE)
 
-    for _ in range(NUM_WORKERS):
-        worker = Worker(experience_queue, net, actions, DEVICE)
+    for env in teeworlds_env_iterator(NUM_WORKERS, MONITOR_WIDTH, MONITOR_HEIGHT, top_spacing=40):
+        worker = Worker(env, experience_queue, net, actions, DEVICE)
         workers.append(worker)
 
     experience_buffer = ExperienceBuffer(capacity=REPLAY_SIZE)
@@ -104,14 +119,12 @@ def main():
     frame_idx = 0
 
     while True:
-        for _ in tqdm(range(COLLECT_EXPERIENCE_SIZE)):
+        for _ in tqdm(range(COLLECT_EXPERIENCE_SIZE), desc='collecting data: '):
             experience_buffer.append(experience_queue.get())
             frame_idx += 1
 
         if len(experience_buffer) < 400:  # check if buffer is large enough for training
             continue
-        elif len(experience_buffer) == REPLAY_START_SIZE:
-            print('start training')
 
         if frame_idx % SYNC_TARGET_FRAMES == 0:  # sync nets (copy weights)
             target_net.load_state_dict(net.state_dict())
@@ -119,8 +132,14 @@ def main():
         for worker in workers:
             worker.stop_collecting_experience()
 
+        # for index, experience in enumerate(experience_buffer.buffer):
+        #     cv2.imshow('frame{}'.format(index), experience.state[0])
+        #     if cv2.waitKey() == 27:
+        #         break
+        # cv2.destroyAllWindows()
+
         # learning
-        for _ in tqdm(range(NUM_TRAININGS_PER_EPOCH)):
+        for _ in tqdm(range(NUM_TRAININGS_PER_EPOCH), desc='training: '):
             optimizer.zero_grad()
             batch = experience_buffer.sample(BATCH_SIZE)
 

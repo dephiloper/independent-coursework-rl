@@ -48,7 +48,7 @@ VIDEO_INTERVAL = 12
 
 Experience = collections.namedtuple('Experience', field_names=['state', 'action', 'reward', 'done', 'new_state'])
 
-# move left, stay, move right, move left + jump, stay + jump, move right + jump
+# move left, stay, move top, move left + jump, stay + jump, move top + jump
 actions = [[-1, 0], [0, 0], [1, 0], [-1, 1], [0, 1], [1, 1]]
 
 

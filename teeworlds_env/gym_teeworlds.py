@@ -1,3 +1,4 @@
+import copy
 import struct
 import subprocess
 import time
@@ -13,10 +14,12 @@ from future.moves import collections
 from gym.spaces import Box, Discrete
 from mss import mss
 
+from utils import Monitor, mon_iterator
+
 NUMBER_OF_IMAGES = 4
-STEP_INTERVAL = 1 / 20
+STEP_INTERVAL = 1 / 10
 EPISODE_DURATION = 5
-RESET_DURATION = 0.5
+RESET_DURATION = 0.8
 
 ARMOR_REWARD = 1
 HEALTH_REWARD = 10
@@ -92,6 +95,17 @@ class GameInformation:
         return bool(self.health_collected)
 
 
+def teeworlds_env_iterator(n, monitor_width, monitor_height, top_spacing=0):
+    actions_port = 5000
+    teeworlds_server_port = 8303
+
+    for monitor in mon_iterator(n, monitor_width, monitor_height, top_spacing=top_spacing):
+        yield TeeworldsEnv(monitor, str(actions_port), str(actions_port+1), str(teeworlds_server_port))
+
+        actions_port += 2
+        teeworlds_server_port += 1
+
+
 class TeeworldsEnv(gym.Env):
     """
     Creates a single teeworlds environment (one tee, no competitors).
@@ -105,7 +119,7 @@ class TeeworldsEnv(gym.Env):
 
     def __init__(
             self,
-            mon,
+            monitor: Monitor,
             actions_port="5000",
             game_information_port="5001",
             teeworlds_srv_port="8303",
@@ -113,11 +127,10 @@ class TeeworldsEnv(gym.Env):
             map_name="level_0"
     ):
         self.game_information = GameInformation(-1, -1, 0, 0)
-        self.mon = mon.copy()
+        self.monitor = monitor
         self.observation_space = OBSERVATION_SPACE
         self.action_space = ACTION_SPACE
         self.image_buffer = collections.deque(maxlen=NUMBER_OF_IMAGES)
-        self.mon["top"] = self.mon["top"] + 40
 
         # init video capturing
         self.sct = mss()
@@ -143,10 +156,10 @@ class TeeworldsEnv(gym.Env):
         subprocess.Popen(
             [
                 "{}teeworlds".format(path_to_teeworlds),
-                "gfx_screen_width {}".format(self.mon["width"]),
-                "gfx_screen_height {}".format(self.mon["height"]),
-                "gfx_screen_x {}".format(self.mon["left"]),
-                "gfx_screen_y {}".format(self.mon["top"]),
+                "gfx_screen_width {}".format(self.monitor.width),
+                "gfx_screen_height {}".format(self.monitor.height),
+                "gfx_screen_x {}".format(self.monitor.left),
+                "gfx_screen_y {}".format(self.monitor.top),
                 "snd_volume 0",
                 "gfx_fullscreen 0",
                 "gfx_borderless 1",
@@ -176,7 +189,7 @@ class TeeworldsEnv(gym.Env):
 
     def _try_fetch_game_state(self):
         """
-        Fetches new game information from game_information_socket and updates the x_position and y_position.
+        Fetches new game information from game_information_socket and updates the left and top.
         """
         msg = None
         while True:
@@ -200,7 +213,7 @@ class TeeworldsEnv(gym.Env):
 
         self.socket.send(action.to_bytes())
 
-        img = np.asarray(self.sct.grab(self.mon))
+        img = np.asarray(self.sct.grab(self.monitor.to_dict()))
         observation = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
 
         if len(self.image_buffer) != NUMBER_OF_IMAGES:
@@ -226,13 +239,13 @@ class TeeworldsEnv(gym.Env):
         return observation, reward, done, self.game_information.to_dict()
 
     def _wait_for_frame(self):
-        t = time.time()
+        current = time.time()
         next_step_timestamp = self.last_step_timestamp + STEP_INTERVAL
-        diff = next_step_timestamp - t
+        diff = next_step_timestamp - current
         if diff > 0:
             time.sleep(diff)
 
-        self.last_step_timestamp = t
+        self.last_step_timestamp = max(next_step_timestamp, current)
 
     def reset(self, reset_duration=RESET_DURATION):
         self.image_buffer.clear()
