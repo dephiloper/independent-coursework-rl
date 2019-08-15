@@ -25,7 +25,7 @@ DQN-Algorithm
 '''
 
 ENV_NAME = "RoboschoolPong-v1"
-MODEL_NAME = 'L4'
+MODEL_NAME = 'L3b'
 MEAN_REWARD_BOUND = 10      # initial value:    10 (randomly guessed) <- this needs to be checked
 HIDDEN_SIZE = 64            # initial value:   128 (randomly guessed)
 GAMMA = 0.99                # initial value:    99 (bellman equation, used for conv's eventually 0.9 would fit better)
@@ -44,7 +44,7 @@ EPSILON_FINAL = 0.02
 
 DEVICE = "cpu"
 MONITOR_DIRECTORY = './vids'
-VIDEO_INTERVAL = 12
+VIDEO_INTERVAL = 20
 
 # stay, left, right, back, forward, left-down, right-down, left-forward, right-forward 
 actions = np.array([[0, 0], [-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [1, -1], [-1, 1], [1, 1]])
@@ -57,8 +57,6 @@ class Net(nn.Module):
         super(Net, self).__init__()
         self.net = nn.Sequential(
             nn.Linear(input_size, hidden_size),
-            nn.ReLU(),
-            nn.Linear(hidden_size, hidden_size),
             nn.ReLU(),
             nn.Linear(hidden_size, hidden_size),
             nn.ReLU(),
@@ -260,6 +258,9 @@ if __name__ == "__main__":
         if (frame_idx % (1000 * VIDEO_INTERVAL)) == 0:
             torch.save(net.state_dict(), 'live_models/{}_frame{}.dat'.format(MODEL_NAME, frame_idx))
 
+        if frame_idx == 7500000:
+            break
+
         # learning
         optimizer.zero_grad()
         batch = buffer.sample(BATCH_SIZE)
@@ -271,4 +272,4 @@ if __name__ == "__main__":
         optimizer.step()
 
     writer.close()
-    env.env.close()
+    # env.env.close()
