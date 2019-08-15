@@ -1,10 +1,14 @@
 import gym
 import collections
+import random
 
 ENV_NAME = "FrozenLake-v0"
 GAMMA = 0.9
 ALPHA = 0.2  # learning rate
 TEST_EPISODES = 20
+EPSILON_DECAY_LAST_FRAME = 10 ** 3
+EPSILON_START = 1.0
+EPSILON_FINAL = 0.02
 
 
 class Agent:
@@ -13,8 +17,8 @@ class Agent:
         self.state = self.env.reset()
         self.values = collections.defaultdict(float)  # we only need values, no transition or reward tables
 
-    def sample_env(self):
-        action = self.env.action_space.sample()
+    def sample_env(self, epsilon: float = 0.0):
+        action = self.env.action_space.sample() if random.random() < epsilon else self.best_value_and_action(self.state)[1]
         old_state = self.state
         new_state, reward, is_done, _ = self.env.step(action)
         self.state = self.env.reset() if is_done else new_state
@@ -30,6 +34,7 @@ class Agent:
 
         return best_value, best_action
 
+    # also called bellman update
     def value_update(self, s, a, r, next_s):
         best_v, _ = self.best_value_and_action(next_s)
         new_val = r + GAMMA * best_v  # bellman approximation
@@ -53,13 +58,20 @@ class Agent:
 if __name__ == '__main__':
     test_env = gym.make(ENV_NAME)
     agent = Agent()
+    frame_idx = 0
+    ts_frame = 0
+    epsilon = EPSILON_START
 
     iter_no = 0
     best_reward = 0.0
     while True:
+        frame_idx += 1
+        epsilon = max(EPSILON_FINAL, EPSILON_START - frame_idx / EPSILON_DECAY_LAST_FRAME)  # decrease epsilon
         iter_no += 1
-        s, a, r, next_s = agent.sample_env()
+        s, a, r, next_s = agent.sample_env(epsilon)
         agent.value_update(s, a, r, next_s)
+        ts_frame = frame_idx
+        #print(epsilon)
 
         reward = 0.0
         for _ in range(TEST_EPISODES):

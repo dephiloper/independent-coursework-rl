@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from collections import namedtuple
-# from tensorboardX import SummaryWriter
+from tensorboardX import SummaryWriter
 
 import gym
 import numpy as np
@@ -11,6 +11,7 @@ from torch import nn, optim
 HIDDEN_SIZE = 128
 BATCH_SIZE = 16
 PERCENTILE = 70
+MAX_EPISODE_STEPS = 500
 
 Episode = namedtuple('Episode', field_names=['reward', 'steps'])
 EpisodeStep = namedtuple('EpisodeStep', field_names=['observation', 'action'])
@@ -74,17 +75,40 @@ def filter_batch(batch, percentile):
     return train_obs_v, train_act_v, reward_bound, reward_mean
 
 
+def record_vid(net: Net, it: int):
+    env = gym.make("CartPole-v0")
+    env._max_episode_steps = MAX_EPISODE_STEPS
+    env = gym.wrappers.Monitor(env, directory="mon/"+ str(it) + "/", force=True)
+    obs = env.reset()
+    sm = nn.Softmax(dim=1)
+
+    for _ in range(MAX_EPISODE_STEPS):
+        #env.render()
+        obs_v = torch.FloatTensor([obs])
+        act_probs_v = sm(net(obs_v))
+        act_probs = act_probs_v.data.numpy()[0]
+        # action = np.random.choice(len(act_probs), p=act_probs)
+        action = np.argmax(act_probs)
+        #env.step(action=action)
+        obs, _, is_done, _ = env.step(action)
+
+        if is_done:
+            break
+    env.close()
+
 if __name__ == "__main__":
     env = gym.make("CartPole-v0")
+    env._max_episode_steps = MAX_EPISODE_STEPS
     # env.render()
-    # env = gym.wrappers.Monitor(env, directory="mon", force=True)
+    #env = gym.wrappers.Monitor(env, directory="mon", force=True)
     obs_size = env.observation_space.shape[0]
     n_actions = env.action_space.n
 
     net = Net(obs_size, HIDDEN_SIZE, n_actions)
     objective = nn.CrossEntropyLoss()
     optimizer = optim.Adam(params=net.parameters(), lr=0.01)
-    # writer = SummaryWriter()
+    writer = SummaryWriter()
+    best_mean_reward = 0
 
     for iter_no, batch in enumerate(iterate_batches(env, net, BATCH_SIZE)):
         obs_v, acts_v, reward_b, reward_m = filter_batch(batch, PERCENTILE)
@@ -95,30 +119,37 @@ if __name__ == "__main__":
         optimizer.step()
 
         print("%d: loss=%.3f, reward_mean=%.1f, reward_bound=%.1f" % (iter_no, loss_v.item(), reward_m, reward_b))
-        # writer.add_scalar("loss", loss_v.item(), iter_no)
-        # writer.add_scalar("reward_bound", reward_b, iter_no)
-        # writer.add_scalar("reward_mean", reward_m, iter_no)
+        writer.add_scalar("loss", loss_v.item(), iter_no)
+        writer.add_scalar("reward_bound", reward_b, iter_no)
+        writer.add_scalar("reward_mean", reward_m, iter_no)
 
-        if reward_m >= 200:
+        if best_mean_reward < reward_m:
+            record_vid(net, iter_no)
+            best_mean_reward = reward_m
+
+        if reward_m >= MAX_EPISODE_STEPS:
             print("Solved")
             break
-        # writer.close()
-        env.close()
-
-    env = gym.make("CartPole-v0")
-    obs = env.reset()
-    sm = nn.Softmax(dim=1)
-
-    for _ in range(1000):
-        env.render()
-        obs_v = torch.FloatTensor([obs])
-        act_probs_v = sm(net(obs_v))
-        act_probs = act_probs_v.data.numpy()[0]
-        #action = np.random.choice(len(act_probs), p=act_probs)
-        action = np.argmax(act_probs)
-        env.step(action=action)
-        obs, _, is_done, _ = env.step(action)
-
-        if is_done:
-            break
+    writer.close()
     env.close()
+
+    # env = gym.make("CartPole-v0")
+    # env._max_episode_steps = MAX_EPISODE_STEPS
+    # env = gym.wrappers.Monitor(env, directory="vids", force=True)
+    #
+    # obs = env.reset()
+    # sm = nn.Softmax(dim=1)
+    #
+    # for _ in range(MAX_EPISODE_STEPS):
+    #     env.render()
+    #     obs_v = torch.FloatTensor([obs])
+    #     act_probs_v = sm(net(obs_v))
+    #     act_probs = act_probs_v.data.numpy()[0]
+    #     # action = np.random.choice(len(act_probs), p=act_probs)
+    #     action = np.argmax(act_probs)
+    #     env.step(action=action)
+    #     obs, _, is_done, _ = env.step(action)
+    #
+    #     if is_done:
+    #         break
+    # env.close()

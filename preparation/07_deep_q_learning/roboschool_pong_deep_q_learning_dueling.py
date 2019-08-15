@@ -1,3 +1,5 @@
+import subprocess
+import sys
 import time
 from datetime import datetime
 
@@ -25,7 +27,6 @@ DQN-Algorithm
 '''
 
 ENV_NAME = "RoboschoolPong-v1"
-MODEL_NAME = 'L3b'
 MEAN_REWARD_BOUND = 10      # initial value:    10 (randomly guessed) <- this needs to be checked
 HIDDEN_SIZE = 64            # initial value:   128 (randomly guessed)
 GAMMA = 0.99                # initial value:    99 (bellman equation, used for conv's eventually 0.9 would fit better)
@@ -44,9 +45,11 @@ EPSILON_FINAL = 0.02
 
 DEVICE = "cpu"
 MONITOR_DIRECTORY = './vids'
-VIDEO_INTERVAL = 20
+VIDEO_INTERVAL = 200
 
-# stay, left, right, back, forward, left-down, right-down, left-forward, right-forward 
+MODEL_NAME = 'V69_L4.dat'
+
+# stay, left, right, back, forward, left-down, right-down, left-forward, right-forward
 actions = np.array([[0, 0], [-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [1, -1], [-1, 1], [1, 1]])
 
 Experience = collections.namedtuple('Experience', field_names=['state', 'action', 'reward', 'done', 'new_state'])
@@ -57,6 +60,8 @@ class Net(nn.Module):
         super(Net, self).__init__()
         self.net = nn.Sequential(
             nn.Linear(input_size, hidden_size),
+            nn.ReLU(),
+            nn.Linear(hidden_size, hidden_size),
             nn.ReLU(),
             nn.Linear(hidden_size, hidden_size),
             nn.ReLU(),
@@ -115,7 +120,7 @@ class Agent:
         else:  # otherwise use use the past model to obtain the q-values for all possible actions, choose the best
             state_a = np.array(self.state, copy=False, dtype=np.float32)
             state_v = torch.tensor(state_a).to(device)
-            q_vals_v = net(state_v)  # calculate q values
+            q_vals_v = net(state_v)  # calculate q values_reset
             index = torch.argmax(q_vals_v)  # get index of value with best outcome
 
         action = actions[index]  # extracting action from index ([0,-1], [0,0], [0,1]) <- (0, 1, 2)
@@ -176,100 +181,94 @@ def calc_loss(batch, net, tgt_net, device="cpu"):
     return nn.MSELoss()(state_action_values, expected_state_action_values)
 
 
-def x(episode_id):
-    if episode_id % VIDEO_INTERVAL == 0:
-        print('capturing episode: {}'.format(episode_id))
-        return True
-    return False
-
-
 if __name__ == "__main__":
     env = gym.make(ENV_NAME)
-    env = gym.wrappers.Monitor(
-         env,
-         MONITOR_DIRECTORY,
-         video_callable=x,
-         force=True
-     )
-    env.reset()
 
-    observation_size = env.observation_space.shape[0]
-    action_size = len(actions)
+    if len(sys.argv) == 1:
+        import roboschool.multiplayer
+        print("sys.argv", sys.argv)
+        game = roboschool.gym_pong.PongSceneMultiplayer()
+        gameserver = roboschool.multiplayer.SharedMemoryServer(game, "pongdemo", want_test_window=False)
+        for n in range(game.players_count):
+            subprocess.Popen([sys.executable, sys.argv[0], "pongdemo", "%i" % n])
+        gameserver.serve_forever()
 
-    net = Net(observation_size, HIDDEN_SIZE, action_size).to(DEVICE)
-    target_net = Net(observation_size, HIDDEN_SIZE, action_size).to(DEVICE)
+    else: # this is called for both players
+        print("sys.argv", sys.argv)
+        player_n = int(sys.argv[2])
+        env = gym.make("RoboschoolPong-v1")
+        env.unwrapped.multiplayer(env, game_server_guid=sys.argv[1], player_n=player_n)
 
-    buffer = ExperienceBuffer(REPLAY_SIZE)
-    agent = Agent(env, buffer)
-    epsilon = EPSILON_START
+        net = Net(env.observation_space.shape[0], HIDDEN_SIZE, len(actions)).to(DEVICE)
+        #net.load_state_dict(torch.load(MODEL_NAME, map_location=lambda storage, loc: storage))
+        target_net = Net(env.observation_space.shape[0], HIDDEN_SIZE, len(actions)).to(DEVICE)
+        #target_net.load_state_dict(torch.load(MODEL_NAME, map_location=lambda storage, loc: storage))
 
-    optimizer = optim.Adam(net.parameters(), lr=LEARNING_RATE)
-    total_rewards = []
-    total_loss = [0]
-    
-    # counter of frames to track current speed
-    frame_idx = 0
-    ts_frame = 0
-    game_idx = 0
-    ts = time.time()
-    best_mean_reward = None  # every time mean reward beats record, we'll save model in file
+        buffer = ExperienceBuffer(REPLAY_SIZE)
+        agent = Agent(env, buffer)
+        epsilon = EPSILON_START
 
-    writer = SummaryWriter()
-    
-    while True:
-        frame_idx += 1
-        epsilon = max(EPSILON_FINAL, EPSILON_START - frame_idx / EPSILON_DECAY_LAST_FRAME)  # decrease epsilon
+        optimizer = optim.Adam(net.parameters(), lr=LEARNING_RATE)
+        total_rewards = []
+        total_loss = [0]
 
-        reward = agent.play_step(net, epsilon, device=DEVICE)  # single step in env
-        if reward is not None:
-            game_idx += 1
-            total_rewards.append(reward)
-            speed = (frame_idx - ts_frame) / (time.time() - ts)
-            ts_frame = frame_idx
-            ts = time.time()
+        # counter of frames to track current speed
+        frame_idx = 0
+        ts_frame = 0
+        game_idx = 0
+        ts = time.time()
+        best_mean_reward = None  # every time mean reward beats record, we'll save model in file
 
-            mean_reward = np.mean(total_rewards[-100:])
-            mean_loss = np.mean(total_loss)
-            print("%d: done %d games, mean reward %.3f, eps %.2f, speed %.2f f/s" % (
-                frame_idx, len(total_rewards), mean_reward, epsilon, speed))
+        writer = SummaryWriter(logdir="runs/player-" + str(player_n))
 
-            writer.add_scalar("epsilon", epsilon, frame_idx)
-            writer.add_scalar("speed", speed, frame_idx)
-            writer.add_scalar("reward_100", mean_reward, frame_idx)
-            writer.add_scalar("reward", reward, frame_idx)
-            writer.add_scalar("loss", mean_loss, frame_idx)
-            total_loss = [0]
+        while True:
+            frame_idx += 1
+            epsilon = max(EPSILON_FINAL, EPSILON_START - frame_idx / EPSILON_DECAY_LAST_FRAME)  # decrease epsilon
 
-            if best_mean_reward is None or best_mean_reward < mean_reward:
-                torch.save(net.state_dict(), ENV_NAME + "-best.dat")
-                if best_mean_reward is not None:
-                    print("Best mean reward updated %.3f -> %.3f, model saved" % (best_mean_reward, mean_reward))
-                best_mean_reward = mean_reward
-            if mean_reward > MEAN_REWARD_BOUND:  # when boundary reached --> game finished
-                print("Solved in %d frames!" % frame_idx)
-                break
+            reward = agent.play_step(net, epsilon, device=DEVICE)  # single step in env
+            if reward is not None:
+                game_idx += 1
+                total_rewards.append(reward)
+                speed = (frame_idx - ts_frame) / (time.time() - ts)
+                ts_frame = frame_idx
+                ts = time.time()
 
-        if len(buffer) < REPLAY_START_SIZE:  # check if buffer is large enough for training
-            continue
+                mean_reward = np.mean(total_rewards[-100:])
+                mean_loss = np.mean(total_loss)
+                print("%d: done %d games, mean reward %.3f, eps %.2f, speed %.2f f/s" % (
+                    frame_idx, len(total_rewards), mean_reward, epsilon, speed))
 
-        if frame_idx % SYNC_TARGET_FRAMES == 0:  # sync nets (copy weights)
-            target_net.load_state_dict(net.state_dict())
+                writer.add_scalar("epsilon", epsilon, frame_idx)
+                writer.add_scalar("speed", speed, frame_idx)
+                writer.add_scalar("reward_100", mean_reward, frame_idx)
+                writer.add_scalar("reward", reward, frame_idx)
+                writer.add_scalar("loss", mean_loss, frame_idx)
+                total_loss = [0]
 
-        #if (frame_idx % (1000 * VIDEO_INTERVAL)) == 0:
-        #    torch.save(net.state_dict(), 'live_models/{}_frame{}.dat'.format(MODEL_NAME, frame_idx))
+                if best_mean_reward is None or best_mean_reward < mean_reward:
+                    torch.save(net.state_dict(), ENV_NAME + "-best.dat")
+                    if best_mean_reward is not None:
+                        print("Best mean reward updated %.3f -> %.3f, model saved" % (best_mean_reward, mean_reward))
+                    best_mean_reward = mean_reward
+                if mean_reward > MEAN_REWARD_BOUND:  # when boundary reached --> game finished
+                    print("Solved in %d frames!" % frame_idx)
+                    break
 
-        if frame_idx == 7500000:
-            break
+            if len(buffer) < REPLAY_START_SIZE:  # check if buffer is large enough for training
+                continue
 
-        # learning
-        optimizer.zero_grad()
-        batch = buffer.sample(BATCH_SIZE)
+            if frame_idx % SYNC_TARGET_FRAMES == 0:  # sync nets (copy weights)
+                target_net.load_state_dict(net.state_dict())
 
-        # perform optimization by minimizing the loss
-        loss_t = calc_loss(batch, net, target_net, device=DEVICE)
-        total_loss.append(loss_t.item())
-        loss_t.backward()
-        optimizer.step()
+            # learning
+            optimizer.zero_grad()
+            batch = buffer.sample(BATCH_SIZE)
 
-    writer.close()
-    # env.env.close()
+            # perform optimization by minimizing the loss
+            loss_t = calc_loss(batch, net, target_net, device=DEVICE)
+            total_loss.append(loss_t.item())
+            loss_t.backward()
+            optimizer.step()
+
+        writer.close()
+        # video_env.env.close()
