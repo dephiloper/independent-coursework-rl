@@ -1,3 +1,4 @@
+import os
 import time
 from queue import Empty
 from typing import List
@@ -16,9 +17,9 @@ from utils import ExperienceBuffer, ACTIONS, Experience
 MODEL_NAME = "teeworlds-v0.1-"
 
 # exp collecting
-NUM_WORKERS = 2
+NUM_WORKERS = 4
 COLLECT_EXPERIENCE_SIZE = 2000  # init: 2000 (amount of experiences to collect after each training step)
-GAME_TICK_SPEED = 200  # default: 50 (game speed, when higher more screenshots needs to be captures)
+GAME_TICK_SPEED = 500  # default: 50 (game speed, when higher more screenshots needs to be captures)
 MONITOR_WIDTH = 84  # init: 84 width of game screen
 MONITOR_HEIGHT = 84  # init: 84 height of game screen (important for conv)
 MONITOR_X_PADDING = 20
@@ -81,7 +82,6 @@ class Worker(Process):
 
     def initialize_env(self):
         self.env = self.env_settings.create_env()
-        self.state = self.env.reset()
 
     def _idle_for_running(self):
         try:
@@ -130,6 +130,7 @@ class Worker(Process):
 
             # store experience in exp_buffer
             exp = Experience(self.state, index, reward, is_done, new_state)
+            # exp = Experience(None, index, reward, is_done, new_state)
             self.experience_queue.put(exp)
 
             self.state = new_state
@@ -141,9 +142,14 @@ class Worker(Process):
                 self.total_reward = 0
 
 
-def main():
+def setup():
     assert (SYNC_TARGET_FRAMES % COLLECT_EXPERIENCE_SIZE == 0)
     torch.multiprocessing.set_start_method('spawn')
+    os.makedirs('saves', exist_ok=True)
+
+
+def main():
+    setup()
 
     workers = []
     experience_queue = Queue()
@@ -177,6 +183,7 @@ def main():
 
     time.sleep(4)
 
+    # start workers
     for worker in workers:
         worker.start_collecting_experience()
 
@@ -283,7 +290,7 @@ def calc_loss(batch, net, tgt_net, device="cpu"):
 
     # detach() returns tensor w/o connection to its calculation history
     # detach value from computation graph, which prevents gradients of flowing into target network
-    # when not performed backprop of the loss will affect both nets
+    # when not performed back propagation of the loss will affect both nets
     next_state_values = next_state_values.detach()
 
     # calculate the bellman approximation value

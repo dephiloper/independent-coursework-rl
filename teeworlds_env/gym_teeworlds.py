@@ -1,6 +1,7 @@
 import os
 import struct
 import subprocess
+import sys
 import time
 from collections import deque
 
@@ -14,9 +15,9 @@ from mss import mss
 
 from utils import Monitor, mon_iterator, random_id
 
-NUMBER_OF_IMAGES = 4
-EPISODE_DURATION = 3
+EPISODE_DURATION = 5
 RESET_DURATION = 0.8
+NUMBER_OF_IMAGES = 4
 
 ARMOR_REWARD = 1
 HEALTH_REWARD = 10
@@ -237,7 +238,7 @@ class TeeworldsEnv(gym.Env):
         game_information_address = f"tcp://localhost:{game_information_port}"
         self.game_information_socket.connect(game_information_address)
 
-        self.last_step_timestamp = time.time()
+        self.last_step_timestamp = None
         self._last_reset = time.time()
 
         # waiting for everything to build up
@@ -259,6 +260,13 @@ class TeeworldsEnv(gym.Env):
                 self.game_information.armor_collected += armor_collected
                 self.game_information.health_collected += health_collected
 
+    def capture_game_image(self):
+        img = np.asarray(self.sct.grab(self.monitor.to_dict()))
+        return cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
+
+    def get_observation(self):
+        return np.array(self.image_buffer)
+
     def step(self, action: Action):
         """
         Performs a step in the environment by executing the passed action.
@@ -266,29 +274,23 @@ class TeeworldsEnv(gym.Env):
         :param action: defines what action to take on the current step
         :return: tuple of observation, reward, done, game_information
         """
-        self._wait_for_frame()
-
         self.socket.send(action.to_bytes())
 
-        img = np.asarray(self.sct.grab(self.monitor.to_dict()))
-        observation = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
+        self._wait_for_frame()
 
-        if len(self.image_buffer) != NUMBER_OF_IMAGES:
-            self.image_buffer = deque([observation] * NUMBER_OF_IMAGES)
-        else:
-            self.image_buffer.pop()
-            self.image_buffer.appendleft(observation)
+        game_image = self.capture_game_image()
+
+        assert(len(self.image_buffer) == NUMBER_OF_IMAGES)
+        self.image_buffer.pop()
+        self.image_buffer.appendleft(game_image)
 
         self._try_fetch_game_state()
 
-        observation = np.array(self.image_buffer)
+        observation = self.get_observation()
         reward = self.game_information.get_reward()
         done = self.game_information.is_done()
         info = self.game_information.to_dict()
         self.game_information.clear()
-
-        if observation is None:
-            print('None observation')
 
         if time.time() - self._last_reset > EPISODE_DURATION:
             return observation, 0, True, info
@@ -297,12 +299,17 @@ class TeeworldsEnv(gym.Env):
 
     def _wait_for_frame(self):
         current = time.time()
-        next_step_timestamp = self.last_step_timestamp + self.step_interval
-        diff = next_step_timestamp - current
-        if diff > 0:
-            time.sleep(diff)
+        if self.last_step_timestamp is None:
+            self.last_step_timestamp = current
+        else:
+            next_step_timestamp = self.last_step_timestamp + self.step_interval
+            diff = next_step_timestamp - current
+            if diff > 0:
+                time.sleep(diff)
+            else:
+                print(f'Frame drop detected: missed {int(diff*-1000)} milliseconds')
 
-        self.last_step_timestamp = max(next_step_timestamp, current)
+            self.last_step_timestamp = max(next_step_timestamp, current)
 
     def reset(self, reset_duration=RESET_DURATION):
         self.image_buffer.clear()
@@ -311,14 +318,15 @@ class TeeworldsEnv(gym.Env):
         time.sleep(reset_duration)
         self._last_reset = time.time()
 
-        observation, reward, done, info = self.step(Action())
-        if observation is None:
-            print('None state')
+        self.image_buffer = deque([self.capture_game_image()] * NUMBER_OF_IMAGES)
 
-        return observation
+        self.last_step_timestamp = None
+
+        return self.get_observation()
 
     def render(self, mode='human'):
         pass
+
 
 class TeeworldsEnvSettings:
     def __init__(
