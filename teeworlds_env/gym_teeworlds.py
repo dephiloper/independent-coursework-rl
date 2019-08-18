@@ -103,11 +103,26 @@ def teeworlds_env_iterator(n, monitor_width, monitor_height, top_spacing=0, serv
         yield teeworlds_env_setting.create_env()
 
 
-def teeworlds_env_settings_iterator(n, monitor_width, monitor_height, top_spacing=0, server_tick_speed=50):
+def teeworlds_env_settings_iterator(
+        n,
+        monitor_width,
+        monitor_height,
+        top_spacing=0,
+        server_tick_speed=50,
+        monitor_x_padding=0,
+        monitor_y_padding=0
+):
     actions_port = 5000
     teeworlds_server_port = 8303
 
-    for monitor in mon_iterator(n, monitor_width, monitor_height, top_spacing=top_spacing):
+    for monitor in mon_iterator(
+            n,
+            monitor_width,
+            monitor_height,
+            top_spacing=top_spacing,
+            x_padding=monitor_x_padding,
+            y_padding=monitor_y_padding
+    ):
         yield TeeworldsEnvSettings(
             monitor,
             str(actions_port),

@@ -16,11 +16,13 @@ from utils import ExperienceBuffer, ACTIONS, Experience
 MODEL_NAME = "teeworlds-v0.1-"
 
 # exp collecting
-NUM_WORKERS = 1
+NUM_WORKERS = 2
 COLLECT_EXPERIENCE_SIZE = 2000  # init: 2000 (amount of experiences to collect after each training step)
 GAME_TICK_SPEED = 200  # default: 50 (game speed, when higher more screenshots needs to be captures)
 MONITOR_WIDTH = 84  # init: 84 width of game screen
 MONITOR_HEIGHT = 84  # init: 84 height of game screen (important for conv)
+MONITOR_X_PADDING = 20
+MONITOR_Y_PADDING = 20
 
 # training
 REPLAY_START_SIZE = 4000  # init: 10000 (min amount of experiences in replay buffer before training starts)
@@ -151,6 +153,7 @@ def main():
     epsilon = Value('d', EPSILON_START)
 
     net = Net(observation_size, n_actions=len(ACTIONS)).to(DEVICE)
+    net.share_memory()
     target_net = Net(observation_size, n_actions=len(ACTIONS)).to(DEVICE)
     optimizer = torch.optim.Adam(net.parameters(), lr=LEARNING_RATE)
 
@@ -160,6 +163,8 @@ def main():
             MONITOR_HEIGHT,
             top_spacing=40,
             server_tick_speed=GAME_TICK_SPEED,
+            monitor_x_padding=MONITOR_X_PADDING,
+            monitor_y_padding=MONITOR_Y_PADDING
     ):
         worker = Worker(env_setting, experience_queue, stats_queue, net, epsilon, ACTIONS, DEVICE)
         workers.append(worker)

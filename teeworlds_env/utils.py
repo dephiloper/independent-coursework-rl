@@ -31,7 +31,7 @@ class Monitor:
         return Monitor(self.left, self.top, self.width, self.height)
 
 
-def mon_iterator(n, width, height, top_spacing=0):
+def mon_iterator(n, width, height, top_spacing=0, x_padding=0, y_padding=0):
     """
     Yields n Monitors with the given width and height
 
@@ -39,6 +39,8 @@ def mon_iterator(n, width, height, top_spacing=0):
     :param width: The width of every Monitor
     :param height: The height of every Monitor
     :param top_spacing: The spacing over the monitors
+    :param x_padding: x Padding between monitors
+    :param y_padding: y Padding between monitors
     :return: An iterator over Monitors that do no overlap and have the given dimensions
     """
     screen_width = screeninfo.get_monitors()[0].width
@@ -50,11 +52,11 @@ def mon_iterator(n, width, height, top_spacing=0):
     for i in range(n):
         yield Monitor(x, y, width, height)
 
-        x += width
+        x += width + x_padding
 
         if x + width > screen_width:
             x = 0
-            y += height
+            y += height + y_padding
 
         if y + height > screen_height:
             raise ToManyMonitorsError(
