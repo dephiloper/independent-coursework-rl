@@ -15,7 +15,6 @@ from mss import mss
 
 from utils import Monitor, mon_iterator, random_id
 
-EPISODE_DURATION = 5
 RESET_DURATION = 0.8
 NUMBER_OF_IMAGES = 4
 
@@ -155,9 +154,10 @@ class TeeworldsEnv(gym.Env):
             teeworlds_srv_port="8303",
             ip="*",
             server_tick_speed=50,
+            episode_duration=5,
             map_name="level_1",
             device="cpu",
-            is_human=False
+            is_human=False,
     ):
         self.game_information = GameInformation(-1, -1, 0, 0)
         self.monitor = monitor
@@ -165,7 +165,7 @@ class TeeworldsEnv(gym.Env):
         self.action_space = ACTION_SPACE
         self.image_buffer = collections.deque(maxlen=NUMBER_OF_IMAGES)
         self.step_interval = 10 / server_tick_speed
-
+        self.episode_duration = episode_duration
         # init video capturing
         self.sct = mss()
 
@@ -280,7 +280,9 @@ class TeeworldsEnv(gym.Env):
 
         game_image = self.capture_game_image()
 
-        assert(len(self.image_buffer) == NUMBER_OF_IMAGES)
+        assert len(self.image_buffer) == NUMBER_OF_IMAGES, f"wrong image buffer length: {len(self.image_buffer)}, " \
+                                                           f"should be {NUMBER_OF_IMAGES}, check if you reset the env " \
+                                                           f"before accessing it "
         self.image_buffer.pop()
         self.image_buffer.appendleft(game_image)
 
@@ -292,7 +294,7 @@ class TeeworldsEnv(gym.Env):
         info = self.game_information.to_dict()
         self.game_information.clear()
 
-        if time.time() - self._last_reset > EPISODE_DURATION:
+        if time.time() - self._last_reset > self.episode_duration:
             return observation, 0, True, info
 
         return observation, reward, done, info

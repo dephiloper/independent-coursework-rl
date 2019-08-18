@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 import random
+import sys
 
 from gym_teeworlds import Action, TeeworldsEnv
 from utils import Monitor
@@ -9,18 +10,18 @@ def main():
     action = Action()
     action.direction = 1
     i = 0
-    single_env = TeeworldsEnv(
+    env = TeeworldsEnv(
         monitor=Monitor(800, 40, 960, 540),
-        server_tick_speed=50,
+        server_tick_speed=200,
         is_human=True,
-        game_information_port=5005
+        game_information_port=5005,
+        episode_duration=20
     )
 
     tmp_info = None
+    env.reset()
 
     while True:
-        if i % 2000 == 0:
-            single_env.reset()
         action.mouse_x = random.randrange(-200, 200)
         action.mouse_y = random.randrange(-200, 200)
         action.direction = 1
@@ -29,12 +30,15 @@ def main():
         action.shoot = 0 if i % 50 else 0
         i += 1
         # observation, reward, done, game_information = single_env.step(action)
-        observation, reward, done, info = single_env.step(action)
+        observation, reward, done, info = env.step(action)
 
-        if tmp_info != info:
-            print("info:" + str(info))
-            tmp_info = info
+        if reward > 0:
+            print(reward)
+            sys.stdout.flush()
 
+        if done:
+            print("done")
+            env.reset()
         # cv2.imshow("x", observation[0])
         # cv2.waitKey()
         # multi_envs[0].step_by_id(action, 0) # use this if you only want to perform any action with one client
