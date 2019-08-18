@@ -19,8 +19,8 @@ from utils import ExperienceBuffer, ACTIONS, ACTION_LABELS, Experience
 MODEL_NAME = "teeworlds-v0.1-"
 
 # exp collecting
-NUM_WORKERS = 8
-COLLECT_EXPERIENCE_SIZE = 1000  # init: 2000 (amount of experiences to collect after each training step)
+NUM_WORKERS = 6
+COLLECT_EXPERIENCE_SIZE = 2000  # init: 2000 (amount of experiences to collect after each training step)
 GAME_TICK_SPEED = 200  # default: 50 (game speed, when higher more screenshots needs to be captures)
 MONITOR_WIDTH = 84  # init: 84 width of game screen
 MONITOR_HEIGHT = 84  # init: 84 height of game screen (important for conv)
@@ -40,7 +40,7 @@ EPSILON_DECAY = 0.01  # init: 0.01
 LEARNING_RATE = 1e-4  # init: 1e-4 (also quite low eventually using default 1e-3)
 SYNC_TARGET_FRAMES = 10000  # init: 1000 (how frequently we sync target net with net)
 
-MEAN_REWARD_BOUND = 10  # init: 10 (randomly guessed) <- this needs to be checked
+MEAN_REWARD_BOUND = 13
 
 
 class GameStats:
@@ -189,7 +189,8 @@ def main():
             top_spacing=40,
             server_tick_speed=GAME_TICK_SPEED,
             monitor_x_padding=MONITOR_X_PADDING,
-            monitor_y_padding=MONITOR_Y_PADDING
+            monitor_y_padding=MONITOR_Y_PADDING,
+            map_name="level_1"
     )):
         worker = Worker(worker_index, env_setting, experience_queue, stats_queue, net, epsilon, ACTIONS, DEVICE)
         workers.append(worker)

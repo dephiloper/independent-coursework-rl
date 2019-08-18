@@ -98,13 +98,14 @@ class GameInformation:
         return GameInformation(-1, -1, 0, 0)
 
 
-def teeworlds_env_iterator(n, monitor_width, monitor_height, top_spacing=0, server_tick_speed=50):
+def teeworlds_env_iterator(n, monitor_width, monitor_height, top_spacing=0, server_tick_speed=50, map_name="level_0"):
     for teeworlds_env_setting in teeworlds_env_settings_iterator(
             n,
             monitor_width,
             monitor_height,
             top_spacing,
-            server_tick_speed
+            server_tick_speed,
+            map_name=map_name
     ):
         yield teeworlds_env_setting.create_env()
 
@@ -116,7 +117,8 @@ def teeworlds_env_settings_iterator(
         top_spacing=0,
         server_tick_speed=50,
         monitor_x_padding=0,
-        monitor_y_padding=0
+        monitor_y_padding=0,
+        map_name="level_0"
 ):
     actions_port = 5000
     teeworlds_server_port = 8303
@@ -134,7 +136,8 @@ def teeworlds_env_settings_iterator(
             str(actions_port),
             str(actions_port+1),
             str(teeworlds_server_port),
-            server_tick_speed=server_tick_speed
+            server_tick_speed=server_tick_speed,
+            map_name=map_name
         )
 
         actions_port += 2
@@ -161,7 +164,7 @@ class TeeworldsEnv(gym.Env):
             ip="*",
             server_tick_speed=50,
             episode_duration=5,
-            map_name="level_1",
+            map_name="level_0",
             device="cpu",
             is_human=False,
     ):
