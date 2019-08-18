@@ -1,30 +1,32 @@
-from queue import Queue, Empty
-from threading import Thread, Event
+import time
+from queue import Empty
 from typing import List
 
 import numpy as np
+from torch.multiprocessing import Process, Queue, Value
+
 import torch
 from tensorboardX import SummaryWriter
 from tqdm import tqdm
 
+# training
 from dqn_model import Net
-from gym_teeworlds import NUMBER_OF_IMAGES, Action, TeeworldsEnv, OBSERVATION_SPACE, teeworlds_env_iterator
-from utils import Experience, ExperienceBuffer, ACTIONS
+from gym_teeworlds import teeworlds_env_settings_iterator, OBSERVATION_SPACE, TeeworldsEnvSettings, Action
+from utils import ExperienceBuffer, ACTIONS, Experience
 
 MODEL_NAME = "teeworlds-v0.1-"
 
 # exp collecting
 NUM_WORKERS = 1
-COLLECT_EXPERIENCE_SIZE = 200  # init: 2000 (amount of experiences to collect after each training step)
+COLLECT_EXPERIENCE_SIZE = 2000  # init: 2000 (amount of experiences to collect after each training step)
 GAME_TICK_SPEED = 200  # default: 50 (game speed, when higher more screenshots needs to be captures)
 MONITOR_WIDTH = 84  # init: 84 width of game screen
 MONITOR_HEIGHT = 84  # init: 84 height of game screen (important for conv)
 
-REPLAY_START_SIZE = 200  # init: 10000 (min amount of experiences in replay buffer before training starts)
-REPLAY_SIZE = 10000  # init: 10000 (max capacity of replay buffer)
-
 # training
-DEVICE = 'cuda'  # init: 'cpu'
+REPLAY_START_SIZE = 4000  # init: 10000 (min amount of experiences in replay buffer before training starts)
+REPLAY_SIZE = 10000  # init: 10000 (max capacity of replay buffer)
+DEVICE = 'cpu'  # init: 'cpu'
 BATCH_SIZE = 200  # init: 32 (sample size of experiences from replay buffer)
 NUM_TRAININGS_PER_EPOCH = 50  # init: 50 (amount of BATCH_SIZE x NUM_TRAININGS_PER_EPOCH will be trained)
 GAMMA = 0.99  # init: .99 (bellman equation)
@@ -42,53 +44,66 @@ class GameStats:
         self.reward = reward
 
 
-class Worker(Thread):
+class Worker(Process):
     def __init__(
             self,
-            env: TeeworldsEnv,
+            env_settings: TeeworldsEnvSettings,
             experience_queue: Queue,
             stats_queue: Queue,
             net: Net,
+            epsilon: Value,
             action_list: List,
-            device: str = 'cpu',
+            device: str = 'cpu'
     ):
-        Thread.__init__(self)
+        Process.__init__(self)
 
         self.experience_queue = experience_queue
         self.stats_queue = stats_queue
         self.net = net
-        self.epsilon = 1.0
+        self.epsilon = epsilon
         self.actions = action_list
         self.device = device
 
-        self.env = env
-        self.state = self.env.reset()
+        self.env_settings = env_settings
         self.total_reward = 0
 
-        self._running = Event()
-        self._should_restart = False
+        self._running_queue = Queue()
+        self._running_queue.put(False)  # do not start immediately
+        self.env = None
+        self.state = None
 
     def start_collecting_experience(self):
-        self._should_restart = True
-        self._running.set()
+        self._running_queue.put(True)
 
     def stop_collecting_experience(self):
-        self._running.clear()
+        self._running_queue.put(False)
+
+    def initialize_env(self):
+        self.env = self.env_settings.create_env()
+        self.state = self.env.reset()
+
+    def _idle_for_running(self):
+        try:
+            token = self._running_queue.get_nowait()
+
+            # if False was in queue
+            if not token:
+                self.state = self.env.reset()
+                # wait for next true
+                while not self._running_queue.get():
+                    self.state = self.env.reset()
+        except Empty:
+            pass
 
     # noinspection PyCallingNonCallable,PyUnresolvedReferences
     def run(self) -> None:
+        self.initialize_env()
+
         while True:
-            if not self._running.is_set():
-                self.env.reset()
-
-            self._running.wait()
-
-            if self._should_restart:
-                self.env.reset()
-                self._should_restart = False
+            self._idle_for_running()
 
             # with probability epsilon take random action (explore)
-            if np.random.random() < self.epsilon:
+            if np.random.random() < self.epsilon.value:
                 index = np.random.randint(len(self.actions))  # np.random.choice(actions)
             else:  # otherwise use the past model to obtain the q-values for all possible actions, choose the best
                 state_a = np.array(
@@ -99,8 +114,6 @@ class Worker(Thread):
                     (1, NUMBER_OF_IMAGES, self.env.monitor.width, self.env.monitor.height)
                 )
                 state_v = torch.tensor(state_a, dtype=torch.float32).to(self.device)
-                if not self._running.is_set():
-                    continue  # this could break, because concurrent modification of self.net
 
                 q_values_v = self.net(state_v)  # calculate q values
                 index = torch.argmax(q_values_v)  # get index of value with best outcome
@@ -128,31 +141,39 @@ class Worker(Thread):
 
 
 def main():
-    workers = []
     assert (SYNC_TARGET_FRAMES % COLLECT_EXPERIENCE_SIZE == 0)
+    torch.multiprocessing.set_start_method('spawn')
+
+    workers = []
     experience_queue = Queue()
     stats_queue = Queue()
+
     observation_size = OBSERVATION_SPACE.shape
-    epsilon = EPSILON_START
+    epsilon = Value('d', EPSILON_START)
 
     net = Net(observation_size, n_actions=len(ACTIONS)).to(DEVICE)
     target_net = Net(observation_size, n_actions=len(ACTIONS)).to(DEVICE)
     optimizer = torch.optim.Adam(net.parameters(), lr=LEARNING_RATE)
 
-    for env in teeworlds_env_iterator(
+    for env_setting in teeworlds_env_settings_iterator(
             NUM_WORKERS,
             MONITOR_WIDTH,
             MONITOR_HEIGHT,
             top_spacing=40,
             server_tick_speed=GAME_TICK_SPEED,
     ):
-        worker = Worker(env, experience_queue, stats_queue, net, ACTIONS, DEVICE)
+        worker = Worker(env_setting, experience_queue, stats_queue, net, epsilon, ACTIONS, DEVICE)
         workers.append(worker)
 
     experience_buffer = ExperienceBuffer(capacity=REPLAY_SIZE)
 
     for worker in workers:
         worker.start()
+        time.sleep(2)
+
+    time.sleep(4)
+
+    for worker in workers:
         worker.start_collecting_experience()
 
     frame_idx = 0
@@ -187,7 +208,7 @@ def main():
                 reward_100 /= len(game_stats[-10:])
 
                 writer.add_scalar('reward_100', reward_100, frame_idx)
-                writer.add_scalar('epsilon', epsilon, frame_idx)
+                writer.add_scalar('epsilon', epsilon.value, frame_idx)
 
         # check if buffer is large enough for training
         if len(experience_buffer) >= REPLAY_START_SIZE:
@@ -195,7 +216,6 @@ def main():
             # stop experience collection on all workers
             for worker in workers:
                 worker.stop_collecting_experience()
-                worker.epsilon = epsilon
 
             mean_reward = np.mean([stat.reward for stat in game_stats[-finished_episodes:]])
             if mean_reward > max_mean_reward:
@@ -208,7 +228,7 @@ def main():
                 target_net.load_state_dict(net.state_dict())
 
             # decrease epsilon
-            epsilon = max(MIN_EPSILON, epsilon - EPSILON_DECAY)
+            epsilon.value = max(MIN_EPSILON, epsilon.value - EPSILON_DECAY)
 
             # training
             for _ in tqdm(range(NUM_TRAININGS_PER_EPOCH), desc='training: '):

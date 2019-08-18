@@ -25,7 +25,7 @@ start_mon = {'top': 1, 'left': 1, 'width': 84, 'height': 84}
 _starting_port = 5000
 _open_window_count = 0
 
-OBSERVATION_SPACE = Box(0, 255, [NUMBER_OF_IMAGES, start_mon['width'], start_mon['height']])
+OBSERVATION_SPACE = Box(0, 255, [NUMBER_OF_IMAGES, start_mon['width'], start_mon['height']], dtype=np.uint8)
 ACTION_SPACE = Discrete(3)
 
 
@@ -93,11 +93,22 @@ class GameInformation:
 
 
 def teeworlds_env_iterator(n, monitor_width, monitor_height, top_spacing=0, server_tick_speed=50):
+    for teeworlds_env_setting in teeworlds_env_settings_iterator(
+            n,
+            monitor_width,
+            monitor_height,
+            top_spacing,
+            server_tick_speed
+    ):
+        yield teeworlds_env_setting.create_env()
+
+
+def teeworlds_env_settings_iterator(n, monitor_width, monitor_height, top_spacing=0, server_tick_speed=50):
     actions_port = 5000
     teeworlds_server_port = 8303
 
     for monitor in mon_iterator(n, monitor_width, monitor_height, top_spacing=top_spacing):
-        yield TeeworldsEnv(
+        yield TeeworldsEnvSettings(
             monitor,
             str(actions_port),
             str(actions_port+1),
@@ -293,3 +304,36 @@ class TeeworldsEnv(gym.Env):
 
     def render(self, mode='human'):
         pass
+
+class TeeworldsEnvSettings:
+    def __init__(
+            self,
+            monitor: Monitor,
+            actions_port="5000",
+            game_information_port="5001",
+            teeworlds_srv_port="8303",
+            ip="*",
+            server_tick_speed=50,
+            map_name="level_0",
+            is_human=False
+    ):
+        self.monitor = monitor
+        self.actions_port = actions_port
+        self.game_information_port = game_information_port
+        self.teeworlds_srv_port = teeworlds_srv_port
+        self.ip = ip
+        self.server_tick_speed = server_tick_speed
+        self.map_name = map_name
+        self.is_human = is_human
+
+    def create_env(self):
+        return TeeworldsEnv(
+            monitor=self.monitor,
+            actions_port=self.actions_port,
+            game_information_port=self.game_information_port,
+            teeworlds_srv_port=self.teeworlds_srv_port,
+            ip=self.ip,
+            server_tick_speed=self.server_tick_speed,
+            map_name=self.map_name,
+            is_human=self.is_human,
+        )
