@@ -3,6 +3,7 @@ import time
 from queue import Empty
 from typing import List
 
+import cv2
 import numpy as np
 from torch.multiprocessing import Process, Queue, Value
 
@@ -11,15 +12,16 @@ from tensorboardX import SummaryWriter
 from tqdm import tqdm
 
 from dqn_model import Net
-from gym_teeworlds import teeworlds_env_settings_iterator, OBSERVATION_SPACE, TeeworldsEnvSettings, Action
-from utils import ExperienceBuffer, ACTIONS, Experience
+from gym_teeworlds import teeworlds_env_settings_iterator, OBSERVATION_SPACE, TeeworldsEnvSettings, Action, \
+    NUMBER_OF_IMAGES
+from utils import ExperienceBuffer, ACTIONS, ACTION_LABELS, Experience
 
 MODEL_NAME = "teeworlds-v0.1-"
 
 # exp collecting
-NUM_WORKERS = 4
-COLLECT_EXPERIENCE_SIZE = 2000  # init: 2000 (amount of experiences to collect after each training step)
-GAME_TICK_SPEED = 500  # default: 50 (game speed, when higher more screenshots needs to be captures)
+NUM_WORKERS = 8
+COLLECT_EXPERIENCE_SIZE = 1000  # init: 2000 (amount of experiences to collect after each training step)
+GAME_TICK_SPEED = 200  # default: 50 (game speed, when higher more screenshots needs to be captures)
 MONITOR_WIDTH = 84  # init: 84 width of game screen
 MONITOR_HEIGHT = 84  # init: 84 height of game screen (important for conv)
 MONITOR_X_PADDING = 20
@@ -29,7 +31,7 @@ MONITOR_Y_PADDING = 20
 REPLAY_START_SIZE = 4000  # init: 10000 (min amount of experiences in replay buffer before training starts)
 REPLAY_SIZE = 10000  # init: 10000 (max capacity of replay buffer)
 DEVICE = 'cpu'  # init: 'cpu'
-BATCH_SIZE = 200  # init: 32 (sample size of experiences from replay buffer)
+BATCH_SIZE = 512  # init: 32 (sample size of experiences from replay buffer)
 NUM_TRAININGS_PER_EPOCH = 50  # init: 50 (amount of BATCH_SIZE x NUM_TRAININGS_PER_EPOCH will be trained)
 GAMMA = 0.99  # init: .99 (bellman equation)
 MIN_EPSILON = 0.02  # init: 0.02
@@ -49,6 +51,7 @@ class GameStats:
 class Worker(Process):
     def __init__(
             self,
+            worker_index,
             env_settings: TeeworldsEnvSettings,
             experience_queue: Queue,
             stats_queue: Queue,
@@ -59,6 +62,7 @@ class Worker(Process):
     ):
         Process.__init__(self)
 
+        self.worker_index = worker_index
         self.experience_queue = experience_queue
         self.stats_queue = stats_queue
         self.net = net
@@ -129,8 +133,7 @@ class Worker(Process):
             self.total_reward += reward
 
             # store experience in exp_buffer
-            exp = Experience(self.state, index, reward, is_done, new_state)
-            # exp = Experience(None, index, reward, is_done, new_state)
+            exp = Experience(self.state, index, reward, is_done, new_state, self.worker_index)
             self.experience_queue.put(exp)
 
             self.state = new_state
@@ -148,6 +151,22 @@ def setup():
     os.makedirs('saves', exist_ok=True)
 
 
+def print_experience_buffer(experience_buffer: ExperienceBuffer):
+    index = 0
+    for experience in experience_buffer.buffer:
+        assert(type(experience) == Experience)
+        if experience.worker_index == 0:
+            # img_cur = np.concatenate(experience.state, axis=1)
+            img = np.concatenate(experience.new_state, axis=1)
+            # img = np.concatenate((img_cur, img_new), axis=0)
+            cv2.imshow(f'{index}: {ACTION_LABELS[experience.action]} reward={experience.reward}', img)
+            if cv2.waitKey() == 27:
+                break
+            index += 1
+
+    cv2.destroyAllWindows()
+
+
 def main():
     setup()
 
@@ -163,7 +182,7 @@ def main():
     target_net = Net(observation_size, n_actions=len(ACTIONS)).to(DEVICE)
     optimizer = torch.optim.Adam(net.parameters(), lr=LEARNING_RATE)
 
-    for env_setting in teeworlds_env_settings_iterator(
+    for worker_index, env_setting in enumerate(teeworlds_env_settings_iterator(
             NUM_WORKERS,
             MONITOR_WIDTH,
             MONITOR_HEIGHT,
@@ -171,8 +190,8 @@ def main():
             server_tick_speed=GAME_TICK_SPEED,
             monitor_x_padding=MONITOR_X_PADDING,
             monitor_y_padding=MONITOR_Y_PADDING
-    ):
-        worker = Worker(env_setting, experience_queue, stats_queue, net, epsilon, ACTIONS, DEVICE)
+    )):
+        worker = Worker(worker_index, env_setting, experience_queue, stats_queue, net, epsilon, ACTIONS, DEVICE)
         workers.append(worker)
 
     experience_buffer = ExperienceBuffer(capacity=REPLAY_SIZE)
@@ -221,9 +240,10 @@ def main():
                 writer.add_scalar('reward_100', reward_100, frame_idx)
                 writer.add_scalar('epsilon', epsilon.value, frame_idx)
 
+        # print_experience_buffer(experience_buffer)
+
         # check if buffer is large enough for training
         if len(experience_buffer) >= REPLAY_START_SIZE:
-
             # stop experience collection on all workers
             for worker in workers:
                 worker.stop_collecting_experience()

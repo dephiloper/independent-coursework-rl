@@ -1,3 +1,4 @@
+import copy
 import os
 import struct
 import subprocess
@@ -21,6 +22,7 @@ NUMBER_OF_IMAGES = 4
 
 ARMOR_REWARD = 1
 HEALTH_REWARD = 10
+GAME_INFORMATION_DELAY = 1
 
 start_mon = {'top': 1, 'left': 1, 'width': 84, 'height': 84}
 _starting_port = 5000
@@ -92,6 +94,10 @@ class GameInformation:
     def is_done(self):
         return bool(self.health_collected)
 
+    @staticmethod
+    def empty():
+        return GameInformation(-1, -1, 0, 0)
+
 
 def teeworlds_env_iterator(n, monitor_width, monitor_height, top_spacing=0, server_tick_speed=50):
     for teeworlds_env_setting in teeworlds_env_settings_iterator(
@@ -159,7 +165,6 @@ class TeeworldsEnv(gym.Env):
             device="cpu",
             is_human=False
     ):
-        self.game_information = GameInformation(-1, -1, 0, 0)
         self.monitor = monitor
         self.observation_space = OBSERVATION_SPACE
         self.action_space = ACTION_SPACE
@@ -241,6 +246,8 @@ class TeeworldsEnv(gym.Env):
         self.last_step_timestamp = None
         self._last_reset = time.time()
 
+        self.game_information_deque = None
+
         # waiting for everything to build up
         time.sleep(1)
 
@@ -248,6 +255,7 @@ class TeeworldsEnv(gym.Env):
         """
         Fetches new game information from game_information_socket and updates the left and top.
         """
+        game_information = GameInformation.empty()
         while True:
             try:
                 msg = self.game_information_socket.recv(zmq.DONTWAIT)
@@ -256,9 +264,10 @@ class TeeworldsEnv(gym.Env):
             if msg:
                 armor_collected, health_collected = struct.unpack('<ii', msg)
 
-                # todo check if it is possible for the player to go in an negative area
-                self.game_information.armor_collected += armor_collected
-                self.game_information.health_collected += health_collected
+                game_information.armor_collected += armor_collected
+                game_information.health_collected += health_collected
+
+        self.game_information_deque.appendleft(game_information)
 
     def capture_game_image(self):
         img = np.asarray(self.sct.grab(self.monitor.to_dict()))
@@ -278,19 +287,19 @@ class TeeworldsEnv(gym.Env):
 
         self._wait_for_frame()
 
+        self._try_fetch_game_state()
         game_image = self.capture_game_image()
 
         assert(len(self.image_buffer) == NUMBER_OF_IMAGES)
         self.image_buffer.pop()
         self.image_buffer.appendleft(game_image)
 
-        self._try_fetch_game_state()
-
         observation = self.get_observation()
-        reward = self.game_information.get_reward()
-        done = self.game_information.is_done()
-        info = self.game_information.to_dict()
-        self.game_information.clear()
+
+        game_information = self.game_information_deque.pop()
+        reward = game_information.get_reward()
+        done = game_information.is_done()
+        info = game_information.to_dict()
 
         if time.time() - self._last_reset > EPISODE_DURATION:
             return observation, 0, True, info
@@ -314,7 +323,7 @@ class TeeworldsEnv(gym.Env):
     def reset(self, reset_duration=RESET_DURATION):
         self.image_buffer.clear()
         self.socket.send(reset_action.to_bytes())
-        self.game_information.clear()
+        self.game_information_deque = deque([GameInformation.empty()] * GAME_INFORMATION_DELAY)
         time.sleep(reset_duration)
         self._last_reset = time.time()
 

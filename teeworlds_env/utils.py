@@ -6,10 +6,14 @@ import numpy as np
 from future.moves import collections
 from screeninfo import screeninfo
 
-Experience = collections.namedtuple('Experience', field_names=['state', 'action', 'reward', 'done', 'new_state'])
+Experience = collections.namedtuple(
+    'Experience',
+    field_names=['state', 'action', 'reward', 'done', 'new_state', 'worker_index']
+)
 
 # move left, stay, move top, move left + jump, stay + jump, move top + jump
 ACTIONS = [[-1, 0], [0, 0], [1, 0], [-1, 1], [0, 1], [1, 1]]
+ACTION_LABELS = ['left', 'stay', 'right', 'jump left', 'jump', 'jump right']
 
 
 class Monitor:
@@ -96,7 +100,7 @@ class ExperienceBuffer:
     def sample(self, batch_size):
         # controls whether the sample is returned to the sample pool, for unique samples this should be false
         indices = np.random.choice(len(self.buffer), batch_size, replace=False)
-        states, actions, rewards, dones, next_states = zip(*[self.buffer[idx] for idx in indices])
+        states, actions, rewards, dones, next_states, worker_index = zip(*[self.buffer[idx] for idx in indices])
         try:
             return np.array(states, dtype=np.float32), \
                    np.array(actions, dtype=np.int64), \
