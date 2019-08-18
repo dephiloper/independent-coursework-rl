@@ -5,7 +5,9 @@ __pycache__
 runs
 vids/
 models/
+log.txt
 live_models/
+/preparation/07_deep_q_learning/live_models2/
 mon/
 rec/
 *.dat
