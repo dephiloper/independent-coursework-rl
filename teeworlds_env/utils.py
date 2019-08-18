@@ -1,6 +1,15 @@
 import queue
+import random
+import string
 
+import numpy as np
+from future.moves import collections
 from screeninfo import screeninfo
+
+Experience = collections.namedtuple('Experience', field_names=['state', 'action', 'reward', 'done', 'new_state'])
+
+# move left, stay, move top, move left + jump, stay + jump, move top + jump
+ACTIONS = [[-1, 0], [0, 0], [1, 0], [-1, 1], [0, 1], [1, 1]]
 
 
 class Monitor:
@@ -65,3 +74,36 @@ def get_all_from_queue(q: queue.Queue) -> list:
 
 class ToManyMonitorsError(Exception):
     pass
+
+
+# keep the last transitions obtained from the environment (s, a, r, done_flag, s')
+# every time we do a step we push the transition into the buffer
+# keeping only a fixed number of steps
+class ExperienceBuffer:
+    def __init__(self, capacity):
+        self.buffer = collections.deque(maxlen=capacity)
+
+    def __len__(self):
+        return len(self.buffer)
+
+    def append(self, experience):
+        self.buffer.append(experience)
+
+    # for training we randomly sample the batch of transitions from the replay buffer
+    # this allows to break the correlation between subsequent steps in the environment
+    def sample(self, batch_size):
+        # controls whether the sample is returned to the sample pool, for unique samples this should be false
+        indices = np.random.choice(len(self.buffer), batch_size, replace=False)
+        states, actions, rewards, dones, next_states = zip(*[self.buffer[idx] for idx in indices])
+        try:
+            return np.array(states, dtype=np.float32), \
+                   np.array(actions, dtype=np.int64), \
+                   np.array(rewards, dtype=np.float32), \
+                   np.array(dones, dtype=np.uint8), \
+                   np.array(next_states, dtype=np.float32)
+        except ValueError as e:
+            print(str(e))
+
+
+def random_id(n):
+    return ''.join([random.choice(string.ascii_letters + string.digits) for _ in range(n)])

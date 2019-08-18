@@ -1,25 +1,40 @@
-from tensorboardX import SummaryWriter
-from tqdm import tqdm
 from queue import Queue, Empty
+from threading import Thread, Event
 from typing import List
 
 import numpy as np
-from threading import Thread, Event
-
 import torch
+from tensorboardX import SummaryWriter
+from tqdm import tqdm
 
-from dqn_teeworlds import Net, Experience, ExperienceBuffer, REPLAY_SIZE, actions, DEVICE, EPSILON_START,\
-    LEARNING_RATE, REPLAY_START_SIZE, SYNC_TARGET_FRAMES, BATCH_SIZE, calc_loss
+from dqn_model import Net
 from gym_teeworlds import NUMBER_OF_IMAGES, Action, TeeworldsEnv, OBSERVATION_SPACE, teeworlds_env_iterator
+from utils import Experience, ExperienceBuffer, ACTIONS
 
-NUM_WORKERS = 8
-NUM_TRAININGS_PER_EPOCH = 10
-COLLECT_EXPERIENCE_SIZE = 2000
-SERVER_TICK_SPEED = 50
-MONITOR_WIDTH = 84
-MONITOR_HEIGHT = 84
-EPSILON_DECAY = 0.01
-MIN_EPSILON = 0.02
+MODEL_NAME = "teeworlds-v0.1-"
+
+# exp collecting
+NUM_WORKERS = 1
+COLLECT_EXPERIENCE_SIZE = 200  # init: 2000 (amount of experiences to collect after each training step)
+GAME_TICK_SPEED = 200  # default: 50 (game speed, when higher more screenshots needs to be captures)
+MONITOR_WIDTH = 84  # init: 84 width of game screen
+MONITOR_HEIGHT = 84  # init: 84 height of game screen (important for conv)
+
+REPLAY_START_SIZE = 200  # init: 10000 (min amount of experiences in replay buffer before training starts)
+REPLAY_SIZE = 10000  # init: 10000 (max capacity of replay buffer)
+
+# training
+DEVICE = 'cuda'  # init: 'cpu'
+BATCH_SIZE = 200  # init: 32 (sample size of experiences from replay buffer)
+NUM_TRAININGS_PER_EPOCH = 50  # init: 50 (amount of BATCH_SIZE x NUM_TRAININGS_PER_EPOCH will be trained)
+GAMMA = 0.99  # init: .99 (bellman equation)
+MIN_EPSILON = 0.02  # init: 0.02
+EPSILON_START = 1.0  # init: 1.0
+EPSILON_DECAY = 0.01  # init: 0.01
+LEARNING_RATE = 1e-4  # init: 1e-4 (also quite low eventually using default 1e-3)
+SYNC_TARGET_FRAMES = 10000  # init: 1000 (how frequently we sync target net with net)
+
+MEAN_REWARD_BOUND = 10  # init: 10 (randomly guessed) <- this needs to be checked
 
 
 class GameStats:
@@ -95,7 +110,7 @@ class Worker(Thread):
             # do step in the environment
             new_state, reward, is_done, _ = self.env.step(Action.from_list(action))
 
-            assert(new_state is not None)
+            assert (new_state is not None)
 
             self.total_reward += reward
 
@@ -114,14 +129,14 @@ class Worker(Thread):
 
 def main():
     workers = []
-    assert(SYNC_TARGET_FRAMES % COLLECT_EXPERIENCE_SIZE == 0)
+    assert (SYNC_TARGET_FRAMES % COLLECT_EXPERIENCE_SIZE == 0)
     experience_queue = Queue()
     stats_queue = Queue()
     observation_size = OBSERVATION_SPACE.shape
     epsilon = EPSILON_START
 
-    net = Net(observation_size, n_actions=len(actions)).to(DEVICE)
-    target_net = Net(observation_size, n_actions=len(actions)).to(DEVICE)
+    net = Net(observation_size, n_actions=len(ACTIONS)).to(DEVICE)
+    target_net = Net(observation_size, n_actions=len(ACTIONS)).to(DEVICE)
     optimizer = torch.optim.Adam(net.parameters(), lr=LEARNING_RATE)
 
     for env in teeworlds_env_iterator(
@@ -129,9 +144,9 @@ def main():
             MONITOR_WIDTH,
             MONITOR_HEIGHT,
             top_spacing=40,
-            server_tick_speed=SERVER_TICK_SPEED
+            server_tick_speed=GAME_TICK_SPEED,
     ):
-        worker = Worker(env, experience_queue, stats_queue, net, actions, DEVICE)
+        worker = Worker(env, experience_queue, stats_queue, net, ACTIONS, DEVICE)
         workers.append(worker)
 
     experience_buffer = ExperienceBuffer(capacity=REPLAY_SIZE)
@@ -145,65 +160,111 @@ def main():
     writer = SummaryWriter()
     game_stats = []
 
+    max_mean_reward = 0
+    finished_episodes = 0
+    epoch = 0
+
     while True:
+        # collect experience
         for _ in tqdm(range(COLLECT_EXPERIENCE_SIZE), desc='collecting data: '):
             experience_buffer.append(experience_queue.get())
             frame_idx += 1
 
+            # gather stats for logging
             while True:
                 try:
                     game_stat = stats_queue.get_nowait()
-                    game_stats.append(game_stat)
-                    writer.add_scalar('reward', game_stat.reward, frame_idx)
-
-                    reward_100 = 0
-                    for gs in game_stats[-100:]:
-                        reward_100 += gs.reward
-                    reward_100 /= len(game_stats[-100:])
-                    writer.add_scalar('reward_100', reward_100, frame_idx)
-
-                    writer.add_scalar('epsilon', epsilon, frame_idx)
+                    finished_episodes += 1
                 except Empty:
                     break
 
-        if len(experience_buffer) < REPLAY_START_SIZE:  # check if buffer is large enough for training
-            continue
+                game_stats.append(game_stat)
+                writer.add_scalar('reward', game_stat.reward, frame_idx)
 
-        if frame_idx % SYNC_TARGET_FRAMES == 0:  # sync nets (copy weights)
-            target_net.load_state_dict(net.state_dict())
+                reward_100 = 0
+                for stat in game_stats[-10:]:
+                    reward_100 += stat.reward
+                reward_100 /= len(game_stats[-10:])
 
-        for worker in workers:
-            worker.stop_collecting_experience()
-            worker.epsilon = epsilon
+                writer.add_scalar('reward_100', reward_100, frame_idx)
+                writer.add_scalar('epsilon', epsilon, frame_idx)
 
-        epsilon = max(MIN_EPSILON, epsilon - EPSILON_DECAY)
+        # check if buffer is large enough for training
+        if len(experience_buffer) >= REPLAY_START_SIZE:
 
-        # for index, experience in enumerate(experience_buffer.buffer):
-        #     cv2.imshow('frame{}'.format(index), experience.state[0])
-        #     if cv2.waitKey() == 27:
-        #         break
-        # cv2.destroyAllWindows()
+            # stop experience collection on all workers
+            for worker in workers:
+                worker.stop_collecting_experience()
+                worker.epsilon = epsilon
 
-        # learning
-        for _ in tqdm(range(NUM_TRAININGS_PER_EPOCH), desc='training: '):
-            optimizer.zero_grad()
-            batch = experience_buffer.sample(BATCH_SIZE)
+            mean_reward = np.mean([stat.reward for stat in game_stats[-finished_episodes:]])
+            if mean_reward > max_mean_reward:
+                max_mean_reward = mean_reward
+                torch.save(net.state_dict(), f"saves/{MODEL_NAME}_epoch-{epoch:04d}_rew-{max_mean_reward:08.0f}.dat")
+            finished_episodes = 0
 
-            # perform optimization by minimizing the loss
-            loss_t = calc_loss(batch, net, target_net, device=DEVICE)
-            # total_loss.append(loss_t.item())
-            loss_t.backward()
-            optimizer.step()
+            # sync nets (copy weights)
+            if frame_idx % SYNC_TARGET_FRAMES == 0:
+                target_net.load_state_dict(net.state_dict())
 
-        for worker in workers:
-            worker.start_collecting_experience()
+            # decrease epsilon
+            epsilon = max(MIN_EPSILON, epsilon - EPSILON_DECAY)
 
-        """
-        if frame_idx == 250:
-            for i, experience in enumerate(experience_buffer.buffer):
-                cv2.imshow(str(i), experience.state[0])
-                cv2.waitKey()
-        """
+            # training
+            for _ in tqdm(range(NUM_TRAININGS_PER_EPOCH), desc='training: '):
+                optimizer.zero_grad()
+                batch = experience_buffer.sample(BATCH_SIZE)
+
+                # perform optimization by minimizing the loss
+                loss_t = calc_loss(batch, net, target_net, device=DEVICE)
+                # total_loss.append(loss_t.item())
+                loss_t.backward()
+                optimizer.step()
+
+            epoch += 1
+
+            # restart experience collection on all workers
+            for worker in workers:
+                worker.start_collecting_experience()
+
+
+# performs the loss calculation mentioned in 6 and 7
+# equations:
+#   https://bit.ly/2I7iBqa <- steps which aren't end of episode
+#   https://bit.ly/2HFsOec <- final steps
+# noinspection PyCallingNonCallable,PyUnresolvedReferences
+def calc_loss(batch, net, tgt_net, device="cpu"):
+    states, actions, rewards, dones, next_states = batch  # unpack the sample
+
+    # wrap numpy data in torch tensors <- execution on gpu fast like sonic
+    states_v = torch.tensor(states, dtype=torch.float32).to(device)
+    next_states_v = torch.tensor(next_states, dtype=torch.float32).to(device)
+    actions_v = torch.tensor(actions, dtype=torch.int64).to(device)
+    rewards_v = torch.tensor(rewards, dtype=torch.float32).to(device)
+    done_mask = torch.ByteTensor(dones).to(device)
+
+    # extract q-values for taken actions using the gather function
+    # gather explained: https://stackoverflow.com/a/54706716/10547035 or page 144
+    state_action_values = net(states_v).gather(1, actions_v.unsqueeze(-1)).squeeze(-1)
+
+    # apply target network to next state observations, and calculate the maximum q-value along the same action dim 1
+    # max returns both max value and indices of those values
+    next_state_values = tgt_net(next_states_v).max(1)[0]
+
+    # this part is mentioned as very important!
+    # if transition in the batch is from the last step in the episode, then our value of the action does not
+    # have a discounted reward of the next state, as there is no next state to gather reward from
+    # without this training will not converge!
+    next_state_values[done_mask] = 0.0
+
+    # detach() returns tensor w/o connection to its calculation history
+    # detach value from computation graph, which prevents gradients of flowing into target network
+    # when not performed backprop of the loss will affect both nets
+    next_state_values = next_state_values.detach()
+
+    # calculate the bellman approximation value
+    expected_state_action_values = next_state_values * GAMMA + rewards_v
+    return torch.nn.MSELoss()(state_action_values, expected_state_action_values)
 
 
 if __name__ == '__main__':

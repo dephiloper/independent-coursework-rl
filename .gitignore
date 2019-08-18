@@ -12,5 +12,4 @@ mon/
 rec/
 *.dat
 /teeworlds_env/config.txt
-/teeworlds_env/client_log.txt
-/teeworlds_env/server_log.txt
+/teeworlds_env/log/
