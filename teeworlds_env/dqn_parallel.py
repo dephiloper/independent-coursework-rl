@@ -1,16 +1,19 @@
+import time
+
 from tensorboardX import SummaryWriter
 from tqdm import tqdm
-from queue import Queue, Empty
 from typing import List
 
 import numpy as np
-from threading import Thread, Event
+from torch.multiprocessing import Process, Queue, Value
+from queue import Empty
 
 import torch
 
 from dqn_teeworlds import Net, Experience, ExperienceBuffer, REPLAY_SIZE, actions, DEVICE, EPSILON_START,\
     LEARNING_RATE, REPLAY_START_SIZE, SYNC_TARGET_FRAMES, BATCH_SIZE, calc_loss
-from gym_teeworlds import NUMBER_OF_IMAGES, Action, TeeworldsEnv, OBSERVATION_SPACE, teeworlds_env_iterator
+from gym_teeworlds import NUMBER_OF_IMAGES, Action, OBSERVATION_SPACE, teeworlds_env_settings_iterator, \
+    TeeworldsEnvSettings
 
 NUM_WORKERS = 8
 NUM_TRAININGS_PER_EPOCH = 10
@@ -27,50 +30,63 @@ class GameStats:
         self.reward = reward
 
 
-class Worker(Thread):
+class Worker(Process):
     def __init__(
             self,
-            env: TeeworldsEnv,
+            env_settings: TeeworldsEnvSettings,
             experience_queue: Queue,
             stats_queue: Queue,
             net: Net,
+            epsilon: Value,
             action_list: List,
-            device: str = 'cpu',
+            device: str = 'cpu'
     ):
-        Thread.__init__(self)
+        Process.__init__(self)
 
         self.experience_queue = experience_queue
         self.stats_queue = stats_queue
         self.net = net
-        self.epsilon = 1.0
+        self.epsilon = epsilon
         self.actions = action_list
         self.device = device
 
-        self.env = env
-        self.state = self.env.reset()
+        self.env_settings = env_settings
         self.total_reward = 0
 
-        self._running = Event()
-        self._should_restart = False
+        self._running_queue = Queue()
+        self._running_queue.put(False)  # do not start immediately
+        self.env = None
+        self.state = None
 
     def start_collecting_experience(self):
-        self._should_restart = True
-        self._running.set()
+        self._running_queue.put(True)
 
     def stop_collecting_experience(self):
-        self._running.clear()
+        self._running_queue.put(False)
+
+    def initialize_env(self):
+        self.env = self.env_settings.create_env()
+        self.state = self.env.reset()
+
+    def _idle_for_running(self):
+        try:
+            token = self._running_queue.get_nowait()
+
+            # if False was in queue
+            if not token:
+                self.state = self.env.reset()
+                # wait for next true
+                while not self._running_queue.get():
+                    self.state = self.env.reset()
+        except Empty:
+            pass
 
     # noinspection PyCallingNonCallable,PyUnresolvedReferences
     def run(self) -> None:
+        self.initialize_env()
+
         while True:
-            if not self._running.is_set():
-                self.env.reset()
-
-            self._running.wait()
-
-            if self._should_restart:
-                self.env.reset()
-                self._should_restart = False
+            self._idle_for_running()
 
             # with probability epsilon take random action (explore)
             if np.random.random() < self.epsilon:
@@ -84,8 +100,6 @@ class Worker(Thread):
                     (1, NUMBER_OF_IMAGES, self.env.monitor.width, self.env.monitor.height)
                 )
                 state_v = torch.tensor(state_a, dtype=torch.float32).to(self.device)
-                if not self._running.is_set():
-                    continue  # this could break, because concurrent modification of self.net
 
                 q_values_v = self.net(state_v)  # calculate q values
                 index = torch.argmax(q_values_v)  # get index of value with best outcome
@@ -113,31 +127,39 @@ class Worker(Thread):
 
 
 def main():
-    workers = []
+    torch.multiprocessing.set_start_method('spawn')
     assert(SYNC_TARGET_FRAMES % COLLECT_EXPERIENCE_SIZE == 0)
+
+    workers = []
     experience_queue = Queue()
     stats_queue = Queue()
+
     observation_size = OBSERVATION_SPACE.shape
-    epsilon = EPSILON_START
+    epsilon = Value('d', EPSILON_START)
 
     net = Net(observation_size, n_actions=len(actions)).to(DEVICE)
     target_net = Net(observation_size, n_actions=len(actions)).to(DEVICE)
     optimizer = torch.optim.Adam(net.parameters(), lr=LEARNING_RATE)
 
-    for env in teeworlds_env_iterator(
+    for env_setting in teeworlds_env_settings_iterator(
             NUM_WORKERS,
             MONITOR_WIDTH,
             MONITOR_HEIGHT,
             top_spacing=40,
             server_tick_speed=SERVER_TICK_SPEED
     ):
-        worker = Worker(env, experience_queue, stats_queue, net, actions, DEVICE)
+        worker = Worker(env_setting, experience_queue, stats_queue, net, epsilon, actions, DEVICE)
         workers.append(worker)
 
     experience_buffer = ExperienceBuffer(capacity=REPLAY_SIZE)
 
     for worker in workers:
         worker.start()
+        time.sleep(2)
+
+    time.sleep(4)
+
+    for worker in workers:
         worker.start_collecting_experience()
 
     frame_idx = 0
@@ -162,7 +184,7 @@ def main():
                     reward_100 /= len(game_stats[-100:])
                     writer.add_scalar('reward_100', reward_100, frame_idx)
 
-                    writer.add_scalar('epsilon', epsilon, frame_idx)
+                    writer.add_scalar('epsilon', epsilon.value, frame_idx)
                 except Empty:
                     break
 
@@ -174,9 +196,8 @@ def main():
 
         for worker in workers:
             worker.stop_collecting_experience()
-            worker.epsilon = epsilon
 
-        epsilon = max(MIN_EPSILON, epsilon - EPSILON_DECAY)
+        epsilon.value = max(MIN_EPSILON, epsilon.value - EPSILON_DECAY)
 
         # for index, experience in enumerate(experience_buffer.buffer):
         #     cv2.imshow('frame{}'.format(index), experience.state[0])

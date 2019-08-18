@@ -7,13 +7,12 @@ from utils import Monitor
 action = Action()
 action.direction = 1
 i = 0
-single_env = TeeworldsEnv(monitor=Monitor(800, 40, 840, 840), server_tick_speed=50, is_human=True, game_information_port=5005)
+single_env = TeeworldsEnv(monitor=Monitor(800, 40, 800, 600), server_tick_speed=50, is_human=True, game_information_port=5005)
 
 while True:
     if i % 2000 == 0:
         single_env.reset()
     action.mouse_x = random.randrange(-200, 200)
-    action.mouse_y = random.randrange(-200, 200)
     action.direction = 1
     action.jump = 0 if i % 20 else 0
     action.hook = 0 if i % 40 else 0
