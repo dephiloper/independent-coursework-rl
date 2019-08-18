@@ -9,7 +9,6 @@ import torch
 from tensorboardX import SummaryWriter
 from tqdm import tqdm
 
-# training
 from dqn_model import Net
 from gym_teeworlds import teeworlds_env_settings_iterator, OBSERVATION_SPACE, TeeworldsEnvSettings, Action
 from utils import ExperienceBuffer, ACTIONS, Experience
