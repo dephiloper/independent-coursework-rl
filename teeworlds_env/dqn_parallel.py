@@ -3,13 +3,14 @@ import time
 from queue import Empty
 from typing import List
 
-import cv2
 import numpy as np
-from torch.multiprocessing import Process, Queue, Value
+from tensorboardX import SummaryWriter
+import cv2
+from tqdm import tqdm
 
 import torch
-from tensorboardX import SummaryWriter
-from tqdm import tqdm
+import torch.optim
+from torch.multiprocessing import Process, Queue, Value
 
 from dqn_model import Net
 from gym_teeworlds import teeworlds_env_settings_iterator, OBSERVATION_SPACE, TeeworldsEnvSettings, Action, \
@@ -20,7 +21,7 @@ MODEL_NAME = "teeworlds-v0.1-"
 
 # exp collecting
 NUM_WORKERS = 4
-COLLECT_EXPERIENCE_SIZE = 2000  # init: 2000 (amount of experiences to collect after each training step)
+COLLECT_EXPERIENCE_SIZE = 1000  # init: 2000 (amount of experiences to collect after each training step)
 GAME_TICK_SPEED = 200  # default: 50 (game speed, when higher more screenshots needs to be captures)
 MONITOR_WIDTH = 84  # init: 84 width of game screen
 MONITOR_HEIGHT = 84  # init: 84 height of game screen (important for conv)
@@ -39,6 +40,7 @@ EPSILON_START = 1.0  # init: 1.0
 EPSILON_DECAY = 0.01  # init: 0.01
 LEARNING_RATE = 1e-4  # init: 1e-4 (also quite low eventually using default 1e-3)
 SYNC_TARGET_FRAMES = 10000  # init: 1000 (how frequently we sync target net with net)
+MAP_NAMES = ['level_0', 'level_1', 'level_2']
 
 MEAN_REWARD_BOUND = 13
 
@@ -190,7 +192,7 @@ def main():
             server_tick_speed=GAME_TICK_SPEED,
             monitor_x_padding=MONITOR_X_PADDING,
             monitor_y_padding=MONITOR_Y_PADDING,
-            map_name="level_1"
+            map_names=MAP_NAMES
     )):
         worker = Worker(worker_index, env_setting, experience_queue, stats_queue, net, epsilon, ACTIONS, DEVICE)
         workers.append(worker)

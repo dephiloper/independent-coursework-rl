@@ -11,14 +11,14 @@ def main():
     action.direction = 1
     i = 0
     env = TeeworldsEnv(
-        monitor=Monitor(800, 40, 960, 540),
+        monitor=Monitor(600, 40, 960, 540),
         server_tick_speed=200,
         is_human=True,
         game_information_port=5005,
-        episode_duration=20
+        episode_duration=20,
+        map_name='level_2'
     )
 
-    tmp_info = None
     env.reset()
 
     while True:
@@ -29,10 +29,9 @@ def main():
         action.hook = 0 if i % 40 else 0
         action.shoot = 0 if i % 50 else 0
         i += 1
-        # observation, reward, done, game_information = single_env.step(action)
         observation, reward, done, info = env.step(action)
 
-        if reward > 0:
+        if reward != 0:
             print(reward)
             sys.stdout.flush()
 

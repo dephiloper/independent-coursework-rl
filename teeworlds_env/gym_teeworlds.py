@@ -1,8 +1,7 @@
-import copy
+import itertools
 import os
 import struct
 import subprocess
-import sys
 import time
 from collections import deque
 
@@ -21,6 +20,7 @@ NUMBER_OF_IMAGES = 4
 
 ARMOR_REWARD = 1
 HEALTH_REWARD = 10
+DIE_REWARD = -10
 GAME_INFORMATION_DELAY = 1
 
 start_mon = {'top': 1, 'left': 1, 'width': 84, 'height': 84}
@@ -68,44 +68,50 @@ with open('config.txt', 'r') as f:
 
 
 class GameInformation:
-    def __init__(self, x_position, y_position, armor_collected, health_collected):
+    def __init__(self, x_position, y_position, armor_collected, health_collected, died):
         self.x_position = x_position
         self.y_position = y_position
         self.armor_collected = armor_collected
         self.health_collected = health_collected
+        self.died = died
 
     def to_dict(self):
         return {
             "x": self.x_position,
             "y": self.y_position,
             "armor_collected": self.armor_collected,
-            "health_collected": self.health_collected
+            "health_collected": self.health_collected,
+            "died": self.died
         }
 
     def get_reward(self):
-        reward = ARMOR_REWARD * self.armor_collected + HEALTH_REWARD * self.health_collected
+        if self.died:
+            reward = DIE_REWARD
+        else:
+            reward = ARMOR_REWARD * self.armor_collected + HEALTH_REWARD * self.health_collected
         return reward
 
     def clear(self):
         self.health_collected = 0
         self.armor_collected = 0
+        self.died = False
 
     def is_done(self):
-        return bool(self.health_collected)
+        return bool(self.health_collected) or self.died
 
     @staticmethod
     def empty():
-        return GameInformation(-1, -1, 0, 0)
+        return GameInformation(-1, -1, 0, 0, False)
 
 
-def teeworlds_env_iterator(n, monitor_width, monitor_height, top_spacing=0, server_tick_speed=50, map_name="level_0"):
+def teeworlds_env_iterator(n, monitor_width, monitor_height, top_spacing=0, server_tick_speed=50, map_names=None):
     for teeworlds_env_setting in teeworlds_env_settings_iterator(
             n,
             monitor_width,
             monitor_height,
             top_spacing,
             server_tick_speed,
-            map_name=map_name
+            map_names=map_names
     ):
         yield teeworlds_env_setting.create_env()
 
@@ -118,10 +124,15 @@ def teeworlds_env_settings_iterator(
         server_tick_speed=50,
         monitor_x_padding=0,
         monitor_y_padding=0,
-        map_name="level_0"
+        map_names=None
 ):
     actions_port = 5000
     teeworlds_server_port = 8303
+
+    if map_names is None:
+        map_names = ['level_0']
+
+    maps = itertools.cycle(map_names)
 
     for monitor in mon_iterator(
             n,
@@ -137,7 +148,7 @@ def teeworlds_env_settings_iterator(
             str(actions_port+1),
             str(teeworlds_server_port),
             server_tick_speed=server_tick_speed,
-            map_name=map_name
+            map_name=next(maps)
         )
 
         actions_port += 2
@@ -265,10 +276,13 @@ class TeeworldsEnv(gym.Env):
             except zmq.Again:
                 break
             if msg:
-                armor_collected, health_collected = struct.unpack('<ii', msg)
+                armor_collected, health_collected, died = struct.unpack('<iiB', msg)
+
+                died = bool(died)
 
                 game_information.armor_collected += armor_collected
                 game_information.health_collected += health_collected
+                game_information.died = game_information.died or died
 
         self.game_information_deque.appendleft(game_information)
 
@@ -294,7 +308,7 @@ class TeeworldsEnv(gym.Env):
         game_image = self.capture_game_image()
 
         assert len(self.image_buffer) == NUMBER_OF_IMAGES, f"wrong image buffer length: {len(self.image_buffer)}, " \
-                                                           f"should be {NUMBER_OF_IMAGES}, check if you reset the env " \
+                                                           f"should be {NUMBER_OF_IMAGES}, check if you reset the env "\
                                                            f"before accessing it "
         self.image_buffer.pop()
         self.image_buffer.appendleft(game_image)
@@ -374,3 +388,15 @@ class TeeworldsEnvSettings:
             map_name=self.map_name,
             is_human=self.is_human,
         )
+
+    def __str__(self):
+        return f'TeeworldsEnvSettings: [' \
+               f'\n\tmonitor: {self.monitor}' \
+               f'\n\tactions_port={self.actions_port}' \
+               f'\n\tgame_information_port={self.game_information_port}'\
+               f'\n\tteeworlds_srv_port={self.teeworlds_srv_port}'\
+               f'\n\tip={self.ip}'\
+               f'\n\tserver_tick_speed={self.server_tick_speed}'\
+               f'\n\tmap_name={self.map_name}'\
+               f'\n\tis_human={self.is_human}'\
+               f'\n]'
