@@ -184,7 +184,7 @@ def main():
 
     net.share_memory()
     target_net = Net(observation_size, n_actions=len(ACTIONS)).to(DEVICE)
-    optimizer = torch.optim.Adam(net.parameters(), lr=LEARNING_RATE)
+    optimizer = torch.optim.Adam(net.parameters(), lr=LEARNING_RATE, weight_decay=1e-5)
 
     for worker_index, env_setting in enumerate(teeworlds_env_settings_iterator(
             NUM_WORKERS,
