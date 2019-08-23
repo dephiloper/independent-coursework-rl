@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 from torch import nn
+from torch.nn import Parameter
 
 
 class Net(nn.Module):
@@ -33,3 +34,18 @@ class Net(nn.Module):
         fx = x.float() / 256
         conv_out = self.conv(fx).view(fx.size()[0], -1)
         return self.fc(conv_out)
+
+    def get_stats(self):
+        mean_sum = 0
+        std_sum = 0
+        for param in self.parameters():
+            mean_sum += param.mean().item()
+            std_sum += param.std().item()
+
+        return mean_sum, std_sum/len(self.parameters())
+
+    def print_stats(self):
+        mean, std = self.get_stats()
+        print('net stats:')
+        print(f'mean: {mean}')
+        print(f'std: {std}')
