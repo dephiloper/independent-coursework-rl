@@ -35,9 +35,8 @@ DEVICE = 'cpu'  # init: 'cpu'
 BATCH_SIZE = 512  # init: 32 (sample size of experiences from replay buffer)
 NUM_TRAININGS_PER_EPOCH = 50  # init: 50 (amount of BATCH_SIZE x NUM_TRAININGS_PER_EPOCH will be trained)
 GAMMA = 0.99  # init: .99 (bellman equation)
-MIN_EPSILON = 0.01  # init: 0.02
-MIN_EPSILON = 0.01  # init: 0.02
-EPSILON_START = 0.01  # init: 1.0
+MIN_EPSILON = 0.02  # init: 0.02
+EPSILON_START = 1.0  # init: 1.0
 EPSILON_DECAY = 0.01  # init: 0.01
 LEARNING_RATE = 1e-4  # init: 1e-4 (also quite low eventually using default 1e-3)
 SYNC_TARGET_FRAMES = 10000  # init: 1000 (how frequently we sync target net with net)
@@ -237,12 +236,12 @@ def main():
                 game_stats.append(game_stat)
                 writer.add_scalar('reward', game_stat.reward, frame_idx)
 
-                reward_100 = 0
+                reward_10 = 0
                 for stat in game_stats[-10:]:
-                    reward_100 += stat.reward
-                reward_100 /= len(game_stats[-10:])
+                    reward_10 += stat.reward
+                reward_10 /= len(game_stats[-10:])
 
-                writer.add_scalar('reward_100', reward_100, frame_idx)
+                writer.add_scalar('reward_10', reward_10, frame_idx)
                 writer.add_scalar('epsilon', epsilon.value, frame_idx)
 
         # print_experience_buffer(experience_buffer)
@@ -267,19 +266,23 @@ def main():
             epsilon.value = max(MIN_EPSILON, epsilon.value - EPSILON_DECAY)
 
             # training
+            total_loss = []
             for _ in tqdm(range(NUM_TRAININGS_PER_EPOCH), desc='training: '):
                 optimizer.zero_grad()
                 batch = experience_buffer.sample(BATCH_SIZE)
 
                 # perform optimization by minimizing the loss
                 loss_t = calc_loss(batch, net, target_net, device=DEVICE)
-                # total_loss.append(loss_t.item())
+                total_loss.append(loss_t.item())
                 loss_t.backward()
                 optimizer.step()
 
+            writer.add_scalar('mean_loss', np.mean(total_loss), frame_idx)
+            total_loss.clear()
+
             epoch += 1
 
-            # restart experience collection on all workers
+        # restart experience collection on all workers
             for worker in workers:
                 worker.start_collecting_experience()
 

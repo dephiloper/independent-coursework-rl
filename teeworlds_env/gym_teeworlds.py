@@ -310,8 +310,7 @@ class TeeworldsEnv(gym.Env):
         assert len(self.image_buffer) == NUMBER_OF_IMAGES, f"wrong image buffer length: {len(self.image_buffer)}, " \
                                                            f"should be {NUMBER_OF_IMAGES}, check if you reset the env "\
                                                            f"before accessing it "
-        self.image_buffer.pop()
-        self.image_buffer.appendleft(game_image)
+        self.image_buffer.append(game_image)
 
         observation = self.get_observation()
 
@@ -346,7 +345,7 @@ class TeeworldsEnv(gym.Env):
         time.sleep(reset_duration)
         self._last_reset = time.time()
 
-        self.image_buffer = deque([self.capture_game_image()] * NUMBER_OF_IMAGES)
+        self.image_buffer = deque([self.capture_game_image()] * NUMBER_OF_IMAGES, maxlen=NUMBER_OF_IMAGES)
 
         self.last_step_timestamp = None
 
