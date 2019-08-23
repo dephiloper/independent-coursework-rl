@@ -181,6 +181,7 @@ def main():
     epsilon = Value('d', EPSILON_START)
 
     net = Net(observation_size, n_actions=len(ACTIONS)).to(DEVICE)
+
     net.share_memory()
     target_net = Net(observation_size, n_actions=len(ACTIONS)).to(DEVICE)
     optimizer = torch.optim.Adam(net.parameters(), lr=LEARNING_RATE)
@@ -275,6 +276,10 @@ def main():
                 # total_loss.append(loss_t.item())
                 loss_t.backward()
                 optimizer.step()
+
+            mean, std = net.get_stats()
+            writer.add_scalar('net_weight_mean', mean, frame_idx)
+            writer.add_scalar('net_weight_std', std, frame_idx)
 
             epoch += 1
 
