@@ -18,7 +18,6 @@ def main():
         episode_duration=20
     )
 
-    tmp_info = None
     env.reset()
 
     while True:

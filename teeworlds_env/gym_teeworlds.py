@@ -1,4 +1,5 @@
 import copy
+import itertools
 import os
 import struct
 import subprocess
@@ -116,10 +117,16 @@ def teeworlds_env_settings_iterator(
         top_spacing=0,
         server_tick_speed=50,
         monitor_x_padding=0,
-        monitor_y_padding=0
+        monitor_y_padding=0,
+        map_names=None
 ):
     actions_port = 5000
     teeworlds_server_port = 8303
+
+    if map_names is None:
+        map_names = ['level_0']
+
+    maps = itertools.cycle(map_names)
 
     for monitor in mon_iterator(
             n,
@@ -134,7 +141,8 @@ def teeworlds_env_settings_iterator(
             str(actions_port),
             str(actions_port+1),
             str(teeworlds_server_port),
-            server_tick_speed=server_tick_speed
+            server_tick_speed=server_tick_speed,
+            map_name=next(maps)
         )
 
         actions_port += 2
@@ -371,3 +379,15 @@ class TeeworldsEnvSettings:
             map_name=self.map_name,
             is_human=self.is_human,
         )
+
+    def __str__(self):
+        return f'TeeworldsEnvSettings: [' \
+               f'\n\tmonitor: {self.monitor}' \
+               f'\n\tactions_port={self.actions_port}' \
+               f'\n\tgame_information_port={self.game_information_port}'\
+               f'\n\tteeworlds_srv_port={self.teeworlds_srv_port}'\
+               f'\n\tip={self.ip}'\
+               f'\n\tserver_tick_speed={self.server_tick_speed}'\
+               f'\n\tmap_name={self.map_name}'\
+               f'\n\tis_human={self.is_human}'\
+               f'\n]'
