@@ -1,7 +1,6 @@
 import os
 import time
 from queue import Empty
-from multiprocessing import Queue
 from typing import List
 
 import numpy as np
@@ -11,7 +10,7 @@ from tqdm import tqdm
 
 import torch
 import torch.optim
-from torch.multiprocessing import Process, Value
+from torch.multiprocessing import Process, Value, Queue
 
 from dqn_model import Net
 from gym_teeworlds import teeworlds_env_settings_iterator, OBSERVATION_SPACE, TeeworldsEnvSettings, Action, \
@@ -152,6 +151,7 @@ class Worker(Process):
 def setup():
     assert (SYNC_TARGET_FRAMES % COLLECT_EXPERIENCE_SIZE == 0)
     torch.multiprocessing.set_start_method('spawn')
+    torch.multiprocessing.set_sharing_strategy('file_system')
     os.makedirs('saves', exist_ok=True)
 
 
