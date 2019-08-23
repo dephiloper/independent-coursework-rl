@@ -22,7 +22,7 @@ MODEL_NAME = "teeworlds-v0.1-"
 # exp collecting
 NUM_WORKERS = 4
 COLLECT_EXPERIENCE_SIZE = 1000  # init: 2000 (amount of experiences to collect after each training step)
-GAME_TICK_SPEED = 100  # default: 50 (game speed, when higher more screenshots needs to be captures)
+GAME_TICK_SPEED = 200  # default: 50 (game speed, when higher more screenshots needs to be captures)
 MONITOR_WIDTH = 84  # init: 84 width of game screen
 MONITOR_HEIGHT = 84  # init: 84 height of game screen (important for conv)
 MONITOR_X_PADDING = 20
@@ -237,12 +237,12 @@ def main():
                 game_stats.append(game_stat)
                 writer.add_scalar('reward', game_stat.reward, frame_idx)
 
-                reward_100 = 0
+                reward_10 = 0
                 for stat in game_stats[-10:]:
-                    reward_100 += stat.reward
-                reward_100 /= len(game_stats[-10:])
+                    reward_10 += stat.reward
+                reward_10 /= len(game_stats[-10:])
 
-                writer.add_scalar('reward_100', reward_100, frame_idx)
+                writer.add_scalar('reward_10', reward_10, frame_idx)
                 writer.add_scalar('epsilon', epsilon.value, frame_idx)
 
         # print_experience_buffer(experience_buffer)
@@ -267,23 +267,26 @@ def main():
             epsilon.value = max(MIN_EPSILON, epsilon.value - EPSILON_DECAY)
 
             # training
+            total_loss = []
             for _ in tqdm(range(NUM_TRAININGS_PER_EPOCH), desc='training: '):
                 optimizer.zero_grad()
                 batch = experience_buffer.sample(BATCH_SIZE)
 
                 # perform optimization by minimizing the loss
                 loss_t = calc_loss(batch, net, target_net, device=DEVICE)
-                # total_loss.append(loss_t.item())
+                total_loss.append(loss_t.item())
                 loss_t.backward()
                 optimizer.step()
 
+            writer.add_scalar('mean_loss', np.mean(total_loss), frame_idx)
+            total_loss.clear()
             mean, std = net.get_stats()
             writer.add_scalar('net_weight_mean', mean, frame_idx)
             writer.add_scalar('net_weight_std', std, frame_idx)
 
             epoch += 1
 
-            # restart experience collection on all workers
+        # restart experience collection on all workers
             for worker in workers:
                 worker.start_collecting_experience()
 

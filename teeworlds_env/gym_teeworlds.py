@@ -21,7 +21,7 @@ NUMBER_OF_IMAGES = 4
 ARMOR_REWARD = 1
 HEALTH_REWARD = 10
 DIE_REWARD = -10
-GAME_INFORMATION_DELAY = 1
+GAME_INFORMATION_DELAY = 2
 
 start_mon = {'top': 1, 'left': 1, 'width': 84, 'height': 84}
 _starting_port = 5000
@@ -310,8 +310,7 @@ class TeeworldsEnv(gym.Env):
         assert len(self.image_buffer) == NUMBER_OF_IMAGES, f"wrong image buffer length: {len(self.image_buffer)}, " \
                                                            f"should be {NUMBER_OF_IMAGES}, check if you reset the env "\
                                                            f"before accessing it "
-        self.image_buffer.pop()
-        self.image_buffer.appendleft(game_image)
+        self.image_buffer.append(game_image)
 
         observation = self.get_observation()
 
@@ -346,7 +345,7 @@ class TeeworldsEnv(gym.Env):
         time.sleep(reset_duration)
         self._last_reset = time.time()
 
-        self.image_buffer = deque([self.capture_game_image()] * NUMBER_OF_IMAGES)
+        self.image_buffer = deque([self.capture_game_image()] * NUMBER_OF_IMAGES, maxlen=NUMBER_OF_IMAGES)
 
         self.last_step_timestamp = None
 
