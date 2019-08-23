@@ -1,6 +1,6 @@
 import os
 import time
-from queue import Empty
+from queue import Empty, Queue
 from typing import List
 
 import numpy as np
@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 import torch
 import torch.optim
-from torch.multiprocessing import Process, Queue, Value
+from torch.multiprocessing import Process, Value
 
 from dqn_model import Net
 from gym_teeworlds import teeworlds_env_settings_iterator, OBSERVATION_SPACE, TeeworldsEnvSettings, Action, \
@@ -22,7 +22,7 @@ MODEL_NAME = "teeworlds-v0.1-"
 # exp collecting
 NUM_WORKERS = 4
 COLLECT_EXPERIENCE_SIZE = 1000  # init: 2000 (amount of experiences to collect after each training step)
-GAME_TICK_SPEED = 200  # default: 50 (game speed, when higher more screenshots needs to be captures)
+GAME_TICK_SPEED = 100  # default: 50 (game speed, when higher more screenshots needs to be captures)
 MONITOR_WIDTH = 84  # init: 84 width of game screen
 MONITOR_HEIGHT = 84  # init: 84 height of game screen (important for conv)
 MONITOR_X_PADDING = 20
