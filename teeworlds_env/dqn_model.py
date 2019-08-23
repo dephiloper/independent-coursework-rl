@@ -38,11 +38,13 @@ class Net(nn.Module):
     def get_stats(self):
         mean_sum = 0
         std_sum = 0
+        num_parameters = 0
         for param in self.parameters():
+            num_parameters += 1
             mean_sum += param.mean().item()
             std_sum += param.std().item()
 
-        return mean_sum, std_sum/len(self.parameters())
+        return mean_sum, std_sum/num_parameters
 
     def print_stats(self):
         mean, std = self.get_stats()
