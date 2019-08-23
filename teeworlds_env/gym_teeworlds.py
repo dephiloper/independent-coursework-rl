@@ -20,6 +20,7 @@ NUMBER_OF_IMAGES = 4
 
 ARMOR_REWARD = 1
 HEALTH_REWARD = 10
+DIE_REWARD = -10
 GAME_INFORMATION_DELAY = 1
 
 start_mon = {'top': 1, 'left': 1, 'width': 84, 'height': 84}
@@ -67,34 +68,40 @@ with open('config.txt', 'r') as f:
 
 
 class GameInformation:
-    def __init__(self, x_position, y_position, armor_collected, health_collected):
+    def __init__(self, x_position, y_position, armor_collected, health_collected, died):
         self.x_position = x_position
         self.y_position = y_position
         self.armor_collected = armor_collected
         self.health_collected = health_collected
+        self.died = died
 
     def to_dict(self):
         return {
             "x": self.x_position,
             "y": self.y_position,
             "armor_collected": self.armor_collected,
-            "health_collected": self.health_collected
+            "health_collected": self.health_collected,
+            "died": self.died
         }
 
     def get_reward(self):
-        reward = ARMOR_REWARD * self.armor_collected + HEALTH_REWARD * self.health_collected
+        if self.died:
+            reward = DIE_REWARD
+        else:
+            reward = ARMOR_REWARD * self.armor_collected + HEALTH_REWARD * self.health_collected
         return reward
 
     def clear(self):
         self.health_collected = 0
         self.armor_collected = 0
+        self.died = False
 
     def is_done(self):
-        return bool(self.health_collected)
+        return bool(self.health_collected) or self.died
 
     @staticmethod
     def empty():
-        return GameInformation(-1, -1, 0, 0)
+        return GameInformation(-1, -1, 0, 0, False)
 
 
 def teeworlds_env_iterator(n, monitor_width, monitor_height, top_spacing=0, server_tick_speed=50, map_names=None):
@@ -269,10 +276,13 @@ class TeeworldsEnv(gym.Env):
             except zmq.Again:
                 break
             if msg:
-                armor_collected, health_collected = struct.unpack('<ii', msg)
+                armor_collected, health_collected, died = struct.unpack('<iiB', msg)
+
+                died = bool(died)
 
                 game_information.armor_collected += armor_collected
                 game_information.health_collected += health_collected
+                game_information.died = game_information.died or died
 
         self.game_information_deque.appendleft(game_information)
 
