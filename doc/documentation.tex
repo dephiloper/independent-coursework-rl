@@ -41,17 +41,21 @@
 \newpage
 \tableofcontents
 \newpage
-\section{Expose}
-\begin{itemize}
-\item evtl hier nochmal das expose, vllt reicht Introduction aus
-\end{itemize}
 \section{Introduction}
-\begin{itemize}
-\item Zielstellung, Art des IC's, Vorwissen?
-\end{itemize}
+
+\subsection{Problem Case}
+Machine Learning Methoden werden zunehmend benutzt, um Probleme in der realen Welt zu lösen und erhalten daher in der Zukunft einen immer höheren Stellenwert. Spiele im speziellen stellen meist Problemstellungen dar, welche zum Teil auch schon durch Machine Learning Verfahren absolviert werden konnten. Darunter zählen klassische Spiele, wie Go oder Schach (siehe Google Deep Mind, Alpha Zero) aber auch echtzeit Spiele, wie Dota 2, Quake oder Starcraft (siehe OpenAI). Für das Supervised Research Independent Coursework ergibt sich folgende Problemstellung: Welche Machine Learning Verfahren können für das absolvieren eines Computerspieles verwendet werden und wie integriert man
+diese in die virtuelle Umgebung? 
+
+\subsection{Objectives}
+Es soll innerhalb eines Supervised Research Independent Courseworks untersucht werden, wie sich ein Agent in einer virtuellen Spielumgebung mit Hilfe von Machine Learning Methoden, speziell Reinforcement Learning Verfahren, steuern lässt. Dafür werden initial Untersuchungen durchgeführt, um den aktuellen Stand der Technik zu erfassen. Genauer sollen Algorithmen mittels der von OpenAI Gym zur Verfügung gestellten Testumgebung untersucht werden. Die dabei gesammelten Erfahrungen sollen benutzt werden, um einen Agenten für ein Computerspiel zu entwickeln. Das Ziel des Research Projektes ist es, neue Kenntnisse im Bereich Reinforcement Learning zu erhalten und bereits bestehendes Wissen in den Schwerpunkten Artificial Intelligence und Machine Learning zu festigen.
+
 \section{Fundamentals}
+In diesem Abschnitt sollen die Grundlagen des Reinforcement Learning Bereichs erläutert werden. Damit soll die Grundlage für Erläuterungen in nachfolgenden Kapiteln geschaffen werden, welche sich auf die Terminologie dieses Abschnittes beziehen.
 \subsection{Reinforcement Learning}
+Erläuterung der Einordnung von Reinforcement Learning im Bereich Machine Learning sowie Beschreibung der nachfolgenden Terminologien:
 \begin{itemize}
+\itemsep0pt
 \item Agent, Environment, Reward, Observation, Action
 \item Exploration vs. Exploitation
 \item model-free vs. model-based
@@ -59,71 +63,99 @@
 \item policy learning vs. value learning
 \end{itemize}
 \subsection{Markov Decision Process}
+Der Makrov Decision Process dient als Fundament von Umsetzungen im Bereich Reinforcement Learning. In diesem Kapitel sollen dabei die Zusammenhänge und Unterschiede der einzelnen Markov Prozesse erläutert werden. Dabei wird unterschieden in:
 \begin{itemize}
+\itemsep0pt
 \item Markov Process
 \item Markov Reward Process
 \item Markov Decision Process 
 \end{itemize}
-\subsection{K-Armed Bandit}
+\subsection{k-armed Bandit}
+Hierbei soll das k-armed Bandit Problem der Wahrscheinlichkeitstheorie erläutert werden und dabei auf  Schwerpunkte Exploration vs. Exploitation, einem Kernproblem des Reinforcement Learning, eingegangen werden. Die dabei realisierten Implementierungen sollen genauer erläutert und deren Bewandtnis in allgemeinen RL genauer beschrieben werden.  
 \begin{itemize}
-\item Exploration
-\item $\epsilon$ greedy
-\item Tic Tac Toe (full greedy)
+\itemsep0pt
+\item verschiedene Strategien für Exploration vs. Exploitation: greedy, $\epsilon$ greedy, decaying $\epsilon$ greedy, ...
+\item Umsetzung erste Implementierung eines Agenten: Tic Tac Toe (full greedy)
+\item Umsetzung Implementierung k-armed Bandit
+\item Repository: \url{https://github.com/Bluemi/rl_testbed}
 \end{itemize}
+
 \subsection{Open AI Gym}
+Ein von der Firma Open AI (\url{https://gym.openai.com/}) bereitgestelltes Toolkit, welches es ermöglicht Verfahren im Bereich Reinforcement Learning algorithmisch umzusetzen und anschließend miteinander zu vergleichen. Dabei werden Umgebungen wie Spiele oder Simulationen anhand einer definierten API zur Verfügung gestellt. Hierbei wird erneut auf die dabei zu beachtende Terminologie eingegangen und der Aufbau und die eigene Realisierung eines Gym Systems thematisiert.
+
 \begin{itemize}
-\item Erklärung und Verwendung (Environment, Observation Space, Action Space) 
+\itemsep0pt
+\item Erklärung und Verwendung: Environment, Observation Space, Action Space
+\item Realisierung Environment Tic Tac Toe:\\ \url{https://github.com/dephiloper/independent-coursework-rl/blob/master/preparation/05_v_learning/tictactoe_v_learning.py}
 \end{itemize}
+
+\section{Cross-Entropy-Method}
+Erläuterung der Cross-Entropy-Method und der Verwendung eines neuronalen Netzes zum Lernen von Cart-Pole \\ (\url{https://github.com/dephiloper/independent-coursework-rl/tree/master/preparation/04_cross_entropy}). Einordnung des Verfahrens im Bereich policy learning. 
+
 \section{Q-Learning}
+Erläuterung des Q-Learning Verfahrens und deren Erweiterungen, dessen Einordnung im Bereich value learning sowie Begriffserklärungen und Implementierung von Q-learning anhand der Verwendung eines bereits existierenden Gyms. Erläuterung folgender Terminologien:
+
 \begin{itemize}
-\item value learning* explanation
-\item Bellman Equation
-\item Frozen Lake
+\itemsep0pt
+\item value learning Familie
+\item Bellman Equation und Proof of Bellman Optimality Equation 
+\item Frozen Lake Environement
 \item V(s) and Q(s,a)
-\item Simple Explanation (2x2 Nonslip)
-\item Vergleich von V(s) und Q(s,a) mit Charts?
+\item einfache Erläuterung der Abwandlung von Frozen Lake: 2x2 Nonslip Lake
+\item Vergleich von V(s) und Q(s,a) und deren Einsatz
+\item Implementierung q-learning und v-learning Frozen Lake:\\ \url{https://github.com/dephiloper/independent-coursework-rl/tree/master/preparation/05_v_learning}
 \end{itemize}
+
 \section{Deep Q-Learning}
+Erweitung des Q-learning Verfahrens um neuronales Netz, was die Nutzung von Spielen und Simulationen mit kontinuierlichem Spielbereich (Observation-Space) ermöglicht. Umsetzung mehrerer Environements (Atari Pong, Roboschool Environments) und Beschreibung deren Funktionsweise sowie folgender Terminologien und Verfahren mit diversen Implementierungen: \\
+\url{https://github.com/dephiloper/independent-coursework-rl/tree/master/preparation/07_deep_q_learning}
+
 \begin{itemize}
+\itemsep0pt
 \item off-policy
-\item again value learning but w/ network explanation
+\item Erklärung value learning mit Netz
 \item value network
 \item replay buffer, target network
-\item atari pong
-\item roboschool pong environment
+\item atari pong (\url{https://gym.openai.com/envs/#atari})
+\item roboschool pong environment (\url{https://github.com/openai/roboschool}
 \item limitations
-\item extensions
+\item extensions: duelling dqn, categorical dqn, n-step dqn
 \end{itemize}
 
 \section{Policy Gradients}
+Erneute Beschreibung von Verfahren im Bereich policy learning. Dabei fokussieren der Policy Gradients Verfahren und der REINFORCE Methode. Thematisierung und Vergleich von policy und value sowie Erweiterungen.
 \begin{itemize}
-\item cross entropy method, REINFORCE
+\itemsep0pt
+\item cross entropy method (bereits erläutert) dazu im Kontrast: REINFORCE
 \item continuous observation space \& action space
-\item cart pole
-\item atari pong?
+\item Umsetzung von cart pole
+\item Umsetzung von atari pong
 \item limitations
-\item high variance
+\item high variance, Einführung einer Baseline
 \end{itemize}
 
 \section{Actor Critic}
+Beschreibung einer state-of-the-art RL Methode Actor Critic. Kombination aus policy learning und value learning. Ansatz mit mehreren Environments parallel zur Beschleunigung und Stabilisierung des Lernprozesses.
 \begin{itemize}
+\itemsep0pt
 \item actor and critic net
 \item reducing variance $\rightarrow$ Advantage
 \item extensions a3c
 \end{itemize}
 
 \section{Teeworlds}
+Wie in der Einleitung erwähnt Erfolg die Umsetzung eines eigenen Environments mittels des Spiels Teeworlds (\url{https://teeworlds.com/}). Initial wird das Spiel erläutert und dessen grundlegende Struktur. Anschließend erfolgt eine Beschreibung zur Umsetzung des Environments, wobei folgende Themen kategorisiert werden:
 \begin{itemize}
-\item foss, teeworlds client, teeworlds server
+\itemsep0pt	
+\item FOSS, teeworlds client, teeworlds server
 \item custom environment (gym)
-\item images as input $\rightarrow$ stack of images
-\item simplified version
-\item task $\rightarrow$ move to target position w/ movement and hooking?
-\item implementation (explain different parts) listings
-\item different algorithms?
-\item many charts and discoveries
-\item comparision?
-\item setup, link to repos
+\item Bilder als Input $\rightarrow$ stack of images
+\item Umsetzung einer vereinfachten Version des Spiels
+\item die Aufgabe besteht darin, Schilde und Herzen einzusammeln und Level zu bestreiten
+\item Implementierung erläutert mittels Listings
+\item Erklärung Hyperparameter, Lernprozess, Lernstats
+\item Vergleich, Trainingsdauer, Auswertung, Erweiterungen
+\item Beschreibung System Setup
 \end{itemize}
 
 \newpage
