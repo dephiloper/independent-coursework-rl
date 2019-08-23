@@ -21,7 +21,7 @@ NUMBER_OF_IMAGES = 4
 ARMOR_REWARD = 1
 HEALTH_REWARD = 10
 DIE_REWARD = -10
-GAME_INFORMATION_DELAY = 1
+GAME_INFORMATION_DELAY = 2
 
 start_mon = {'top': 1, 'left': 1, 'width': 84, 'height': 84}
 _starting_port = 5000
