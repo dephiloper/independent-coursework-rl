@@ -1,6 +1,7 @@
 import os
 import time
-from queue import Empty, Queue
+from queue import Empty
+from multiprocessing import Queue
 from typing import List
 
 import numpy as np
