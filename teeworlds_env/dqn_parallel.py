@@ -41,7 +41,7 @@ LEARNING_RATE = 1e-4  # init: 1e-4 (also quite low eventually using default 1e-3
 SYNC_TARGET_FRAMES = 10000  # init: 1000 (how frequently we sync target net with net)
 MAP_NAMES = ['level_0', 'level_1', 'level_2']
 
-MEAN_REWARD_BOUND = 10  # init: 10 (randomly guessed) <- this needs to be checked
+MEAN_REWARD_BOUND = 13
 
 
 class GameStats:

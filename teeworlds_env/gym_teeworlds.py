@@ -1,9 +1,7 @@
-import copy
 import itertools
 import os
 import struct
 import subprocess
-import sys
 import time
 from collections import deque
 
@@ -99,13 +97,14 @@ class GameInformation:
         return GameInformation(-1, -1, 0, 0)
 
 
-def teeworlds_env_iterator(n, monitor_width, monitor_height, top_spacing=0, server_tick_speed=50):
+def teeworlds_env_iterator(n, monitor_width, monitor_height, top_spacing=0, server_tick_speed=50, map_names=None):
     for teeworlds_env_setting in teeworlds_env_settings_iterator(
             n,
             monitor_width,
             monitor_height,
             top_spacing,
-            server_tick_speed
+            server_tick_speed,
+            map_names=map_names
     ):
         yield teeworlds_env_setting.create_env()
 
@@ -169,7 +168,7 @@ class TeeworldsEnv(gym.Env):
             ip="*",
             server_tick_speed=50,
             episode_duration=5,
-            map_name="level_1",
+            map_name="level_0",
             device="cpu",
             is_human=False,
     ):
@@ -299,7 +298,7 @@ class TeeworldsEnv(gym.Env):
         game_image = self.capture_game_image()
 
         assert len(self.image_buffer) == NUMBER_OF_IMAGES, f"wrong image buffer length: {len(self.image_buffer)}, " \
-                                                           f"should be {NUMBER_OF_IMAGES}, check if you reset the env " \
+                                                           f"should be {NUMBER_OF_IMAGES}, check if you reset the env "\
                                                            f"before accessing it "
         self.image_buffer.pop()
         self.image_buffer.appendleft(game_image)
