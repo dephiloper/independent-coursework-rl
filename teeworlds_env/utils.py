@@ -3,6 +3,7 @@ import random
 import string
 
 import numpy as np
+import yaml
 from future.moves import collections
 from screeninfo import screeninfo
 
@@ -14,6 +15,12 @@ Experience = collections.namedtuple(
 # move left, stay, move top, move left + jump, stay + jump, move top + jump
 ACTIONS = [[-1, 0], [0, 0], [1, 0], [-1, 1], [0, 1], [1, 1]]
 ACTION_LABELS = ['left', 'stay', 'right', 'jump left', 'jump', 'jump right']
+
+
+def load_config():
+    with open('config.yaml', 'r') as f:
+        config = yaml.safe_load(f)
+    return config
 
 
 class Monitor:

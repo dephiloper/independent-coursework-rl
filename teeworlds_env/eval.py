@@ -1,20 +1,19 @@
 import numpy as np
 import torch
-import yaml
 
 from dqn_model import Net
 from dqn_parallel import MONITOR_HEIGHT, MONITOR_WIDTH
 from gym_teeworlds import TeeworldsEnv, NUMBER_OF_IMAGES, OBSERVATION_SPACE, Action
-from utils import Monitor, ACTIONS
+from utils import Monitor, ACTIONS, load_config
 
-with open('config.yaml', 'r') as f:
-    config = yaml.safe_load(f)
+config = load_config()
 path_to_teeworlds = str(config['path_to_teeworlds'])
 set_priority = bool(config.get('set_priority', False))
 
 
 MODEL_NAME = 'v1'
 MODEL_PATH = f'models/{MODEL_NAME}.dat'
+MAP_NAME = 'newlevel_1'
 
 
 def main():
@@ -24,7 +23,7 @@ def main():
         path_to_teeworlds=path_to_teeworlds,
         # server_tick_speed=200,
         episode_duration=20.0,
-        map_name='level_2',
+        map_name=MAP_NAME,
     )
 
     state = env.reset()

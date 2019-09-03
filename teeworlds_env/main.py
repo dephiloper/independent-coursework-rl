@@ -3,7 +3,10 @@ import random
 import sys
 
 from gym_teeworlds import Action, TeeworldsEnv
-from utils import Monitor
+from utils import Monitor, load_config
+
+config = load_config()
+path_to_teeworlds = str(config['path_to_teeworlds'])
 
 
 def main():
@@ -12,6 +15,7 @@ def main():
     i = 0
     env = TeeworldsEnv(
         monitor=Monitor(600, 40, 960, 540),
+        path_to_teeworlds=path_to_teeworlds,
         server_tick_speed=200,
         is_human=True,
         game_information_port=5005,

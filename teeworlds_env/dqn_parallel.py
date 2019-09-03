@@ -1,6 +1,5 @@
 import os
 import time
-import yaml
 from queue import Empty
 from typing import List
 
@@ -11,12 +10,12 @@ from tqdm import tqdm
 
 import torch
 import torch.optim
-from torch.multiprocessing import Process, Value, Queue
+from torch.multiprocessing import Process, Value, Queue, Event
 
 from dqn_model import Net
 from gym_teeworlds import teeworlds_env_settings_iterator, OBSERVATION_SPACE, TeeworldsEnvSettings, Action, \
     NUMBER_OF_IMAGES
-from utils import ExperienceBuffer, ACTIONS, ACTION_LABELS, Experience
+from utils import ExperienceBuffer, ACTIONS, ACTION_LABELS, Experience, load_config
 
 MODEL_NAME = "teeworlds-v0.3-"
 
@@ -46,9 +45,7 @@ MAP_NAMES = ['newlevel_0', 'newlevel_1', 'newlevel_2', 'newlevel_3']
 MEAN_REWARD_BOUND = 12
 
 
-with open('config.yaml', 'r') as f:
-    config = yaml.safe_load(f)
-
+config = load_config()
 path_to_teeworlds = str(config['path_to_teeworlds'])
 set_priority = bool(config.get('set_priority', False))
 
@@ -83,6 +80,9 @@ class Worker(Process):
         self.env_settings = env_settings
         self.total_reward = 0
 
+        self._stop_on_done = Value('b', False)
+        self.stopped = Event()  # type: Event
+
         self._running_queue = Queue()
         self._running_queue.put(False)  # do not start immediately
         self.env = None
@@ -92,7 +92,7 @@ class Worker(Process):
         self._running_queue.put(True)
 
     def stop_collecting_experience(self):
-        self._running_queue.put(False)
+        self._stop_on_done.value = True
 
     def initialize_env(self):
         self.env = self.env_settings.create_env()
@@ -103,13 +103,19 @@ class Worker(Process):
 
             # if False was in queue
             if not token:
+                self.stopped.set()
                 self.state = self.env.reset()
                 # wait for next true
-                while not self._running_queue.get():
+                while True:
+                    token = self._running_queue.get()
+                    if token:
+                        break
                     self.state = self.env.reset()
                 self.env.set_last_reset()
         except Empty:
             pass
+
+        self.stopped.clear()
 
     def _do_step(self):
         self._idle_for_running()
@@ -151,6 +157,9 @@ class Worker(Process):
             self.state = self.env.reset()
             self.stats_queue.put(GameStats(self.total_reward))
             self.total_reward = 0
+            if self._stop_on_done.value:
+                self._running_queue.put(False)
+                self._stop_on_done.value = False
 
     # noinspection PyCallingNonCallable,PyUnresolvedReferences
     def run(self) -> None:
@@ -226,7 +235,6 @@ def main():
 
     for worker in workers:
         worker.start()
-        print('worker pid:', worker.pid)
         time.sleep(2)
 
     time.sleep(4)
@@ -277,6 +285,9 @@ def main():
             # stop experience collection on all workers
             for worker in workers:
                 worker.stop_collecting_experience()
+
+            for worker in workers:
+                worker.stopped.wait()
 
             mean_reward = np.mean([stat.reward for stat in game_stats[-finished_episodes:]])
             if mean_reward > max_mean_reward:
