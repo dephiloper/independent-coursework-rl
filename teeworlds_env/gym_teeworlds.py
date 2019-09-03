@@ -4,6 +4,7 @@ import struct
 import subprocess
 import time
 from collections import deque
+from typing import List
 
 import cv2
 import gym
@@ -20,13 +21,12 @@ NUMBER_OF_IMAGES = 4
 
 ARMOR_REWARD = 1
 HEALTH_REWARD = 10
-DIE_REWARD = -10
-GAME_INFORMATION_DELAY = 2
+DIE_REWARD = -3
+GAME_INFORMATION_DELAY = 3
 
 start_mon = {'top': 1, 'left': 1, 'width': 84, 'height': 84}
 _starting_port = 5000
 _open_window_count = 0
-
 OBSERVATION_SPACE = Box(0, 255, [NUMBER_OF_IMAGES, start_mon['width'], start_mon['height']], dtype=np.uint8)
 ACTION_SPACE = Discrete(3)
 
@@ -61,10 +61,6 @@ class Action:
 
 reset_action = Action()
 reset_action.reset = True
-
-with open('config.txt', 'r') as f:
-    line = f.readline()
-    path_to_teeworlds = line.strip()
 
 
 class GameInformation:
@@ -104,27 +100,17 @@ class GameInformation:
         return GameInformation(-1, -1, 0, 0, False)
 
 
-def teeworlds_env_iterator(n, monitor_width, monitor_height, top_spacing=0, server_tick_speed=50, map_names=None):
-    for teeworlds_env_setting in teeworlds_env_settings_iterator(
-            n,
-            monitor_width,
-            monitor_height,
-            top_spacing,
-            server_tick_speed,
-            map_names=map_names
-    ):
-        yield teeworlds_env_setting.create_env()
-
-
 def teeworlds_env_settings_iterator(
         n,
-        monitor_width,
-        monitor_height,
-        top_spacing=0,
-        server_tick_speed=50,
-        monitor_x_padding=0,
-        monitor_y_padding=0,
-        map_names=None
+        path_to_teeworlds: str,
+        monitor_width: int,
+        monitor_height: int,
+        top_spacing: int = 0,
+        server_tick_speed: int = 50,
+        episode_duration: float = 20.0,
+        monitor_x_padding: int = 0,
+        monitor_y_padding: int = 0,
+        map_names: List[str] = None
 ):
     actions_port = 5000
     teeworlds_server_port = 8303
@@ -143,11 +129,13 @@ def teeworlds_env_settings_iterator(
             y_padding=monitor_y_padding
     ):
         yield TeeworldsEnvSettings(
-            monitor,
-            str(actions_port),
-            str(actions_port+1),
-            str(teeworlds_server_port),
+            monitor=monitor,
+            path_to_teeworlds=path_to_teeworlds,
+            actions_port=str(actions_port),
+            game_information_port=str(actions_port+1),
+            teeworlds_srv_port=str(teeworlds_server_port),
             server_tick_speed=server_tick_speed,
+            episode_duration=episode_duration,
             map_name=next(maps)
         )
 
@@ -169,12 +157,13 @@ class TeeworldsEnv(gym.Env):
     def __init__(
             self,
             monitor: Monitor,
+            path_to_teeworlds,
             actions_port="5000",
             game_information_port="5001",
             teeworlds_srv_port="8303",
             ip="*",
             server_tick_speed=50,
-            episode_duration=5,
+            episode_duration: float = 5.0,
             map_name="level_0",
             device="cpu",
             is_human=False,
@@ -249,10 +238,12 @@ class TeeworldsEnv(gym.Env):
 
         # create network context
         context = zmq.Context()
+        # noinspection PyUnresolvedReferences
         self.socket = context.socket(zmq.PUSH)
         address = f"tcp://{ip}:{actions_port}"
         self.socket.bind(address)
 
+        # noinspection PyUnresolvedReferences
         self.game_information_socket = context.socket(zmq.PULL)
         game_information_address = f"tcp://localhost:{game_information_port}"
         self.game_information_socket.connect(game_information_address)
@@ -272,6 +263,7 @@ class TeeworldsEnv(gym.Env):
         game_information = GameInformation.empty()
         while True:
             try:
+                # noinspection PyUnresolvedReferences
                 msg = self.game_information_socket.recv(zmq.DONTWAIT)
             except zmq.Again:
                 break
@@ -338,12 +330,15 @@ class TeeworldsEnv(gym.Env):
 
             self.last_step_timestamp = max(next_step_timestamp, current)
 
+    def set_last_reset(self):
+        self._last_reset = time.time()
+
     def reset(self, reset_duration=RESET_DURATION):
         self.image_buffer.clear()
         self.socket.send(reset_action.to_bytes())
         self.game_information_deque = deque([GameInformation.empty()] * GAME_INFORMATION_DELAY)
         time.sleep(reset_duration)
-        self._last_reset = time.time()
+        self.set_last_reset()
 
         self.image_buffer = deque([self.capture_game_image()] * NUMBER_OF_IMAGES, maxlen=NUMBER_OF_IMAGES)
 
@@ -359,31 +354,37 @@ class TeeworldsEnvSettings:
     def __init__(
             self,
             monitor: Monitor,
+            path_to_teeworlds: str,
             actions_port="5000",
             game_information_port="5001",
             teeworlds_srv_port="8303",
             ip="*",
             server_tick_speed=50,
+            episode_duration: float = 20.0,
             map_name="level_0",
             is_human=False
     ):
         self.monitor = monitor
+        self.path_to_teeworlds = path_to_teeworlds
         self.actions_port = actions_port
         self.game_information_port = game_information_port
         self.teeworlds_srv_port = teeworlds_srv_port
         self.ip = ip
         self.server_tick_speed = server_tick_speed
+        self.episode_duration = episode_duration
         self.map_name = map_name
         self.is_human = is_human
 
     def create_env(self):
         return TeeworldsEnv(
             monitor=self.monitor,
+            path_to_teeworlds=self.path_to_teeworlds,
             actions_port=self.actions_port,
             game_information_port=self.game_information_port,
             teeworlds_srv_port=self.teeworlds_srv_port,
             ip=self.ip,
             server_tick_speed=self.server_tick_speed,
+            episode_duration=self.episode_duration,
             map_name=self.map_name,
             is_human=self.is_human,
         )

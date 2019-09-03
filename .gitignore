@@ -11,5 +11,5 @@ live_models/
 mon/
 rec/
 *.dat
-/teeworlds_env/config.txt
+/teeworlds_env/config.yaml
 /teeworlds_env/logs/
