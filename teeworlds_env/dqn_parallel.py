@@ -29,7 +29,7 @@ MONITOR_X_PADDING = 20
 MONITOR_Y_PADDING = 20
 
 # training
-REPLAY_START_SIZE = 650  # init: 10000 (min amount of experiences in replay buffer before training starts)
+REPLAY_START_SIZE = 4000  # init: 10000 (min amount of experiences in replay buffer before training starts)
 REPLAY_SIZE = 10000  # init: 10000 (max capacity of replay buffer)
 DEVICE = 'cpu'  # init: 'cpu'
 BATCH_SIZE = 512  # init: 32 (sample size of experiences from replay buffer)
