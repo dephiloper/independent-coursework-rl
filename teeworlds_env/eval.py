@@ -1,14 +1,12 @@
 import numpy as np
 import torch
-import yaml
 
 from dqn_model import Net
 from dqn_parallel import MONITOR_HEIGHT, MONITOR_WIDTH
 from gym_teeworlds import TeeworldsEnv, NUMBER_OF_IMAGES, OBSERVATION_SPACE, Action
-from utils import Monitor, ACTIONS
+from utils import Monitor, ACTIONS, load_config
 
-with open('config.yaml', 'r') as f:
-    config = yaml.safe_load(f)
+config = load_config()
 path_to_teeworlds = str(config['path_to_teeworlds'])
 set_priority = bool(config.get('set_priority', False))
 

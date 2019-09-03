@@ -16,7 +16,7 @@ from torch.multiprocessing import Process, Value, Queue
 from dqn_model import Net
 from gym_teeworlds import teeworlds_env_settings_iterator, OBSERVATION_SPACE, TeeworldsEnvSettings, Action, \
     NUMBER_OF_IMAGES
-from utils import ExperienceBuffer, ACTIONS, ACTION_LABELS, Experience
+from utils import ExperienceBuffer, ACTIONS, ACTION_LABELS, Experience, load_config
 
 MODEL_NAME = "teeworlds-v0.2-"
 
@@ -46,9 +46,7 @@ MAP_NAMES = ['level_0', 'level_1', 'level_2']
 MEAN_REWARD_BOUND = 13
 
 
-with open('config.yaml', 'r') as f:
-    config = yaml.safe_load(f)
-
+config = load_config()
 path_to_teeworlds = str(config['path_to_teeworlds'])
 set_priority = bool(config.get('set_priority', False))
 
