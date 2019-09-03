@@ -13,6 +13,7 @@ set_priority = bool(config.get('set_priority', False))
 
 MODEL_NAME = 'v1'
 MODEL_PATH = f'models/{MODEL_NAME}.dat'
+MAP_NAME = 'newlevel_1'
 
 
 def main():
@@ -22,7 +23,7 @@ def main():
         path_to_teeworlds=path_to_teeworlds,
         # server_tick_speed=200,
         episode_duration=20.0,
-        map_name='level_2',
+        map_name=MAP_NAME,
     )
 
     state = env.reset()
