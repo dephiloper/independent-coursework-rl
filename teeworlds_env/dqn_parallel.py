@@ -125,7 +125,7 @@ class Worker(Process):
             ).reshape(
                 (1, NUMBER_OF_IMAGES, self.env.monitor.width, self.env.monitor.height)
             )
-            # noinspection PyUnresolvedReferences
+            # noinspection PyUnresolvedReferences,PyCallingNonCallable
             state_v = torch.tensor(state_a, dtype=torch.float32).to(self.device)
 
             q_values_v = self.net(state_v)  # calculate q values
@@ -148,8 +148,8 @@ class Worker(Process):
 
         # end of episode situation
         if is_done:
-            self.env.reset()
-            # self.stats_queue.put(GameStats(self.total_reward))
+            self.state = self.env.reset()
+            self.stats_queue.put(GameStats(self.total_reward))
             self.total_reward = 0
 
     # noinspection PyCallingNonCallable,PyUnresolvedReferences
