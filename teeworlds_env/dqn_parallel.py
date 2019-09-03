@@ -252,7 +252,6 @@ def main():
             frame_idx += 1
 
             # gather stats for logging
-            """
             while True:
                 try:
                     game_stat = stats_queue.get_nowait()
@@ -270,7 +269,6 @@ def main():
 
                 writer.add_scalar('reward_10', reward_10, frame_idx)
                 writer.add_scalar('epsilon', epsilon.value, frame_idx)
-            """
 
         # print_experience_buffer(experience_buffer)
 
