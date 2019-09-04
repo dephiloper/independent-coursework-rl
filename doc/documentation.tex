@@ -2,9 +2,12 @@
 \usepackage[utf8]{inputenc}
 \usepackage[german]{babel}
 \usepackage{geometry}
+
+\PassOptionsToPackage{hyphens}{url}
 \usepackage{hyperref}
 \usepackage{listings}
 \usepackage{subcaption}
+
 \newcommand{\lbparagraph}[1]{\paragraph*{#1}\mbox{}\\}
 \renewcommand{\baselinestretch}{1.2}
 \geometry{
@@ -17,6 +20,7 @@
 \usepackage{graphicx}
 
 \begin{document}
+% \sloppy
 
 \begin{titlepage}
 	\centering
@@ -44,8 +48,15 @@
 \section{Introduction}
 
 \subsection{Problem Case}
-Machine Learning Methoden werden zunehmend benutzt, um Probleme in der realen Welt zu lösen und erhalten daher in der Zukunft einen immer höheren Stellenwert. Spiele im speziellen stellen meist Problemstellungen dar, welche zum Teil auch schon durch Machine Learning Verfahren absolviert werden konnten. Darunter zählen klassische Spiele, wie Go oder Schach (siehe Google Deep Mind, Alpha Zero) aber auch echtzeit Spiele, wie Dota 2, Quake oder Starcraft (siehe OpenAI). Für das Supervised Research Independent Coursework ergibt sich folgende Problemstellung: Welche Machine Learning Verfahren können für das absolvieren eines Computerspieles verwendet werden und wie integriert man
-diese in die virtuelle Umgebung? 
+Machine Learning Methoden werden zunehmend benutzt, um Probleme in der realen Welt zu
+lösen und erhalten daher in der Zukunft einen immer höheren Stellenwert. Spiele im
+speziellen stellen meist Problemstellungen dar, welche zum Teil auch schon durch Machine
+Learning Verfahren absolviert werden konnten. Darunter zählen klassische Spiele, wie Go
+oder Schach (siehe Google Deep Mind, Alpha Zero) aber auch echtzeit Spiele, wie Dota 2,
+Quake oder Starcraft (siehe OpenAI). Für das Supervised Research Independent Coursework
+ergibt sich folgende Problemstellung: Welche Machine Learning Verfahren können für das
+absolvieren eines Computerspieles verwendet werden und wie integriert man diese in die
+virtuelle Umgebung?
 
 \subsection{Objectives}
 Es soll innerhalb eines Supervised Research Independent Courseworks untersucht werden, wie
@@ -62,7 +73,9 @@ Echtzeitspiel gesteuert wird.
 
 \newpage
 \section{Fundamentals}
-In diesem Abschnitt sollen die Grundlagen des Reinforcement Learning Bereichs erläutert werden. Damit soll die Grundlage für Erläuterungen in nachfolgenden Kapiteln geschaffen werden, welche sich auf die Terminologie dieses Abschnittes beziehen.
+In diesem Abschnitt sollen die Grundlagen des Reinforcement Learning Bereichs erläu\-tert
+werden. Damit soll die Grundlage für Erläuterungen in nachfolgenden Kapiteln geschaffen
+werden, welche sich auf die Terminologie dieses Abschnittes beziehen.
 \subsection{Reinforcement Learning}
 Erläuterung der Einordnung von Reinforcement Learning im Bereich Machine Learning sowie Beschreibung der nachfolgenden Terminologien:
 \begin{itemize}
@@ -82,7 +95,11 @@ Der Makrov Decision Process dient als Fundament von Umsetzungen im Bereich Reinf
 \item Markov Decision Process 
 \end{itemize}
 \subsection{k-armed Bandit}
-Hierbei soll das k-armed Bandit Problem der Wahrscheinlichkeitstheorie erläutert werden und dabei auf  Schwerpunkte Exploration vs. Exploitation, einem Kernproblem des Reinforcement Learning, eingegangen werden. Die dabei realisierten Implementierungen sollen genauer erläutert und deren Bewandtnis in allgemeinen RL genauer beschrieben werden.  
+Hierbei soll das k-armed Bandit Problem der Wahrscheinlichkeitstheorie erläutert werden
+und dabei auf  Schwerpunkte Exploration vs. Exploitation, einem Kernproblem des
+Reinforcement Learning, eingegangen werden. Die dabei realisierten Implementierungen
+sollen genauer erläutert und deren Bewandtnis in allgemeinen RL genauer beschrieben
+werden.
 \begin{itemize}
 \itemsep0pt
 \item verschiedene Strategien für Exploration vs. Exploitation: greedy, $\epsilon$ greedy, decaying $\epsilon$ greedy, ...
@@ -97,14 +114,21 @@ Ein von der Firma Open AI (\url{https://gym.openai.com/}) bereitgestelltes Toolk
 \begin{itemize}
 \itemsep0pt
 \item Erklärung und Verwendung: Environment, Observation Space, Action Space
-\item Realisierung Environment Tic Tac Toe:\\ \url{https://github.com/dephiloper/independent-coursework-rl/blob/master/preparation/05_v_learning/tictactoe_v_learning.py}
+\item Realisierung Environment Tic Tac Toe:
+  % \url{https://github.com/dephiloper/independent-coursework-rl/blob/master/preparation/05_v_learning/tictactoe_v_learning.py}
 \end{itemize}
 
 \section{Cross-Entropy-Method}
-Erläuterung der Cross-Entropy-Method und der Verwendung eines neuronalen Netzes zum Lernen von Cart-Pole \\ (\url{https://github.com/dephiloper/independent-coursework-rl/tree/master/preparation/04_cross_entropy}). Einordnung des Verfahrens im Bereich policy learning. 
+Erläuterung der Cross-Entropy-Method und der Verwendung eines neuronalen Netzes zum Lernen
+von Cart-Pole
+% (\url{https://github.com/dephiloper/independent-coursework-rl/tree/master/preparation/04_cross_entropy}).
+\\
+Einordnung des Verfahrens im Bereich policy learning.
 
 \section{Q-Learning}
-Erläuterung des Q-Learning Verfahrens und deren Erweiterungen, dessen Einordnung im Bereich value learning sowie Begriffserklärungen und Implementierung von Q-learning anhand der Verwendung eines bereits existierenden Gyms. Erläuterung folgender Terminologien:
+Erläuterung des Q-Learning Verfahrens und deren Erweiterungen, dessen Einordnung im
+Bereich value learning sowie Begriffserklärung und Implementierung von Q-learning anhand
+der Verwendung eines bereits existierenden Gyms. Erläuterung folgender Terminologien:
 
 \begin{itemize}
 \itemsep0pt
@@ -114,12 +138,16 @@ Erläuterung des Q-Learning Verfahrens und deren Erweiterungen, dessen Einordnun
 \item V(s) and Q(s,a)
 \item einfache Erläuterung der Abwandlung von Frozen Lake: 2x2 Nonslip Lake
 \item Vergleich von V(s) und Q(s,a) und deren Einsatz
-\item Implementierung q-learning und v-learning Frozen Lake:\\ \url{https://github.com/dephiloper/independent-coursework-rl/tree/master/preparation/05_v_learning}
+\item Implementierung q-learning und v-learning Frozen Lake:
+  % \url{https://github.com/dephiloper/independent-coursework-rl/tree/master/preparation/05_v_learning}
 \end{itemize}
 
 \section{Deep Q-Learning}
-Erweitung des Q-learning Verfahrens um neuronales Netz, was die Nutzung von Spielen und Simulationen mit kontinuierlichem Spielbereich (Observation-Space) ermöglicht. Umsetzung mehrerer Environements (Atari Pong, Roboschool Environments) und Beschreibung deren Funktionsweise sowie folgender Terminologien und Verfahren mit diversen Implementierungen: \\
-\url{https://github.com/dephiloper/independent-coursework-rl/tree/master/preparation/07_deep_q_learning}
+Erweitung des Q-learning Verfahrens um neuronales Netz, was die Nutzung von Spielen und
+Simulationen mit kontinuierlichem Spielbereich (Observation-Space) ermöglicht. Umsetzung
+mehrerer Environements (Atari Pong, Roboschool Environments) und Beschreibung deren
+Funktionsweise sowie folgender Terminologien und Verfahren mit diversen Implementierungen:
+% \url{https://github.com/dephiloper/independent-coursework-rl/tree/master/preparation/07_deep_q_learning}
 
 \begin{itemize}
 \itemsep0pt
