@@ -17,12 +17,13 @@ from gym_teeworlds import teeworlds_env_settings_iterator, OBSERVATION_SPACE, Te
     NUMBER_OF_IMAGES
 from utils import ExperienceBuffer, ACTIONS, ACTION_LABELS, Experience, load_config
 
-MODEL_NAME = "teeworlds-v0.2-"
+MODEL_NAME = "teeworlds-v0.4-"
 
 # exp collecting
 NUM_WORKERS = 4
-COLLECT_EXPERIENCE_SIZE = 650  # init: 2000 (amount of experiences to collect after each training step)
-GAME_TICK_SPEED = 200  # default: 50 (game speed, when higher more screenshots needs to be captures)
+COLLECT_EXPERIENCE_SIZE = 2000  # init: 2000 (amount of experiences to collect after each training step)
+GAME_TICK_SPEED = 50  # default: 50 (game speed, when higher more screenshots needs to be captures)
+EPISODE_DURATION = 40  # default: 40
 MONITOR_WIDTH = 84  # init: 84 width of game screen
 MONITOR_HEIGHT = 84  # init: 84 height of game screen (important for conv)
 MONITOR_X_PADDING = 20
@@ -33,16 +34,16 @@ REPLAY_START_SIZE = 4000  # init: 10000 (min amount of experiences in replay buf
 REPLAY_SIZE = 10000  # init: 10000 (max capacity of replay buffer)
 DEVICE = 'cpu'  # init: 'cpu'
 BATCH_SIZE = 512  # init: 32 (sample size of experiences from replay buffer)
-NUM_TRAININGS_PER_EPOCH = 20  # init: 50 (amount of BATCH_SIZE x NUM_TRAININGS_PER_EPOCH will be trained)
+NUM_TRAININGS_PER_EPOCH = 50  # init: 50 (amount of BATCH_SIZE x NUM_TRAININGS_PER_EPOCH will be trained)
 GAMMA = 0.99  # init: .99 (bellman equation)
 MIN_EPSILON = 0.02  # init: 0.02
 EPSILON_START = 1.0  # init: 1.0
-EPSILON_DECAY = 0.007  # init: 0.01
-LEARNING_RATE = 1e-5  # init: 1e-4 (also quite low eventually using default 1e-3)
+EPSILON_DECAY = 0.01  # init: 0.01
+LEARNING_RATE = 1e-4  # init: 1e-4 (also quite low eventually using default 1e-3)
 SYNC_TARGET_FRAMES = COLLECT_EXPERIENCE_SIZE * 5  # init: 1000 (how frequently we sync target net with net)
-MAP_NAMES = ['level_0', 'level_1', 'level_2']
+MAP_NAMES = ['newlevel_0', 'newlevel_1', 'newlevel_2', 'newlevel_3']
 
-MEAN_REWARD_BOUND = 13
+MEAN_REWARD_BOUND = 12
 
 
 config = load_config()
@@ -223,7 +224,7 @@ def main():
             monitor_height=MONITOR_HEIGHT,
             top_spacing=40,
             server_tick_speed=GAME_TICK_SPEED,
-            episode_duration=15*(50/GAME_TICK_SPEED),
+            episode_duration=EPISODE_DURATION*(50/GAME_TICK_SPEED),
             monitor_x_padding=MONITOR_X_PADDING,
             monitor_y_padding=MONITOR_Y_PADDING,
             map_names=MAP_NAMES
