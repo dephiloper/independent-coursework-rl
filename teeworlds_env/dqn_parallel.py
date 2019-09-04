@@ -15,22 +15,25 @@ from torch.multiprocessing import Process, Value, Queue, Event
 from dqn_model import Net
 from gym_teeworlds import teeworlds_env_settings_iterator, OBSERVATION_SPACE, TeeworldsEnvSettings, Action, \
     NUMBER_OF_IMAGES
-from utils import ExperienceBuffer, ACTIONS, ACTION_LABELS, Experience, load_config
+from utils import ExperienceBuffer, ACTIONS, ACTION_LABELS, Experience, load_config, PriorityExperienceBuffer
 
 MODEL_NAME = "teeworlds-v0.4-"
 
 # exp collecting
 NUM_WORKERS = 4
-COLLECT_EXPERIENCE_SIZE = 2000  # init: 2000 (amount of experiences to collect after each training step)
+COLLECT_EXPERIENCE_SIZE = 1000  # init: 2000 (amount of experiences to collect after each training step)
 GAME_TICK_SPEED = 100  # default: 50 (game speed, when higher more screenshots needs to be captures)
 EPISODE_DURATION = 40  # default: 40
 MONITOR_WIDTH = 84  # init: 84 width of game screen
 MONITOR_HEIGHT = 84  # init: 84 height of game screen (important for conv)
 MONITOR_X_PADDING = 20
 MONITOR_Y_PADDING = 20
+PRIORITY_REPLAY_ALPHA = 0.6
+BETA_START = 0.4
+BETA_FRAMES = 10 ** 5
 
 # training
-REPLAY_START_SIZE = 4000  # init: 10000 (min amount of experiences in replay buffer before training starts)
+REPLAY_START_SIZE = 1000  # init: 10000 (min amount of experiences in replay buffer before training starts)
 REPLAY_SIZE = 10000  # init: 10000 (max capacity of replay buffer)
 DEVICE = 'cpu'  # init: 'cpu'
 BATCH_SIZE = 512  # init: 32 (sample size of experiences from replay buffer)
@@ -174,6 +177,7 @@ def setup():
     while set_priority and os.nice(0) == 0:
         time.sleep(0.2)
 
+
 def print_experience_buffer(experience_buffer: ExperienceBuffer):
     index = 0
     for experience in experience_buffer.buffer:
@@ -220,7 +224,7 @@ def main():
         worker = Worker(worker_index, env_setting, experience_queue, stats_queue, net, ACTIONS, DEVICE)
         workers.append(worker)
 
-    experience_buffer = ExperienceBuffer(capacity=REPLAY_SIZE)
+    experience_buffer = PriorityExperienceBuffer(capacity=REPLAY_SIZE)
 
     for worker in workers:
         worker.start()
@@ -233,6 +237,7 @@ def main():
         worker.start_collecting_experience()
 
     frame_idx = 0
+    beta = BETA_START
     eval_states = None
 
     writer = SummaryWriter()
@@ -248,6 +253,7 @@ def main():
             exp = experience_queue.get()
             experience_buffer.append(exp)
             frame_idx += 1
+            beta = min(1.0, BETA_START + frame_idx * (1.0 - BETA_START) / BETA_FRAMES)
 
             # gather stats for logging
             while True:
@@ -259,6 +265,7 @@ def main():
 
                 game_stats.append(game_stat)
                 writer.add_scalar('reward', game_stat.reward, frame_idx)
+                writer.add_scalar('beta', beta, frame_idx)
 
                 reward_10 = 0
                 for stat in game_stats[-10:]:
@@ -287,7 +294,7 @@ def main():
         finished_episodes = 0
 
         if eval_states is None:
-            eval_states = experience_buffer.sample(STATES_TO_EVALUATE)[0]
+            eval_states = experience_buffer.sample(STATES_TO_EVALUATE)[0][0]
             np.array(eval_states, copy=False)
 
         # sync nets (copy weights)
@@ -298,13 +305,15 @@ def main():
         total_loss = []
         for _ in tqdm(range(NUM_TRAININGS_PER_EPOCH), desc='training: '):
             optimizer.zero_grad()
-            batch = experience_buffer.sample(BATCH_SIZE)
+            batch, batch_weights, batch_indices = experience_buffer.sample(BATCH_SIZE, beta=beta)
 
             # perform optimization by minimizing the loss
-            loss_t = calc_loss(batch, net, target_net, device=DEVICE, is_double=True)  # double dqn enabled!
-            total_loss.append(loss_t.item())
-            loss_t.backward()
+            loss_v, sample_priorities_v = calc_loss(batch, batch_weights, net, target_net,
+                                                    device=DEVICE, is_double=True)  # double dqn enabled!
+            total_loss.append(loss_v.item())
+            loss_v.backward()
             optimizer.step()
+            experience_buffer.update_priorities(batch_indices, sample_priorities_v.data.cpu().numpy())
 
         writer.add_scalar('mean_loss', np.mean(total_loss), frame_idx)
         total_loss.clear()
@@ -317,7 +326,7 @@ def main():
 
         snr_values = net.noisy_layers_sigma_snr()
         for layer_idx, sigma_l2 in enumerate(snr_values):
-            writer.add_scalar(f"sigma_snr_layer_{layer_idx+1}", sigma_l2, frame_idx)
+            writer.add_scalar(f"sigma_snr_layer_{layer_idx + 1}", sigma_l2, frame_idx)
 
         epoch += 1
 
@@ -331,7 +340,7 @@ def main():
 #   https://bit.ly/2I7iBqa <- steps which aren't end of episode
 #   https://bit.ly/2HFsOec <- final steps
 # noinspection PyCallingNonCallable,PyUnresolvedReferences
-def calc_loss(batch, net, tgt_net, device="cpu", is_double=True):
+def calc_loss(batch, batch_weights, net, tgt_net, device="cpu", is_double=True):
     states, actions, rewards, dones, next_states = batch  # unpack the sample
 
     # wrap numpy data in torch tensors <- execution on gpu fast like sonic
@@ -340,6 +349,7 @@ def calc_loss(batch, net, tgt_net, device="cpu", is_double=True):
     actions_v = torch.tensor(actions, dtype=torch.int64).to(device)
     rewards_v = torch.tensor(rewards, dtype=torch.float32).to(device)
     done_mask = torch.ByteTensor(dones).to(device)
+    batch_weights_v = torch.tensor(batch_weights).to(device)
 
     # extract q-values for taken actions using the gather function
     # gather explained: https://stackoverflow.com/a/54706716/10547035 or page 144
@@ -372,7 +382,11 @@ def calc_loss(batch, net, tgt_net, device="cpu", is_double=True):
 
     # calculate the bellman approximation value
     expected_state_action_values = next_state_values * GAMMA + rewards_v
-    return torch.nn.MSELoss()(state_action_values, expected_state_action_values)
+
+    # pytorch MSE doesn't support weights -> calculate MSE and multiply batch weights
+    losses_v = batch_weights_v * (state_action_values - expected_state_action_values) ** 2
+
+    return losses_v.mean(), losses_v + 1e-5  # small loss added to handle zero loss situations
 
 
 # just for comparision of training process w/ and w/o double dqn
