@@ -184,8 +184,6 @@ class TeeworldsEnv(gym.Env):
         server_log = open(f"logs/{log_id}-server_log.txt", "w")
         client_log = open(f"logs/{log_id}-client_log.txt", "w")
 
-        print(f"creating logs at {log_id}")
-
         sv_properties = [
             "./teeworlds_srv",
             "sv_rcon_password 123",

@@ -22,7 +22,7 @@ MODEL_NAME = "teeworlds-v0.4-"
 # exp collecting
 NUM_WORKERS = 4
 COLLECT_EXPERIENCE_SIZE = 2000  # init: 2000 (amount of experiences to collect after each training step)
-GAME_TICK_SPEED = 50  # default: 50 (game speed, when higher more screenshots needs to be captures)
+GAME_TICK_SPEED = 100  # default: 50 (game speed, when higher more screenshots needs to be captures)
 EPISODE_DURATION = 40  # default: 40
 MONITOR_WIDTH = 84  # init: 84 width of game screen
 MONITOR_HEIGHT = 84  # init: 84 height of game screen (important for conv)
@@ -36,9 +36,6 @@ DEVICE = 'cpu'  # init: 'cpu'
 BATCH_SIZE = 512  # init: 32 (sample size of experiences from replay buffer)
 NUM_TRAININGS_PER_EPOCH = 50  # init: 50 (amount of BATCH_SIZE x NUM_TRAININGS_PER_EPOCH will be trained)
 GAMMA = 0.99  # init: .99 (bellman equation)
-MIN_EPSILON = 0.02  # init: 0.02
-EPSILON_START = 1.0  # init: 1.0
-EPSILON_DECAY = 0.01  # init: 0.01
 LEARNING_RATE = 1e-4  # init: 1e-4 (also quite low eventually using default 1e-3)
 SYNC_TARGET_FRAMES = COLLECT_EXPERIENCE_SIZE * 5  # init: 1000 (how frequently we sync target net with net)
 MAP_NAMES = ['newlevel_0', 'newlevel_1', 'newlevel_2', 'newlevel_3']
@@ -67,7 +64,6 @@ class Worker(Process):
             experience_queue: Queue,
             stats_queue: Queue,
             net: Net,
-            epsilon: Value,
             action_list: List,
             device: str = 'cpu'
     ):
@@ -77,7 +73,6 @@ class Worker(Process):
         self.experience_queue = experience_queue
         self.stats_queue = stats_queue
         self.net = net
-        self.epsilon = epsilon
         self.actions = action_list
         self.device = device
 
@@ -124,22 +119,14 @@ class Worker(Process):
     def _do_step(self):
         self._idle_for_running()
 
-        # with probability epsilon take random action (explore)
-        if np.random.random() < self.epsilon.value:
-            index = np.random.randint(len(self.actions))  # np.random.choice(actions)
-        else:  # otherwise use the past model to obtain the q-values for all possible actions, choose the best
-            state_a = np.array(
-                self.state,
-                copy=False,
-                dtype=np.float32
-            ).reshape(
-                (1, NUMBER_OF_IMAGES, self.env.monitor.width, self.env.monitor.height)
-            )
-            # noinspection PyUnresolvedReferences,PyCallingNonCallable
-            state_v = torch.tensor(state_a, dtype=torch.float32).to(self.device)
+        state_a = np.array(self.state, copy=False, dtype=np.float32).reshape(
+            (1, NUMBER_OF_IMAGES, self.env.monitor.width, self.env.monitor.height))
 
-            q_values_v = self.net(state_v)  # calculate q values
-            index = torch.argmax(q_values_v)  # get index of value with best outcome
+        # noinspection PyUnresolvedReferences,PyCallingNonCallable
+        state_v = torch.tensor(state_a, dtype=torch.float32).to(self.device)
+
+        q_values_v = self.net(state_v)  # calculate q values
+        index = torch.argmax(q_values_v)  # get index of value with best outcome
 
         action = self.actions[index]  # extracting action from index ([0,-1], [0,0], [0,1]) <- (0, 1, 2)
 
@@ -187,7 +174,6 @@ def setup():
     while set_priority and os.nice(0) == 0:
         time.sleep(0.2)
 
-
 def print_experience_buffer(experience_buffer: ExperienceBuffer):
     index = 0
     for experience in experience_buffer.buffer:
@@ -212,7 +198,6 @@ def main():
     stats_queue = Queue()
 
     observation_size = OBSERVATION_SPACE.shape
-    epsilon = Value('d', EPSILON_START)
 
     net = Net(observation_size, n_actions=len(ACTIONS)).to(DEVICE)
 
@@ -232,7 +217,7 @@ def main():
             monitor_y_padding=MONITOR_Y_PADDING,
             map_names=MAP_NAMES
     )):
-        worker = Worker(worker_index, env_setting, experience_queue, stats_queue, net, epsilon, ACTIONS, DEVICE)
+        worker = Worker(worker_index, env_setting, experience_queue, stats_queue, net, ACTIONS, DEVICE)
         workers.append(worker)
 
     experience_buffer = ExperienceBuffer(capacity=REPLAY_SIZE)
@@ -281,7 +266,6 @@ def main():
                 reward_10 /= len(game_stats[-10:])
 
                 writer.add_scalar('reward_10', reward_10, frame_idx)
-                writer.add_scalar('epsilon', epsilon.value, frame_idx)
 
         # print_experience_buffer(experience_buffer)
 
@@ -310,9 +294,6 @@ def main():
         if frame_idx % SYNC_TARGET_FRAMES == 0:
             target_net.load_state_dict(net.state_dict())
 
-        # decrease epsilon
-        epsilon.value = max(MIN_EPSILON, epsilon.value - EPSILON_DECAY)
-
         # training
         total_loss = []
         for _ in tqdm(range(NUM_TRAININGS_PER_EPOCH), desc='training: '):
@@ -333,6 +314,10 @@ def main():
 
         mean_val = calc_values_of_states(eval_states, net, device=DEVICE)
         writer.add_scalar('values_mean', mean_val, frame_idx)
+
+        snr_values = net.noisy_layers_sigma_snr()
+        for layer_idx, sigma_l2 in enumerate(snr_values):
+            writer.add_scalar(f"sigma_snr_layer_{layer_idx+1}", sigma_l2, frame_idx)
 
         epoch += 1
 
