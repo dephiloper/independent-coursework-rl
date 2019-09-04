@@ -42,8 +42,11 @@ LEARNING_RATE = 1e-4  # init: 1e-4 (also quite low eventually using default 1e-3
 SYNC_TARGET_FRAMES = COLLECT_EXPERIENCE_SIZE * 5  # init: 1000 (how frequently we sync target net with net)
 MAP_NAMES = ['newlevel_0', 'newlevel_1', 'newlevel_2', 'newlevel_3']
 
-MEAN_REWARD_BOUND = 12
+# evaluation
+STATES_TO_EVALUATE = 1000
+EVAL_EVERY_FRAME = 100
 
+MEAN_REWARD_BOUND = 12
 
 config = load_config()
 path_to_teeworlds = str(config['path_to_teeworlds'])
@@ -187,7 +190,7 @@ def setup():
 def print_experience_buffer(experience_buffer: ExperienceBuffer):
     index = 0
     for experience in experience_buffer.buffer:
-        assert(type(experience) == Experience)
+        assert (type(experience) == Experience)
         if experience.worker_index == 0:
             # img_cur = np.concatenate(experience.state, axis=1)
             img = np.concatenate(experience.new_state, axis=1)
@@ -223,7 +226,7 @@ def main():
             monitor_height=MONITOR_HEIGHT,
             top_spacing=40,
             server_tick_speed=GAME_TICK_SPEED,
-            episode_duration=15*(50/GAME_TICK_SPEED),
+            episode_duration=15 * (50 / GAME_TICK_SPEED),
             monitor_x_padding=MONITOR_X_PADDING,
             monitor_y_padding=MONITOR_Y_PADDING,
             map_names=MAP_NAMES
@@ -244,6 +247,7 @@ def main():
         worker.start_collecting_experience()
 
     frame_idx = 0
+    eval_states = None
 
     writer = SummaryWriter()
     game_stats = []
@@ -278,53 +282,62 @@ def main():
                 writer.add_scalar('reward_10', reward_10, frame_idx)
                 writer.add_scalar('epsilon', epsilon.value, frame_idx)
 
-        #print_experience_buffer(experience_buffer)
+        # print_experience_buffer(experience_buffer)
 
-        # check if buffer is large enough for training
-        if len(experience_buffer) >= REPLAY_START_SIZE:
-            # stop experience collection on all workers
-            for worker in workers:
-                worker.stop_collecting_experience()
+        # check if buffer is large enough for training else back to collecting training data
+        if len(experience_buffer) < REPLAY_START_SIZE:
+            continue
 
-            for worker in workers:
-                worker.stopped.wait()
+        # stop experience collection on all workers
+        for worker in workers:
+            worker.stop_collecting_experience()
 
-            mean_reward = np.mean([stat.reward for stat in game_stats[-finished_episodes:]])
-            if mean_reward > max_mean_reward:
-                max_mean_reward = mean_reward
-                torch.save(net.state_dict(), f"saves/{MODEL_NAME}_epoch-{epoch:04d}_rew-{max_mean_reward:08.0f}.dat")
-            finished_episodes = 0
+        for worker in workers:
+            worker.stopped.wait()
 
-            # sync nets (copy weights)
-            if frame_idx % SYNC_TARGET_FRAMES == 0:
-                target_net.load_state_dict(net.state_dict())
+        mean_reward = np.mean([stat.reward for stat in game_stats[-finished_episodes:]])
+        if mean_reward > max_mean_reward:
+            max_mean_reward = mean_reward
+            torch.save(net.state_dict(), f"saves/{MODEL_NAME}_epoch-{epoch:04d}_rew-{max_mean_reward:08.0f}.dat")
+        finished_episodes = 0
 
-            # decrease epsilon
-            epsilon.value = max(MIN_EPSILON, epsilon.value - EPSILON_DECAY)
+        if eval_states is None:
+            eval_states = experience_buffer.sample(STATES_TO_EVALUATE)[0]
+            np.array(eval_states, copy=False)
 
-            # training
-            total_loss = []
-            for _ in tqdm(range(NUM_TRAININGS_PER_EPOCH), desc='training: '):
-                optimizer.zero_grad()
-                batch = experience_buffer.sample(BATCH_SIZE)
+        # sync nets (copy weights)
+        if frame_idx % SYNC_TARGET_FRAMES == 0:
+            target_net.load_state_dict(net.state_dict())
 
-                # perform optimization by minimizing the loss
-                loss_t = calc_loss(batch, net, target_net, device=DEVICE)
-                total_loss.append(loss_t.item())
-                loss_t.backward()
-                optimizer.step()
+        # decrease epsilon
+        epsilon.value = max(MIN_EPSILON, epsilon.value - EPSILON_DECAY)
 
-            writer.add_scalar('mean_loss', np.mean(total_loss), frame_idx)
-            total_loss.clear()
-            mean, std = net.get_stats()
-            writer.add_scalar('net_weight_mean', mean, frame_idx)
-            writer.add_scalar('net_weight_std', std, frame_idx)
+        # training
+        total_loss = []
+        for _ in tqdm(range(NUM_TRAININGS_PER_EPOCH), desc='training: '):
+            optimizer.zero_grad()
+            batch = experience_buffer.sample(BATCH_SIZE)
 
-            epoch += 1
+            # perform optimization by minimizing the loss
+            loss_t = calc_loss(batch, net, target_net, device=DEVICE, is_double=True)  # double dqn enabled!
+            total_loss.append(loss_t.item())
+            loss_t.backward()
+            optimizer.step()
+
+        writer.add_scalar('mean_loss', np.mean(total_loss), frame_idx)
+        total_loss.clear()
+        mean, std = net.get_stats()
+        writer.add_scalar('net_weight_mean', mean, frame_idx)
+        writer.add_scalar('net_weight_std', std, frame_idx)
+
+        mean_val = calc_values_of_states(eval_states, net, device=DEVICE)
+        writer.add_scalar('values_mean', mean_val, frame_idx)
+
+        epoch += 1
 
         # restart experience collection on all workers
-            for worker in workers:
-                worker.start_collecting_experience()
+        for worker in workers:
+            worker.start_collecting_experience()
 
 
 # performs the loss calculation mentioned in 6 and 7
@@ -332,7 +345,7 @@ def main():
 #   https://bit.ly/2I7iBqa <- steps which aren't end of episode
 #   https://bit.ly/2HFsOec <- final steps
 # noinspection PyCallingNonCallable,PyUnresolvedReferences
-def calc_loss(batch, net, tgt_net, device="cpu"):
+def calc_loss(batch, net, tgt_net, device="cpu", is_double=True):
     states, actions, rewards, dones, next_states = batch  # unpack the sample
 
     # wrap numpy data in torch tensors <- execution on gpu fast like sonic
@@ -346,9 +359,19 @@ def calc_loss(batch, net, tgt_net, device="cpu"):
     # gather explained: https://stackoverflow.com/a/54706716/10547035 or page 144
     state_action_values = net(states_v).gather(1, actions_v.unsqueeze(-1)).squeeze(-1)
 
+    '''
     # apply target network to next state observations, and calculate the maximum q-value along the same action dim 1
     # max returns both max value and indices of those values
     next_state_values = tgt_net(next_states_v).max(1)[0]
+    '''
+    # why double? basic DQN has tendency to overestimate values of Q (harm training process)
+    # if enabled we calculate the best action to take in the next state using our main trained network
+    # but, values corresponding to this action come from the target network
+    if is_double:
+        next_state_actions = net(next_states_v).max(1)[1]
+        next_state_values = tgt_net(next_states_v).gather(1, next_state_actions.unsqueeze(-1)).squeeze(-1)
+    else:
+        next_state_values = tgt_net(next_states_v).max(1)[0]
 
     # this part is mentioned as very important!
     # if transition in the batch is from the last step in the episode, then our value of the action does not
@@ -364,6 +387,18 @@ def calc_loss(batch, net, tgt_net, device="cpu"):
     # calculate the bellman approximation value
     expected_state_action_values = next_state_values * GAMMA + rewards_v
     return torch.nn.MSELoss()(state_action_values, expected_state_action_values)
+
+
+# just for comparision of training process w/ and w/o double dqn
+def calc_values_of_states(states, net, device="cpu"):
+    mean_values = []
+    for batch in np.array_split(states, 64):
+        states_v = torch.tensor(batch).to(device)
+        action_values_v = net(states_v)
+        best_action_values_v = action_values_v.max(1)[0]
+        mean_values.append(best_action_values_v.mean().item())
+
+    return np.mean(mean_values)
 
 
 if __name__ == '__main__':
