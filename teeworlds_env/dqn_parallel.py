@@ -3,14 +3,13 @@ import time
 from queue import Empty
 from typing import List
 
-import numpy as np
-from tensorboardX import SummaryWriter
 import cv2
-from tqdm import tqdm
-
+import numpy as np
 import torch
 import torch.optim
+from tensorboardX import SummaryWriter
 from torch.multiprocessing import Process, Value, Queue, Event
+from tqdm import tqdm
 
 from dqn_model import Net
 from gym_teeworlds import teeworlds_env_settings_iterator, OBSERVATION_SPACE, TeeworldsEnvSettings, Action, \
@@ -21,7 +20,7 @@ MODEL_NAME = "teeworlds-v0.4-"
 
 # exp collecting
 NUM_WORKERS = 4
-COLLECT_EXPERIENCE_SIZE = 1000  # init: 2000 (amount of experiences to collect after each training step)
+COLLECT_EXPERIENCE_SIZE = 2000  # init: 2000 (amount of experiences to collect after each training step)
 GAME_TICK_SPEED = 100  # default: 50 (game speed, when higher more screenshots needs to be captures)
 EPISODE_DURATION = 40  # default: 40
 MONITOR_WIDTH = 84  # init: 84 width of game screen
@@ -33,7 +32,7 @@ BETA_START = 0.4
 BETA_FRAMES = 10 ** 5
 
 # training
-REPLAY_START_SIZE = 1000  # init: 10000 (min amount of experiences in replay buffer before training starts)
+REPLAY_START_SIZE = 4000  # init: 10000 (min amount of experiences in replay buffer before training starts)
 REPLAY_SIZE = 10000  # init: 10000 (max capacity of replay buffer)
 DEVICE = 'cpu'  # init: 'cpu'
 BATCH_SIZE = 512  # init: 32 (sample size of experiences from replay buffer)
@@ -41,7 +40,7 @@ NUM_TRAININGS_PER_EPOCH = 50  # init: 50 (amount of BATCH_SIZE x NUM_TRAININGS_P
 GAMMA = 0.99  # init: .99 (bellman equation)
 LEARNING_RATE = 1e-4  # init: 1e-4 (also quite low eventually using default 1e-3)
 SYNC_TARGET_FRAMES = COLLECT_EXPERIENCE_SIZE * 5  # init: 1000 (how frequently we sync target net with net)
-MAP_NAMES = ['newlevel_0', 'newlevel_1', 'newlevel_2', 'newlevel_3']
+MAP_NAMES = ['newlevel_0']
 
 # evaluation
 STATES_TO_EVALUATE = 1000
@@ -273,7 +272,6 @@ def main():
                 reward_10 /= len(game_stats[-10:])
 
                 writer.add_scalar('reward_10', reward_10, frame_idx)
-
         # print_experience_buffer(experience_buffer)
 
         # check if buffer is large enough for training else back to collecting training data
@@ -349,7 +347,7 @@ def calc_loss(batch, batch_weights, net, tgt_net, device="cpu", is_double=True):
     actions_v = torch.tensor(actions, dtype=torch.int64).to(device)
     rewards_v = torch.tensor(rewards, dtype=torch.float32).to(device)
     done_mask = torch.ByteTensor(dones).to(device)
-    batch_weights_v = torch.tensor(batch_weights).to(device)
+    batch_weights_v = torch.tensor(batch_weights, dtype=torch.float32).to(device)
 
     # extract q-values for taken actions using the gather function
     # gather explained: https://stackoverflow.com/a/54706716/10547035 or page 144
@@ -390,6 +388,7 @@ def calc_loss(batch, batch_weights, net, tgt_net, device="cpu", is_double=True):
 
 
 # just for comparision of training process w/ and w/o double dqn
+# noinspection PyUnresolvedReferences
 def calc_values_of_states(states, net, device="cpu"):
     mean_values = []
     for batch in np.array_split(states, 64):

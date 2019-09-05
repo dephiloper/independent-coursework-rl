@@ -167,17 +167,17 @@ class PriorityExperienceBuffer:
         total = len(self.buffer)
         weights = (total * probabilities[indices]) ** (-beta)
         weights /= weights.max()
+        weights = np.array(weights, dtype=np.float32)
 
         # indices for batch samples are required to update priorities for sampled items
-        return samples, indices, weights
+        return samples, weights, indices
 
-
-def update_priorities(self, batch_indices, batch_priorities):
-    """
-    allows to update new priorities for a processed batch
-    """
-    for idx, priority in zip(batch_indices, batch_priorities):
-        self.priorities[idx] = priority
+    def update_priorities(self, batch_indices, batch_priorities):
+        """
+        allows to update new priorities for a processed batch
+        """
+        for idx, priority in zip(batch_indices, batch_priorities):
+            self.priorities[idx] = priority
 
 
 def random_id(n):
