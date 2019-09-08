@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 from torch import nn
-from torch.nn import Parameter
+import torch.nn.functional as F
 
 
 class Net(nn.Module):
@@ -20,10 +20,15 @@ class Net(nn.Module):
         )
 
         conv_out_size = self._get_conv_out(input_shape)
+
+        self.noisy_layers = [
+            NoisyLinear(conv_out_size, 512),
+            NoisyLinear(512, n_actions)
+        ]
         self.fc = nn.Sequential(
-            nn.Linear(conv_out_size, 512),
+            self.noisy_layers[0],
             nn.ReLU(),
-            nn.Linear(512, n_actions)
+            self.noisy_layers[1]
         )
 
     def _get_conv_out(self, shape):
@@ -44,10 +49,51 @@ class Net(nn.Module):
             mean_sum += param.mean().item()
             std_sum += param.std().item()
 
-        return mean_sum, std_sum/num_parameters
+        return mean_sum, std_sum / num_parameters
 
     def print_stats(self):
         mean, std = self.get_stats()
         print('net stats:')
         print(f'mean: {mean}')
         print(f'std: {std}')
+
+    def noisy_layers_sigma_snr(self):
+        return [
+            ((layer.weight ** 2).mean().sqrt() / (layer.sigma_weight ** 2).mean().sqrt()).item() for
+            layer in self.noisy_layers
+        ]
+
+
+class NoisyLinear(nn.Linear):
+    """
+    > create a matrix for sigma (mu will be stored in matrix inherited from nn.Linear)
+    > to make sigma trainable wrap it in a nn.Parameter
+    > register_buffer creates a tensor in the network which won't be updated by backprop, but will handled by nn.Module
+    > extra param and buffer is created for the bias of the layer
+    > sigma 0.017 init value from paper
+    """
+
+    def __init__(self, in_features, out_features, sigma_init=0.017, bias=True):
+        super(NoisyLinear, self).__init__(in_features, out_features, bias=bias)
+        self.sigma_weight = nn.Parameter(torch.full((out_features, in_features), sigma_init))
+        self.register_buffer("epsilon_weight", torch.zeros(out_features, in_features))
+        if bias:
+            self.sigma_bias = nn.Parameter(torch.full((out_features,), sigma_init))
+            self.register_buffer("epsilon_bias", torch.zeros(out_features))
+        self.reset_parameters()
+
+    def reset_parameters(self):
+        """
+        initialisation of the layer according to the paper
+        """
+        std = np.math.sqrt(3 / self.in_features)
+        self.weight.data.uniform_(-std, std)
+        self.bias.data.uniform_(-std, std)
+
+    def forward(self, input):
+        self.epsilon_weight.normal_()
+        bias = self.bias
+        if bias is not None:
+            self.epsilon_bias.normal_()
+            bias = bias + self.sigma_bias * self.epsilon_bias.data
+        return F.linear(input, self.weight + self.sigma_weight * self.epsilon_weight.data, bias)

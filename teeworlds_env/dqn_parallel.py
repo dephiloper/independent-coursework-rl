@@ -3,31 +3,33 @@ import time
 from queue import Empty
 from typing import List
 
-import numpy as np
-from tensorboardX import SummaryWriter
 import cv2
-from tqdm import tqdm
-
+import numpy as np
 import torch
 import torch.optim
+from tensorboardX import SummaryWriter
 from torch.multiprocessing import Process, Value, Queue, Event
+from tqdm import tqdm
 
 from dqn_model import Net
 from gym_teeworlds import teeworlds_env_settings_iterator, OBSERVATION_SPACE, TeeworldsEnvSettings, Action, \
     NUMBER_OF_IMAGES
-from utils import ExperienceBuffer, ACTIONS, ACTION_LABELS, Experience, load_config
+from utils import ExperienceBuffer, ACTIONS, ACTION_LABELS, Experience, load_config, PriorityExperienceBuffer
 
 MODEL_NAME = "teeworlds-v0.4-"
 
 # exp collecting
 NUM_WORKERS = 4
 COLLECT_EXPERIENCE_SIZE = 2000  # init: 2000 (amount of experiences to collect after each training step)
-GAME_TICK_SPEED = 50  # default: 50 (game speed, when higher more screenshots needs to be captures)
+GAME_TICK_SPEED = 100  # default: 50 (game speed, when higher more screenshots needs to be captures)
 EPISODE_DURATION = 40  # default: 40
 MONITOR_WIDTH = 84  # init: 84 width of game screen
 MONITOR_HEIGHT = 84  # init: 84 height of game screen (important for conv)
 MONITOR_X_PADDING = 20
 MONITOR_Y_PADDING = 20
+PRIORITY_REPLAY_ALPHA = 0.6
+BETA_START = 0.4
+BETA_FRAMES = 10 ** 5
 
 # training
 REPLAY_START_SIZE = 4000  # init: 10000 (min amount of experiences in replay buffer before training starts)
@@ -36,15 +38,15 @@ DEVICE = 'cpu'  # init: 'cpu'
 BATCH_SIZE = 512  # init: 32 (sample size of experiences from replay buffer)
 NUM_TRAININGS_PER_EPOCH = 50  # init: 50 (amount of BATCH_SIZE x NUM_TRAININGS_PER_EPOCH will be trained)
 GAMMA = 0.99  # init: .99 (bellman equation)
-MIN_EPSILON = 0.02  # init: 0.02
-EPSILON_START = 1.0  # init: 1.0
-EPSILON_DECAY = 0.01  # init: 0.01
 LEARNING_RATE = 1e-4  # init: 1e-4 (also quite low eventually using default 1e-3)
 SYNC_TARGET_FRAMES = COLLECT_EXPERIENCE_SIZE * 5  # init: 1000 (how frequently we sync target net with net)
-MAP_NAMES = ['newlevel_0', 'newlevel_1', 'newlevel_2', 'newlevel_3']
+MAP_NAMES = ['newlevel_0']
+
+# evaluation
+STATES_TO_EVALUATE = 1000
+EVAL_EVERY_FRAME = 100
 
 MEAN_REWARD_BOUND = 12
-
 
 config = load_config()
 path_to_teeworlds = str(config['path_to_teeworlds'])
@@ -64,7 +66,6 @@ class Worker(Process):
             experience_queue: Queue,
             stats_queue: Queue,
             net: Net,
-            epsilon: Value,
             action_list: List,
             device: str = 'cpu'
     ):
@@ -74,7 +75,6 @@ class Worker(Process):
         self.experience_queue = experience_queue
         self.stats_queue = stats_queue
         self.net = net
-        self.epsilon = epsilon
         self.actions = action_list
         self.device = device
 
@@ -121,22 +121,14 @@ class Worker(Process):
     def _do_step(self):
         self._idle_for_running()
 
-        # with probability epsilon take random action (explore)
-        if np.random.random() < self.epsilon.value:
-            index = np.random.randint(len(self.actions))  # np.random.choice(actions)
-        else:  # otherwise use the past model to obtain the q-values for all possible actions, choose the best
-            state_a = np.array(
-                self.state,
-                copy=False,
-                dtype=np.float32
-            ).reshape(
-                (1, NUMBER_OF_IMAGES, self.env.monitor.width, self.env.monitor.height)
-            )
-            # noinspection PyUnresolvedReferences,PyCallingNonCallable
-            state_v = torch.tensor(state_a, dtype=torch.float32).to(self.device)
+        state_a = np.array(self.state, copy=False, dtype=np.float32).reshape(
+            (1, NUMBER_OF_IMAGES, self.env.monitor.width, self.env.monitor.height))
 
-            q_values_v = self.net(state_v)  # calculate q values
-            index = torch.argmax(q_values_v)  # get index of value with best outcome
+        # noinspection PyUnresolvedReferences,PyCallingNonCallable
+        state_v = torch.tensor(state_a, dtype=torch.float32).to(self.device)
+
+        q_values_v = self.net(state_v)  # calculate q values
+        index = torch.argmax(q_values_v)  # get index of value with best outcome
 
         action = self.actions[index]  # extracting action from index ([0,-1], [0,0], [0,1]) <- (0, 1, 2)
 
@@ -188,7 +180,7 @@ def setup():
 def print_experience_buffer(experience_buffer: ExperienceBuffer):
     index = 0
     for experience in experience_buffer.buffer:
-        assert(type(experience) == Experience)
+        assert (type(experience) == Experience)
         if experience.worker_index == 0:
             # img_cur = np.concatenate(experience.state, axis=1)
             img = np.concatenate(experience.new_state, axis=1)
@@ -209,7 +201,6 @@ def main():
     stats_queue = Queue()
 
     observation_size = OBSERVATION_SPACE.shape
-    epsilon = Value('d', EPSILON_START)
 
     net = Net(observation_size, n_actions=len(ACTIONS)).to(DEVICE)
 
@@ -224,15 +215,15 @@ def main():
             monitor_height=MONITOR_HEIGHT,
             top_spacing=40,
             server_tick_speed=GAME_TICK_SPEED,
-            episode_duration=EPISODE_DURATION*(50/GAME_TICK_SPEED),
+            episode_duration=EPISODE_DURATION * (50 / GAME_TICK_SPEED),
             monitor_x_padding=MONITOR_X_PADDING,
             monitor_y_padding=MONITOR_Y_PADDING,
             map_names=MAP_NAMES
     )):
-        worker = Worker(worker_index, env_setting, experience_queue, stats_queue, net, epsilon, ACTIONS, DEVICE)
+        worker = Worker(worker_index, env_setting, experience_queue, stats_queue, net, ACTIONS, DEVICE)
         workers.append(worker)
 
-    experience_buffer = ExperienceBuffer(capacity=REPLAY_SIZE)
+    experience_buffer = PriorityExperienceBuffer(capacity=REPLAY_SIZE)
 
     for worker in workers:
         worker.start()
@@ -245,6 +236,8 @@ def main():
         worker.start_collecting_experience()
 
     frame_idx = 0
+    beta = BETA_START
+    eval_states = None
 
     writer = SummaryWriter()
     game_stats = []
@@ -259,6 +252,7 @@ def main():
             exp = experience_queue.get()
             experience_buffer.append(exp)
             frame_idx += 1
+            beta = min(1.0, BETA_START + frame_idx * (1.0 - BETA_START) / BETA_FRAMES)
 
             # gather stats for logging
             while True:
@@ -270,6 +264,7 @@ def main():
 
                 game_stats.append(game_stat)
                 writer.add_scalar('reward', game_stat.reward, frame_idx)
+                writer.add_scalar('beta', beta, frame_idx)
 
                 reward_10 = 0
                 for stat in game_stats[-10:]:
@@ -277,55 +272,65 @@ def main():
                 reward_10 /= len(game_stats[-10:])
 
                 writer.add_scalar('reward_10', reward_10, frame_idx)
-                writer.add_scalar('epsilon', epsilon.value, frame_idx)
-
         # print_experience_buffer(experience_buffer)
 
-        # check if buffer is large enough for training
-        if len(experience_buffer) >= REPLAY_START_SIZE:
-            # stop experience collection on all workers
-            for worker in workers:
-                worker.stop_collecting_experience()
+        # check if buffer is large enough for training else back to collecting training data
+        if len(experience_buffer) < REPLAY_START_SIZE:
+            continue
 
-            for worker in workers:
-                worker.stopped.wait()
+        # stop experience collection on all workers
+        for worker in workers:
+            worker.stop_collecting_experience()
 
-            mean_reward = np.mean([stat.reward for stat in game_stats[-finished_episodes:]])
-            if mean_reward > max_mean_reward:
-                max_mean_reward = mean_reward
-                torch.save(net.state_dict(), f"saves/{MODEL_NAME}_epoch-{epoch:04d}_rew-{max_mean_reward:08.0f}.dat")
-            finished_episodes = 0
+        for worker in workers:
+            worker.stopped.wait()
 
-            # sync nets (copy weights)
-            if frame_idx % SYNC_TARGET_FRAMES == 0:
-                target_net.load_state_dict(net.state_dict())
+        mean_reward = np.mean([stat.reward for stat in game_stats[-finished_episodes:]])
+        if mean_reward > max_mean_reward:
+            max_mean_reward = mean_reward
+            torch.save(net.state_dict(), f"saves/{MODEL_NAME}_epoch-{epoch:04d}_rew-{max_mean_reward:08.0f}.dat")
+        finished_episodes = 0
 
-            # decrease epsilon
-            epsilon.value = max(MIN_EPSILON, epsilon.value - EPSILON_DECAY)
+        if eval_states is None:
+            eval_states = experience_buffer.sample(STATES_TO_EVALUATE)[0][0]
+            np.array(eval_states, copy=False)
 
-            # training
-            total_loss = []
-            for _ in tqdm(range(NUM_TRAININGS_PER_EPOCH), desc='training: '):
-                optimizer.zero_grad()
-                batch = experience_buffer.sample(BATCH_SIZE)
+        # sync nets (copy weights)
+        if frame_idx % SYNC_TARGET_FRAMES == 0:
+            target_net.load_state_dict(net.state_dict())
 
-                # perform optimization by minimizing the loss
-                loss_t = calc_loss(batch, net, target_net, device=DEVICE)
-                total_loss.append(loss_t.item())
-                loss_t.backward()
-                optimizer.step()
+        # training
+        total_loss = []
+        for _ in tqdm(range(NUM_TRAININGS_PER_EPOCH), desc='training: '):
+            optimizer.zero_grad()
+            batch, batch_weights, batch_indices = experience_buffer.sample(BATCH_SIZE, beta=beta)
 
-            writer.add_scalar('mean_loss', np.mean(total_loss), frame_idx)
-            total_loss.clear()
-            mean, std = net.get_stats()
-            writer.add_scalar('net_weight_mean', mean, frame_idx)
-            writer.add_scalar('net_weight_std', std, frame_idx)
+            # perform optimization by minimizing the loss
+            loss_v, sample_priorities_v = calc_loss(batch, batch_weights, net, target_net,
+                                                    device=DEVICE, is_double=True)  # double dqn enabled!
+            total_loss.append(loss_v.item())
+            loss_v.backward()
+            optimizer.step()
+            experience_buffer.update_priorities(batch_indices, sample_priorities_v.data.cpu().numpy())
 
-            epoch += 1
+        writer.add_scalar('mean_loss', np.mean(total_loss), frame_idx)
+        total_loss.clear()
+        mean, std = net.get_stats()
+        writer.add_scalar('net_weight_mean', mean, frame_idx)
+        writer.add_scalar('net_weight_std', std, frame_idx)
+
+        mean_val = calc_values_of_states(eval_states, net, device=DEVICE)
+        writer.add_scalar('values_mean', mean_val, frame_idx)
+
+        snr_values = net.noisy_layers_sigma_snr()
+        for layer_idx, sigma_l2 in enumerate(snr_values):
+            writer.add_scalar(f"sigma_snr_layer_{layer_idx + 1}", sigma_l2, frame_idx)
+
+        epoch += 1
 
         # restart experience collection on all workers
-            for worker in workers:
-                worker.start_collecting_experience()
+        for worker in workers:
+            worker.start_collecting_experience()
 
 
 # performs the loss calculation mentioned in 6 and 7
@@ -333,7 +338,7 @@ def main():
 #   https://bit.ly/2I7iBqa <- steps which aren't end of episode
 #   https://bit.ly/2HFsOec <- final steps
 # noinspection PyCallingNonCallable,PyUnresolvedReferences
-def calc_loss(batch, net, tgt_net, device="cpu"):
+def calc_loss(batch, batch_weights, net, tgt_net, device="cpu", is_double=True):
     states, actions, rewards, dones, next_states = batch  # unpack the sample
 
     # wrap numpy data in torch tensors <- execution on gpu fast like sonic
@@ -342,14 +347,25 @@ def calc_loss(batch, net, tgt_net, device="cpu"):
     actions_v = torch.tensor(actions, dtype=torch.int64).to(device)
     rewards_v = torch.tensor(rewards, dtype=torch.float32).to(device)
     done_mask = torch.ByteTensor(dones).to(device)
+    batch_weights_v = torch.tensor(batch_weights, dtype=torch.float32).to(device)
 
     # extract q-values for taken actions using the gather function
     # gather explained: https://stackoverflow.com/a/54706716/10547035 or page 144
     state_action_values = net(states_v).gather(1, actions_v.unsqueeze(-1)).squeeze(-1)
 
+    '''
     # apply target network to next state observations, and calculate the maximum q-value along the same action dim 1
     # max returns both max value and indices of those values
     next_state_values = tgt_net(next_states_v).max(1)[0]
+    '''
+    # why double? basic DQN has tendency to overestimate values of Q (harm training process)
+    # if enabled we calculate the best action to take in the next state using our main trained network
+    # but, values corresponding to this action come from the target network
+    if is_double:
+        next_state_actions = net(next_states_v).max(1)[1]
+        next_state_values = tgt_net(next_states_v).gather(1, next_state_actions.unsqueeze(-1)).squeeze(-1)
+    else:
+        next_state_values = tgt_net(next_states_v).max(1)[0]
 
     # this part is mentioned as very important!
     # if transition in the batch is from the last step in the episode, then our value of the action does not
@@ -364,7 +380,24 @@ def calc_loss(batch, net, tgt_net, device="cpu"):
 
     # calculate the bellman approximation value
     expected_state_action_values = next_state_values * GAMMA + rewards_v
-    return torch.nn.MSELoss()(state_action_values, expected_state_action_values)
+
+    # pytorch MSE doesn't support weights -> calculate MSE and multiply batch weights
+    losses_v = batch_weights_v * (state_action_values - expected_state_action_values) ** 2
+
+    return losses_v.mean(), losses_v + 1e-5  # small loss added to handle zero loss situations
+
+
+# just for comparision of training process w/ and w/o double dqn
+# noinspection PyUnresolvedReferences
+def calc_values_of_states(states, net, device="cpu"):
+    mean_values = []
+    for batch in np.array_split(states, 64):
+        states_v = torch.tensor(batch).to(device)
+        action_values_v = net(states_v)
+        best_action_values_v = action_values_v.max(1)[0]
+        mean_values.append(best_action_values_v.mean().item())
+
+    return np.mean(mean_values)
 
 
 if __name__ == '__main__':

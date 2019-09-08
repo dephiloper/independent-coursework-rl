@@ -118,5 +118,67 @@ class ExperienceBuffer:
             print(str(e))
 
 
+class PriorityExperienceBuffer:
+    def __init__(self, capacity, prob_alpha=0.6):
+        self.buffer = []  # circular buffer
+        self.prob_alpha = prob_alpha
+        self.capacity = capacity
+        self.pos = 0
+        self.priorities = np.zeros((capacity,), dtype=np.float32)
+
+    def __len__(self):
+        return len(self.buffer)
+
+    def append(self, experience):
+        max_priority = self.priorities.max() if self.buffer else 1.0
+
+        if len(self.buffer) < self.capacity:  # buffer has not reached the maximum capacity -> just append
+            self.buffer.append(experience)
+        else:  # buffer is already full -> override oldest transition from left to right until ends reached -> restart
+            self.buffer[self.pos] = experience
+
+        # when adding new experiences to the buffer those get the maximum priority, to make sure they be sampled soon
+        self.priorities[self.pos] = max_priority
+        self.pos = (self.pos + 1) % self.capacity
+
+    def sample(self, batch_size, beta=0.4):
+        if len(self.buffer) == self.capacity:  # when buffer is full take all priorities
+            priorities = self.priorities
+        else:  # when buffer not full yet, take everything until last inserted position
+            priorities = self.priorities[:self.pos]
+
+        # convert priorities to probabilities using alpha hyper-parameter
+        probabilities = priorities ** self.prob_alpha
+        probabilities /= probabilities.sum()
+
+        # sample our buffer using the probabilities determined above
+        indices = np.random.choice(len(self.buffer), batch_size, p=probabilities)
+        states, actions, rewards, dones, next_states, worker_index = zip(*[self.buffer[idx] for idx in indices])
+
+        samples = np.array(states, dtype=np.float32), \
+            np.array(actions, dtype=np.int64), \
+            np.array(rewards, dtype=np.float32), \
+            np.array(dones, dtype=np.uint8), \
+            np.array(next_states, dtype=np.float32)
+
+        # calculate weights for samples in the batch (the value for each sample is defined as w_i = (N * P(i))^(-beta)
+        # beta is a hyper-parameter between 0 and 1, for good convergence beta starting at 0.4 slowly increasing to 1.0
+        # see age 185
+        total = len(self.buffer)
+        weights = (total * probabilities[indices]) ** (-beta)
+        weights /= weights.max()
+        weights = np.array(weights, dtype=np.float32)
+
+        # indices for batch samples are required to update priorities for sampled items
+        return samples, weights, indices
+
+    def update_priorities(self, batch_indices, batch_priorities):
+        """
+        allows to update new priorities for a processed batch
+        """
+        for idx, priority in zip(batch_indices, batch_priorities):
+            self.priorities[idx] = priority
+
+
 def random_id(n):
     return ''.join([random.choice(string.ascii_letters + string.digits) for _ in range(n)])
