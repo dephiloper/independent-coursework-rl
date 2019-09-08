@@ -3,6 +3,10 @@
 \usepackage[german]{babel}
 \usepackage{geometry}
 
+\usepackage{amsmath}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
 \PassOptionsToPackage{hyphens}{url}
 \usepackage{hyperref}
 \usepackage{listings}
@@ -94,22 +98,88 @@ Der Makrov Decision Process dient als Fundament von Umsetzungen im Bereich Reinf
 \item Markov Reward Process
 \item Markov Decision Process 
 \end{itemize}
+
+\newpage
 \subsection{k-armed Bandit}
 Hierbei soll das k-armed Bandit Problem der Wahrscheinlichkeitstheorie erläutert werden
 und dabei auf  Schwerpunkte Exploration vs. Exploitation, einem Kernproblem des
 Reinforcement Learning, eingegangen werden. Die dabei realisierten Implementierungen
 sollen genauer erläutert und deren Bewandtnis in allgemeinen RL genauer beschrieben
 werden.
-\begin{itemize}
-\itemsep0pt
-\item verschiedene Strategien für Exploration vs. Exploitation: greedy, $\epsilon$ greedy, decaying $\epsilon$ greedy, ...
-\item Umsetzung erste Implementierung eines Agenten: Tic Tac Toe (full greedy)
-\item Umsetzung Implementierung k-armed Bandit
-\item Repository: \url{https://github.com/Bluemi/rl_testbed}
-\end{itemize}
 
+\subsubsection{Das k-armed-Bandit Problem}
+% Erklärung des k-armed-Bandit Problems
+Das k-armed-Bandit Problem beschreibt auf vereinfachte Weise eine Grundproblemstellung vor
+der ein Agent steht. Das Problem besteht darin aus $k$ verschiedenen $Aktionen$ zu wählen.
+Nachdem eine Aktion gewählt wurde, erhält der Agent einen $Reward$, der aus einer
+Wahrscheinlichkeitsverteilung gezogen wird. Der Erwartungswert der
+Wahrscheinlichkeitsverteilung hängt von der gewählten Aktion ab. Das Ziel besteht darin
+mit $n$ Aktions den höchstmöglichen Reward zu erhalten.\\
+Würden wir den Erwartungswert der einzelnen Verteilungen kennen, so wäre die Wahl der
+Aktion einfach, indem die Aktion mit dem höchsten Erwartungswert gewählt werden würde. Der
+Erwartungswert der hinter einer Verteilung einer Aktion steht wird $Value$ der Aktion
+genannt.\\
+Allgemein ist in Reinforcement Learning Problemen der Erwartungswert der Aktionen nicht
+bekannt, sodass dieser durch versuchen ermittelt werden muss. Stattdessen gibt es nur
+Abschätzungen bezüglich des Values einer Aktion. Das ermitteln des erwarteten Rewards wird
+$Exploration$ genannt. Im Gegensatz dazu steht die $Exploitation$ bei der die gesammelten
+Erfahrungen genutzt werden, um die Aktion auszuwählen, die den höchsten Reward verspricht.
+
+\subsubsection{Exploration Strategien}
+Im folgenden werden verschiedene Exploration-Strategien beleuchtet. Dazu werden diese erst
+theoretisch erklärt, um diese anschließend praktisch an einem k-armed-Bandit Problem zu
+vergleichen.
+% Die Implementationen sind unter \url{https://github.com/Bluemi/rl_testbed} zu finden.
+
+\paragraph{$\epsilon$ greedy / decaying $\epsilon$ greedy}
+Eine Strategie, die zu jedem Zeitpunkt die Aktion wählt, die nach derzeitigem Wissen den
+höchsten Reward verspricht wird $greedy$ genannt. Epsilon-greedy Strategien sind greedy
+Strategien, die mit einer gewissen Wahrscheinlichkeit $\epsilon$ eine zufällige Aktion
+wählen. Sie wählen also mit einer Wahrscheinlichkeit von $1 - \epsilon$ die Aktion, von
+der sie sich den höchsten Reward versprechen und andernfalls eine zufällige Aktion.\\
+In der Praxis werden häufig decaying $\epsilon$ greedy Strategien verwendet, bei denen der
+$\epsilon$ Wert über den Trainingsprozess hinweg verringert wird. Dadurch werden zu Beginn
+des Trainings viele neue Aktionen ausprobiert, während gegen Ende das Anwenden des
+gelernten stärker in den Vordergrund rückt.
+
+\paragraph{Optimistic Initial Values}
+Ein Agent, der ein k-armed-Bandit Problem lösen soll, bewertet die unterschiedlichen
+Aktionen, um Aktionen wählen zu können, die einen besseren Reward versprechen. Die
+Bewertung der Aktionen wird beeinflusst durch die erfahrenen Rewards nach dem wählen einer
+Aktion.\\
+Neben $\epsilon$-greedy Verfahren ist es eine weitere Möglichkeit Exploration umzusetzen,
+die initiale Bewertung der Aktionen sehr optimistisch vorzunehmen. Dadurch wird der Agent
+bei der Wahl einer Aktion vom erhaltenen Reward "enttäuscht", sodass sich die Einschätzung
+dieser Aktion verschlechtert. Wird nun immer die Aktion gewählt, die am besten
+eingeschätzt ist, so werden über die Zeit alle Aktionen versucht, bis sie sich dem
+tatsächlichen Erwartungswert nähern.
+
+\paragraph{Upper Confidence Bound Action Selection}
+Während $\epsilon$ greedy Methoden zufällig zwischen allen nicht greedy Aktionen
+auswählen, wählt die Upper Confidence Bound Ac\-tion Selection Methode Aktionen entsprechend
+dreier Parameter aus.\\
+Der erste Parameter ist $t$ die Anzahl der Aktionen, die bis jetzt gespielt wurden, der
+zweite ist der bis jetzt ermittelte $Value$ der Aktion $a$ bezeichnet mit $Q(a)$ und der
+dritte Parameter ist die Anzahl, wie oft $a$ schon ausprobiert wurde. Die nächste zu
+spielende Aktion wird dann nach folgender Gleichung gewählt:
+
+\[ A = \argmax_a\left( Q(a) + c*\sqrt\frac{N(a)}{\ln(t)} \right) \]
+
+\noindent
+$A$ ist die zu wählende Aktion. $N(a)$ ist die Anzahl, wie oft die Aktion $a$ schon
+gewählt wurde. Durch den Term $c*\sqrt\frac{N(a)}{\ln(t)}$ wird sichergestellt, dass
+selten benutzte Aktionen eine höhere Bewertung erhalten.
+
+% \subsubsection{Umsetzung Tic-Tac-Toe}
+
+\newpage
 \subsection{Open AI Gym}
-Ein von der Firma Open AI (\url{https://gym.openai.com/}) bereitgestelltes Toolkit, welches es ermöglicht Verfahren im Bereich Reinforcement Learning algorithmisch umzusetzen und anschließend miteinander zu vergleichen. Dabei werden Umgebungen wie Spiele oder Simulationen anhand einer definierten API zur Verfügung gestellt. Hierbei wird erneut auf die dabei zu beachtende Terminologie eingegangen und der Aufbau und die eigene Realisierung eines Gym Systems thematisiert.
+Ein von der Firma Open AI (\url{https://gym.openai.com/}) bereitgestelltes Toolkit,
+welches es ermöglicht Verfahren im Bereich Reinforcement Learning algorithmisch umzusetzen
+und anschließend miteinander zu vergleichen. Dabei werden Umgebungen wie Spiele oder
+Simulationen anhand einer definierten API zur Verfügung gestellt. Hierbei wird erneut auf
+die dabei zu beachtende Terminologie eingegangen und der Aufbau und die eigene
+Realisierung eines Gym Systems thematisiert.
 
 \begin{itemize}
 \itemsep0pt
@@ -162,7 +232,9 @@ Funktionsweise sowie folgender Terminologien und Verfahren mit diversen Implemen
 \end{itemize}
 
 \section{Policy Gradients}
-Erneute Beschreibung von Verfahren im Bereich policy learning. Dabei fokussieren der Policy Gradients Verfahren und der REINFORCE Methode. Thematisierung und Vergleich von policy und value sowie Erweiterungen.
+Erneute Beschreibung von Verfahren im Bereich policy learning. Dabei fokussieren der
+Policy Gradients Verfahren und der REINFORCE Methode. Thematisierung und Vergleich von
+policy und value sowie Erweiterungen.
 \begin{itemize}
 \itemsep0pt
 \item cross entropy method (bereits erläutert) dazu im Kontrast: REINFORCE
