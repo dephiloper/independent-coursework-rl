@@ -19,7 +19,7 @@ from utils import ExperienceBuffer, ACTIONS, ACTION_LABELS, Experience, load_con
     ExploringStrategy
 
 
-MODEL_NAME = "teeworlds-v0.5-"
+MODEL_NAME = "teeworlds-v0.6-"
 
 # exp collecting
 NUM_WORKERS = 4
@@ -223,9 +223,11 @@ def main():
     observation_size = OBSERVATION_SPACE.shape
     epsilon = Value('d', EPSILON_START)
 
+    # noinspection PyUnresolvedReferences
     net = NET_TYPE(observation_size, n_actions=len(ACTIONS), linear_layer_class=LINEAR_LAYER_CLASS).to(DEVICE)
-
     net.share_memory()
+
+    # noinspection PyUnresolvedReferences
     target_net = Net(observation_size, n_actions=len(ACTIONS), linear_layer_class=LINEAR_LAYER_CLASS).to(DEVICE)
     optimizer = torch.optim.Adam(net.parameters(), lr=LEARNING_RATE, weight_decay=1e-5)
 
@@ -370,28 +372,8 @@ def main():
 # equations:
 #   https://bit.ly/2I7iBqa <- steps which aren't end of episode
 #   https://bit.ly/2HFsOec <- final steps
-# noinspection PyCallingNonCallable,PyUnresolvedReferences
 def calc_loss(batch, batch_weights, net, tgt_net, device="cpu", is_double=True):
     states, actions, rewards, dones, next_states = batch  # unpack the sample
-
-    if np.isnan(next_states).any():
-        print('next states contains nan')
-        print(next_states)
-    if np.isinf(next_states).any():
-        print('next states contains inf')
-        print(next_states)
-
-    if np.isnan(states).any():
-        print('states contains nan')
-        print(states)
-    if np.isinf(states).any():
-        print('states contains inf')
-        print(states)
-
-    if np.isnan(batch_weights).any():
-        print('batch weights nan')
-    if np.isinf(batch_weights).any():
-        print('batch weights inf')
 
     # wrap numpy data in torch tensors <- execution on gpu fast like sonic
     states_v = torch.tensor(states, dtype=torch.float32).to(device)

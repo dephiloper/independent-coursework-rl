@@ -11,7 +11,9 @@ def get_parameter_stats(parameters):
     for param in parameters:
         num_parameters += 1
         mean_sum += param.mean().item()
-        std_sum += param.std().item()
+        std = param.std().item()
+        if not np.isnan(std).any():
+            std_sum += std
 
     return mean_sum, std_sum / num_parameters
 
@@ -113,6 +115,7 @@ class DuelingNet(nn.Module):
     def forward(self, x):
         fx = x.float() / 256.0
         conv_out = self.conv(fx).view(fx.size()[0], -1)
+
         val = self.fc_val(conv_out)
         adv = self.fc_adv(conv_out)
         return val + adv - adv.mean()
