@@ -228,7 +228,7 @@ def main():
     net.share_memory()
 
     # noinspection PyUnresolvedReferences
-    target_net = Net(observation_size, n_actions=len(ACTIONS), linear_layer_class=LINEAR_LAYER_CLASS).to(DEVICE)
+    target_net = NET_TYPE(observation_size, n_actions=len(ACTIONS), linear_layer_class=LINEAR_LAYER_CLASS).to(DEVICE)
     optimizer = torch.optim.Adam(net.parameters(), lr=LEARNING_RATE, weight_decay=1e-5)
 
     for worker_index, env_setting in enumerate(teeworlds_env_settings_iterator(
