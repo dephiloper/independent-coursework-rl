@@ -35,6 +35,7 @@ BETA_FRAMES = 10 ** 5
 
 EXPLORING_STRATEGY = ExploringStrategy.NOISY_NETWORK
 LINEAR_LAYER_CLASS = Linear if EXPLORING_STRATEGY == ExploringStrategy.EPSILON_GREEDY else NoisyLinear
+NET_TYPE = DuelingNet  # use DuelingNet for DuelingDQN and Net for default
 
 MIN_EPSILON = 0.02  # init: 0.02
 EPSILON_START = 1.0  # init: 1.0
@@ -217,7 +218,7 @@ def main():
     observation_size = OBSERVATION_SPACE.shape
     epsilon = Value('d', EPSILON_START)
 
-    net = DuelingNet(observation_size, n_actions=len(ACTIONS), linear_layer_class=LINEAR_LAYER_CLASS).to(DEVICE)
+    net = NET_TYPE(observation_size, n_actions=len(ACTIONS), linear_layer_class=LINEAR_LAYER_CLASS).to(DEVICE)
 
     net.share_memory()
     target_net = Net(observation_size, n_actions=len(ACTIONS), linear_layer_class=LINEAR_LAYER_CLASS).to(DEVICE)
