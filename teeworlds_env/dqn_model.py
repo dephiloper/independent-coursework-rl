@@ -4,6 +4,18 @@ from torch import nn
 import torch.nn.functional as F
 
 
+def get_parameter_stats(parameters):
+    mean_sum = 0
+    std_sum = 0
+    num_parameters = 0
+    for param in parameters:
+        num_parameters += 1
+        mean_sum += param.mean().item()
+        std_sum += param.std().item()
+
+    return mean_sum, std_sum / num_parameters
+
+
 class Net(nn.Module):
     def __init__(self, input_shape, n_actions, linear_layer_class):
         super(Net, self).__init__()
@@ -26,7 +38,6 @@ class Net(nn.Module):
         self.layers = [
             linear_layer_class(conv_out_size, 512),
             linear_layer_class(512, n_actions)
-
         ]
 
         self.fc = nn.Sequential(
@@ -45,15 +56,7 @@ class Net(nn.Module):
         return self.fc(conv_out)
 
     def get_stats(self):
-        mean_sum = 0
-        std_sum = 0
-        num_parameters = 0
-        for param in self.parameters():
-            num_parameters += 1
-            mean_sum += param.mean().item()
-            std_sum += param.std().item()
-
-        return mean_sum, std_sum / num_parameters
+        return get_parameter_stats(self.parameters())
 
     def noisy_layers_sigma_snr(self):
         if self.linear_layer_class == nn.Linear:
@@ -114,14 +117,17 @@ class DuelingNet(nn.Module):
         adv = self.fc_adv(conv_out)
         return val + adv - adv.mean()
 
+    def get_stats(self):
+        return get_parameter_stats(self.parameters())
+
     def noisy_layers_sigma_snr(self):
         if self.linear_layer_class == NoisyLinear:
             return [
                 ((layer.weight ** 2).mean().sqrt() / (layer.sigma_weight ** 2).mean().sqrt()).item() for
-                layer in self.noisy_layers
+                layer in self.layers
             ]
 
-        raise Ill
+        raise AssertionError('noisy_layers_sigma_snr() is only implemented for NoisyLayers.')
 
 
 class NoisyLinear(nn.Linear):
