@@ -18,11 +18,12 @@ from gym_teeworlds import teeworlds_env_settings_iterator, OBSERVATION_SPACE, Te
 from utils import ExperienceBuffer, ACTIONS, ACTION_LABELS, Experience, load_config, PriorityExperienceBuffer, \
     ExploringStrategy
 
-MODEL_NAME = "teeworlds-v0.4-"
+
+MODEL_NAME = "teeworlds-v0.5-"
 
 # exp collecting
 NUM_WORKERS = 4
-COLLECT_EXPERIENCE_SIZE = 2000  # init: 2000 (amount of experiences to collect after each training step)
+COLLECT_EXPERIENCE_SIZE = 1000  # init: 2000 (amount of experiences to collect after each training step)
 GAME_TICK_SPEED = 200  # default: 50 (game speed, when higher more screenshots needs to be captures)
 EPISODE_DURATION = 40  # default: 40
 MONITOR_WIDTH = 84  # init: 84 width of game screen
@@ -46,9 +47,9 @@ EPSILON_START = 1.0  # init: 1.0
 EPSILON_DECAY = 0.01  # init: 0.01
 
 # training
-REPLAY_START_SIZE = 4000  # init: 10000 (min amount of experiences in replay buffer before training starts)
+REPLAY_START_SIZE = 1000  # init: 10000 (min amount of experiences in replay buffer before training starts)
 REPLAY_SIZE = 10000  # init: 10000 (max capacity of replay buffer)
-DEVICE = 'cpu'  # init: 'cpu'
+DEVICE = 'cuda'  # init: 'cpu'
 BATCH_SIZE = 512  # init: 32 (sample size of experiences from replay buffer)
 NUM_TRAININGS_PER_EPOCH = 50  # init: 50 (amount of BATCH_SIZE x NUM_TRAININGS_PER_EPOCH will be trained)
 GAMMA = 0.99  # init: .99 (bellman equation)
@@ -372,6 +373,25 @@ def main():
 # noinspection PyCallingNonCallable,PyUnresolvedReferences
 def calc_loss(batch, batch_weights, net, tgt_net, device="cpu", is_double=True):
     states, actions, rewards, dones, next_states = batch  # unpack the sample
+
+    if np.isnan(next_states).any():
+        print('next states contains nan')
+        print(next_states)
+    if np.isinf(next_states).any():
+        print('next states contains inf')
+        print(next_states)
+
+    if np.isnan(states).any():
+        print('states contains nan')
+        print(states)
+    if np.isinf(states).any():
+        print('states contains inf')
+        print(states)
+
+    if np.isnan(batch_weights).any():
+        print('batch weights nan')
+    if np.isinf(batch_weights).any():
+        print('batch weights inf')
 
     # wrap numpy data in torch tensors <- execution on gpu fast like sonic
     states_v = torch.tensor(states, dtype=torch.float32).to(device)
