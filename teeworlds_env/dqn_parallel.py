@@ -21,7 +21,7 @@ from utils import ExperienceBuffer, ACTIONS, ACTION_LABELS, Experience, load_con
 MODEL_NAME = "teeworlds-v0.4-"
 
 # exp collecting
-NUM_WORKERS = 4
+NUM_WORKERS = 3
 COLLECT_EXPERIENCE_SIZE = 2000  # init: 2000 (amount of experiences to collect after each training step)
 GAME_TICK_SPEED = 100  # default: 50 (game speed, when higher more screenshots needs to be captures)
 EPISODE_DURATION = 40  # default: 40
@@ -32,6 +32,8 @@ MONITOR_Y_PADDING = 20
 PRIORITY_REPLAY_ALPHA = 0.6
 BETA_START = 0.4
 BETA_FRAMES = 10 ** 5
+
+EXPERIENCE_BUFFER_CLASS = ExperienceBuffer
 
 EXPLORING_STRATEGY = ExploringStrategy.NOISY_NETWORK
 LINEAR_LAYER_CLASS = Linear if EXPLORING_STRATEGY == ExploringStrategy.EPSILON_GREEDY else NoisyLinear
@@ -238,7 +240,7 @@ def main():
         worker = Worker(worker_index, env_setting, experience_queue, stats_queue, net, epsilon, ACTIONS, DEVICE)
         workers.append(worker)
 
-    experience_buffer = PriorityExperienceBuffer(capacity=REPLAY_SIZE)
+    experience_buffer = EXPERIENCE_BUFFER_CLASS(capacity=REPLAY_SIZE)
 
     for worker in workers:
         worker.start()
@@ -279,7 +281,6 @@ def main():
 
                 game_stats.append(game_stat)
                 writer.add_scalar('reward', game_stat.reward, frame_idx)
-                writer.add_scalar('beta', beta, frame_idx)
 
                 reward_10 = 0
                 for stat in game_stats[-10:]:
@@ -288,8 +289,12 @@ def main():
 
                 writer.add_scalar('reward_10', reward_10, frame_idx)
 
+                # optional output
                 if EXPLORING_STRATEGY == ExploringStrategy.EPSILON_GREEDY:
                     writer.add_scalar('epsilon', epsilon.value, frame_idx)
+
+                if EXPERIENCE_BUFFER_CLASS == PriorityExperienceBuffer:
+                    writer.add_scalar('beta', beta, frame_idx)
 
         # print_experience_buffer(experience_buffer)
 
@@ -333,16 +338,17 @@ def main():
             total_loss.append(loss_v.item())
             loss_v.backward()
             optimizer.step()
-            experience_buffer.update_priorities(batch_indices, sample_priorities_v.data.cpu().numpy())
+            writer.add_scalar('mean_loss', np.mean(total_loss), frame_idx)
+            mean_val = calc_values_of_states(eval_states, net, device=DEVICE)
+            writer.add_scalar('values_mean', mean_val, frame_idx)
+            total_loss.clear()
 
-        writer.add_scalar('mean_loss', np.mean(total_loss), frame_idx)
-        total_loss.clear()
-        mean, std = net.get_stats()
-        writer.add_scalar('net_weight_mean', mean, frame_idx)
-        writer.add_scalar('net_weight_std', std, frame_idx)
+            if EXPERIENCE_BUFFER_CLASS == PriorityExperienceBuffer:
+                experience_buffer.update_priorities(batch_indices, sample_priorities_v.data.cpu().numpy())
 
-        mean_val = calc_values_of_states(eval_states, net, device=DEVICE)
-        writer.add_scalar('values_mean', mean_val, frame_idx)
+                mean, std = net.get_stats()
+                writer.add_scalar('net_weight_mean', mean, frame_idx)
+                writer.add_scalar('net_weight_std', std, frame_idx)
 
         if EXPLORING_STRATEGY == ExploringStrategy.NOISY_NETWORK:
             snr_values = net.noisy_layers_sigma_snr()
