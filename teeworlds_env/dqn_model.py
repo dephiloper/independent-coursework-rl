@@ -66,7 +66,7 @@ class Net(nn.Module):
 
 
 class DuelingNet(nn.Module):
-    def __init__(self, input_shape, n_actions, linear_layer_type=nn.Linear):
+    def __init__(self, input_shape, n_actions, linear_layer_class=nn.Linear):
         super(DuelingNet, self).__init__()
 
         self.conv = nn.Sequential(
@@ -80,16 +80,16 @@ class DuelingNet(nn.Module):
 
         conv_out_size = self._get_conv_out(input_shape)
 
-        self.linear_layer_type = linear_layer_type
+        self.linear_layer_class = linear_layer_class
 
         self.layers = [
             # advantage layers
-            linear_layer_type(conv_out_size, 512),
-            linear_layer_type(512, n_actions),
+            linear_layer_class(conv_out_size, 512),
+            linear_layer_class(512, n_actions),
 
             # value layers
-            linear_layer_type(conv_out_size, 512),
-            linear_layer_type(512, 1)
+            linear_layer_class(conv_out_size, 512),
+            linear_layer_class(512, 1)
         ]
 
         self.fc_adv = nn.Sequential(
@@ -115,7 +115,7 @@ class DuelingNet(nn.Module):
         return val + adv - adv.mean()
 
     def noisy_layers_sigma_snr(self):
-        if self.linear_layer_type == NoisyLinear:
+        if self.linear_layer_class == NoisyLinear:
             return [
                 ((layer.weight ** 2).mean().sqrt() / (layer.sigma_weight ** 2).mean().sqrt()).item() for
                 layer in self.noisy_layers

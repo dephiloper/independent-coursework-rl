@@ -1,7 +1,7 @@
 import os
 import time
 from queue import Empty
-from typing import List
+from typing import List, Union
 
 import cv2
 import numpy as np
@@ -12,7 +12,7 @@ from torch.multiprocessing import Process, Value, Queue, Event
 from torch.nn import Linear
 from tqdm import tqdm
 
-from dqn_model import Net, NoisyLinear
+from dqn_model import Net, NoisyLinear, DuelingNet
 from gym_teeworlds import teeworlds_env_settings_iterator, OBSERVATION_SPACE, TeeworldsEnvSettings, Action, \
     NUMBER_OF_IMAGES
 from utils import ExperienceBuffer, ACTIONS, ACTION_LABELS, Experience, load_config, PriorityExperienceBuffer, \
@@ -74,7 +74,7 @@ class Worker(Process):
             env_settings: TeeworldsEnvSettings,
             experience_queue: Queue,
             stats_queue: Queue,
-            net: Net,
+            net: Union[Net, DuelingNet],
             epsilon: Value,
             action_list: List,
             device: str = 'cpu'
@@ -217,7 +217,7 @@ def main():
     observation_size = OBSERVATION_SPACE.shape
     epsilon = Value('d', EPSILON_START)
 
-    net = Net(observation_size, n_actions=len(ACTIONS), linear_layer_class=LINEAR_LAYER_CLASS).to(DEVICE)
+    net = DuelingNet(observation_size, n_actions=len(ACTIONS), linear_layer_class=LINEAR_LAYER_CLASS).to(DEVICE)
 
     net.share_memory()
     target_net = Net(observation_size, n_actions=len(ACTIONS), linear_layer_class=LINEAR_LAYER_CLASS).to(DEVICE)
