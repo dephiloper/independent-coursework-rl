@@ -21,9 +21,9 @@ from utils import ExperienceBuffer, ACTIONS, ACTION_LABELS, Experience, load_con
 MODEL_NAME = "teeworlds-v0.4-"
 
 # exp collecting
-NUM_WORKERS = 3
+NUM_WORKERS = 4
 COLLECT_EXPERIENCE_SIZE = 2000  # init: 2000 (amount of experiences to collect after each training step)
-GAME_TICK_SPEED = 100  # default: 50 (game speed, when higher more screenshots needs to be captures)
+GAME_TICK_SPEED = 200  # default: 50 (game speed, when higher more screenshots needs to be captures)
 EPISODE_DURATION = 40  # default: 40
 MONITOR_WIDTH = 84  # init: 84 width of game screen
 MONITOR_HEIGHT = 84  # init: 84 height of game screen (important for conv)
@@ -33,7 +33,9 @@ PRIORITY_REPLAY_ALPHA = 0.6
 BETA_START = 0.4
 BETA_FRAMES = 10 ** 5
 
-EXPERIENCE_BUFFER_CLASS = ExperienceBuffer
+
+DOUBLE_DQN = True
+EXPERIENCE_BUFFER_CLASS = PriorityExperienceBuffer
 
 EXPLORING_STRATEGY = ExploringStrategy.NOISY_NETWORK
 LINEAR_LAYER_CLASS = Linear if EXPLORING_STRATEGY == ExploringStrategy.EPSILON_GREEDY else NoisyLinear
@@ -194,7 +196,7 @@ def setup():
         time.sleep(0.2)
 
 
-def print_experience_buffer(experience_buffer: ExperienceBuffer):
+def print_experience_buffer(experience_buffer: Union[ExperienceBuffer, PriorityExperienceBuffer]):
     index = 0
     for experience in experience_buffer.buffer:
         assert (type(experience) == Experience)
@@ -335,7 +337,7 @@ def main():
 
             # perform optimization by minimizing the loss
             loss_v, sample_priorities_v = calc_loss(batch, batch_weights, net, target_net,
-                                                    device=DEVICE, is_double=True)  # double dqn enabled!
+                                                    device=DEVICE, is_double=DOUBLE_DQN)  # double dqn enabled!
             total_loss.append(loss_v.item())
             loss_v.backward()
             optimizer.step()
