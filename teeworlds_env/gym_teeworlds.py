@@ -22,7 +22,7 @@ NUMBER_OF_IMAGES = 4
 ARMOR_REWARD = 1
 HEALTH_REWARD = 5
 DIE_REWARD = 0 
-GAME_INFORMATION_DELAY = 3
+GAME_INFORMATION_DELAY = 1
 
 start_mon = {'top': 1, 'left': 1, 'width': 84, 'height': 84}
 _starting_port = 5000
@@ -250,6 +250,7 @@ class TeeworldsEnv(gym.Env):
         self._last_reset = time.time()
 
         self.game_information_deque = None
+        self.game_information = None
 
         # waiting for everything to build up
         time.sleep(1)
@@ -274,7 +275,10 @@ class TeeworldsEnv(gym.Env):
                 game_information.health_collected += health_collected
                 game_information.died = game_information.died or died
 
-        self.game_information_deque.appendleft(game_information)
+        if GAME_INFORMATION_DELAY:
+            self.game_information_deque.appendleft(game_information)
+        else:
+            self.game_information = game_information
 
     def capture_game_image(self):
         img = np.asarray(self.sct.grab(self.monitor.to_dict()))
@@ -304,7 +308,11 @@ class TeeworldsEnv(gym.Env):
 
         observation = self.get_observation()
 
-        game_information = self.game_information_deque.pop()
+        if GAME_INFORMATION_DELAY:
+            game_information = self.game_information_deque.pop()
+        else:
+            game_information = self.game_information
+
         reward = game_information.get_reward()
         done = game_information.is_done()
         info = game_information.to_dict()
@@ -334,7 +342,10 @@ class TeeworldsEnv(gym.Env):
     def reset(self, reset_duration=RESET_DURATION):
         self.image_buffer.clear()
         self.socket.send(reset_action.to_bytes())
-        self.game_information_deque = deque([GameInformation.empty()] * GAME_INFORMATION_DELAY)
+        if GAME_INFORMATION_DELAY:
+            self.game_information_deque = deque([GameInformation.empty()] * GAME_INFORMATION_DELAY)
+        else:
+            self.game_information = GameInformation.empty()
         time.sleep(reset_duration)
         self.set_last_reset()
 

@@ -128,7 +128,7 @@ class Worker(Process):
         state_v = torch.tensor(state_a, dtype=torch.float32).to(self.device)
 
         q_values_v = self.net(state_v)  # calculate q values
-        index = torch.argmax(q_values_v)  # get index of value with best outcome
+        index = int(torch.argmax(q_values_v))  # get index of value with best outcome
 
         action = self.actions[index]  # extracting action from index ([0,-1], [0,0], [0,1]) <- (0, 1, 2)
 
@@ -272,6 +272,7 @@ def main():
                 reward_10 /= len(game_stats[-10:])
 
                 writer.add_scalar('reward_10', reward_10, frame_idx)
+
         # print_experience_buffer(experience_buffer)
 
         # check if buffer is large enough for training else back to collecting training data
@@ -346,7 +347,8 @@ def calc_loss(batch, batch_weights, net, tgt_net, device="cpu", is_double=True):
     next_states_v = torch.tensor(next_states, dtype=torch.float32).to(device)
     actions_v = torch.tensor(actions, dtype=torch.int64).to(device)
     rewards_v = torch.tensor(rewards, dtype=torch.float32).to(device)
-    done_mask = torch.ByteTensor(dones).to(device)
+    # noinspection PyArgumentList
+    done_mask = torch.BoolTensor(dones).to(device)
     batch_weights_v = torch.tensor(batch_weights, dtype=torch.float32).to(device)
 
     # extract q-values for taken actions using the gather function
