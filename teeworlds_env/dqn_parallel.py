@@ -9,12 +9,14 @@ import torch
 import torch.optim
 from tensorboardX import SummaryWriter
 from torch.multiprocessing import Process, Value, Queue, Event
+from torch.nn import Linear
 from tqdm import tqdm
 
-from dqn_model import Net
+from dqn_model import Net, NoisyLinear
 from gym_teeworlds import teeworlds_env_settings_iterator, OBSERVATION_SPACE, TeeworldsEnvSettings, Action, \
     NUMBER_OF_IMAGES
-from utils import ExperienceBuffer, ACTIONS, ACTION_LABELS, Experience, load_config, PriorityExperienceBuffer
+from utils import ExperienceBuffer, ACTIONS, ACTION_LABELS, Experience, load_config, PriorityExperienceBuffer, \
+    ExploringStrategy
 
 MODEL_NAME = "teeworlds-v0.4-"
 
@@ -30,6 +32,13 @@ MONITOR_Y_PADDING = 20
 PRIORITY_REPLAY_ALPHA = 0.6
 BETA_START = 0.4
 BETA_FRAMES = 10 ** 5
+
+EXPLORING_STRATEGY = ExploringStrategy.NOISY_NETWORK
+LINEAR_LAYER_CLASS = Linear if EXPLORING_STRATEGY == ExploringStrategy.EPSILON_GREEDY else NoisyLinear
+
+MIN_EPSILON = 0.02  # init: 0.02
+EPSILON_START = 1.0  # init: 1.0
+EPSILON_DECAY = 0.01  # init: 0.01
 
 # training
 REPLAY_START_SIZE = 4000  # init: 10000 (min amount of experiences in replay buffer before training starts)
@@ -66,6 +75,7 @@ class Worker(Process):
             experience_queue: Queue,
             stats_queue: Queue,
             net: Net,
+            epsilon: Value,
             action_list: List,
             device: str = 'cpu'
     ):
@@ -75,6 +85,7 @@ class Worker(Process):
         self.experience_queue = experience_queue
         self.stats_queue = stats_queue
         self.net = net
+        self.epsilon = epsilon
         self.actions = action_list
         self.device = device
 
@@ -121,14 +132,17 @@ class Worker(Process):
     def _do_step(self):
         self._idle_for_running()
 
-        state_a = np.array(self.state, copy=False, dtype=np.float32).reshape(
-            (1, NUMBER_OF_IMAGES, self.env.monitor.width, self.env.monitor.height))
+        if EXPLORING_STRATEGY == ExploringStrategy.EPSILON_GREEDY and np.random.random() < self.epsilon.value:
+            index = np.random.randint(len(self.actions))
+        else:
+            state_a = np.array(self.state, copy=False, dtype=np.float32).reshape(
+                (1, NUMBER_OF_IMAGES, self.env.monitor.width, self.env.monitor.height))
 
-        # noinspection PyUnresolvedReferences,PyCallingNonCallable
-        state_v = torch.tensor(state_a, dtype=torch.float32).to(self.device)
+            # noinspection PyUnresolvedReferences,PyCallingNonCallable
+            state_v = torch.tensor(state_a, dtype=torch.float32).to(self.device)
 
-        q_values_v = self.net(state_v)  # calculate q values
-        index = torch.argmax(q_values_v)  # get index of value with best outcome
+            q_values_v = self.net(state_v)  # calculate q values
+            index = torch.argmax(q_values_v)  # get index of value with best outcome
 
         action = self.actions[index]  # extracting action from index ([0,-1], [0,0], [0,1]) <- (0, 1, 2)
 
@@ -201,11 +215,12 @@ def main():
     stats_queue = Queue()
 
     observation_size = OBSERVATION_SPACE.shape
+    epsilon = Value('d', EPSILON_START)
 
-    net = Net(observation_size, n_actions=len(ACTIONS)).to(DEVICE)
+    net = Net(observation_size, n_actions=len(ACTIONS), linear_layer_class=LINEAR_LAYER_CLASS).to(DEVICE)
 
     net.share_memory()
-    target_net = Net(observation_size, n_actions=len(ACTIONS)).to(DEVICE)
+    target_net = Net(observation_size, n_actions=len(ACTIONS), linear_layer_class=LINEAR_LAYER_CLASS).to(DEVICE)
     optimizer = torch.optim.Adam(net.parameters(), lr=LEARNING_RATE, weight_decay=1e-5)
 
     for worker_index, env_setting in enumerate(teeworlds_env_settings_iterator(
@@ -220,7 +235,7 @@ def main():
             monitor_y_padding=MONITOR_Y_PADDING,
             map_names=MAP_NAMES
     )):
-        worker = Worker(worker_index, env_setting, experience_queue, stats_queue, net, ACTIONS, DEVICE)
+        worker = Worker(worker_index, env_setting, experience_queue, stats_queue, net, epsilon, ACTIONS, DEVICE)
         workers.append(worker)
 
     experience_buffer = PriorityExperienceBuffer(capacity=REPLAY_SIZE)
@@ -272,6 +287,10 @@ def main():
                 reward_10 /= len(game_stats[-10:])
 
                 writer.add_scalar('reward_10', reward_10, frame_idx)
+
+                if EXPLORING_STRATEGY == ExploringStrategy.EPSILON_GREEDY:
+                    writer.add_scalar('epsilon', epsilon.value, frame_idx)
+
         # print_experience_buffer(experience_buffer)
 
         # check if buffer is large enough for training else back to collecting training data
@@ -299,10 +318,13 @@ def main():
         if frame_idx % SYNC_TARGET_FRAMES == 0:
             target_net.load_state_dict(net.state_dict())
 
+        epsilon.value = max(MIN_EPSILON, epsilon.value - EPSILON_DECAY)
+
         # training
         total_loss = []
         for _ in tqdm(range(NUM_TRAININGS_PER_EPOCH), desc='training: '):
             optimizer.zero_grad()
+
             batch, batch_weights, batch_indices = experience_buffer.sample(BATCH_SIZE, beta=beta)
 
             # perform optimization by minimizing the loss
@@ -322,9 +344,10 @@ def main():
         mean_val = calc_values_of_states(eval_states, net, device=DEVICE)
         writer.add_scalar('values_mean', mean_val, frame_idx)
 
-        snr_values = net.noisy_layers_sigma_snr()
-        for layer_idx, sigma_l2 in enumerate(snr_values):
-            writer.add_scalar(f"sigma_snr_layer_{layer_idx + 1}", sigma_l2, frame_idx)
+        if EXPLORING_STRATEGY == ExploringStrategy.NOISY_NETWORK:
+            snr_values = net.noisy_layers_sigma_snr()
+            for layer_idx, sigma_l2 in enumerate(snr_values):
+                writer.add_scalar(f"sigma_snr_layer_{layer_idx + 1}", sigma_l2, frame_idx)
 
         epoch += 1
 
@@ -346,8 +369,12 @@ def calc_loss(batch, batch_weights, net, tgt_net, device="cpu", is_double=True):
     next_states_v = torch.tensor(next_states, dtype=torch.float32).to(device)
     actions_v = torch.tensor(actions, dtype=torch.int64).to(device)
     rewards_v = torch.tensor(rewards, dtype=torch.float32).to(device)
-    done_mask = torch.ByteTensor(dones).to(device)
-    batch_weights_v = torch.tensor(batch_weights, dtype=torch.float32).to(device)
+    done_mask = torch.BoolTensor(dones).to(device)
+
+    if batch_weights is not None:
+        batch_weights_v = torch.tensor(batch_weights, dtype=torch.float32).to(device)
+    else:
+        batch_weights_v = None
 
     # extract q-values for taken actions using the gather function
     # gather explained: https://stackoverflow.com/a/54706716/10547035 or page 144
@@ -382,7 +409,10 @@ def calc_loss(batch, batch_weights, net, tgt_net, device="cpu", is_double=True):
     expected_state_action_values = next_state_values * GAMMA + rewards_v
 
     # pytorch MSE doesn't support weights -> calculate MSE and multiply batch weights
-    losses_v = batch_weights_v * (state_action_values - expected_state_action_values) ** 2
+    if batch_weights_v is not None:
+        losses_v = batch_weights_v * (state_action_values - expected_state_action_values) ** 2
+    else:
+        losses_v = (state_action_values - expected_state_action_values) ** 2
 
     return losses_v.mean(), losses_v + 1e-5  # small loss added to handle zero loss situations
 

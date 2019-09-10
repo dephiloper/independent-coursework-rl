@@ -5,8 +5,10 @@ import torch.nn.functional as F
 
 
 class Net(nn.Module):
-    def __init__(self, input_shape, n_actions):
+    def __init__(self, input_shape, n_actions, linear_layer_class):
         super(Net, self).__init__()
+
+        self.linear_layer_class = linear_layer_class
 
         # in_channel of the first conv layer is the number color's / color depth of the image and represents later
         # the amount of channels, which means output filter of the first conv needs to be input of the second and so on
@@ -21,14 +23,16 @@ class Net(nn.Module):
 
         conv_out_size = self._get_conv_out(input_shape)
 
-        self.noisy_layers = [
-            NoisyLinear(conv_out_size, 512),
-            NoisyLinear(512, n_actions)
+        self.layers = [
+            linear_layer_class(conv_out_size, 512),
+            linear_layer_class(512, n_actions)
+
         ]
+
         self.fc = nn.Sequential(
-            self.noisy_layers[0],
+            self.layers[0],
             nn.ReLU(),
-            self.noisy_layers[1]
+            self.layers[1]
         )
 
     def _get_conv_out(self, shape):
@@ -58,9 +62,12 @@ class Net(nn.Module):
         print(f'std: {std}')
 
     def noisy_layers_sigma_snr(self):
+        if self.linear_layer_class == nn.Linear:
+            raise TypeError("No noise layer used, so there is no possibility to calculate sigma snr.")
+
         return [
             ((layer.weight ** 2).mean().sqrt() / (layer.sigma_weight ** 2).mean().sqrt()).item() for
-            layer in self.noisy_layers
+            layer in self.layers
         ]
 
 

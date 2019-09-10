@@ -1,3 +1,4 @@
+import enum
 import queue
 import random
 import string
@@ -156,10 +157,10 @@ class PriorityExperienceBuffer:
         states, actions, rewards, dones, next_states, worker_index = zip(*[self.buffer[idx] for idx in indices])
 
         samples = np.array(states, dtype=np.float32), \
-            np.array(actions, dtype=np.int64), \
-            np.array(rewards, dtype=np.float32), \
-            np.array(dones, dtype=np.uint8), \
-            np.array(next_states, dtype=np.float32)
+                  np.array(actions, dtype=np.int64), \
+                  np.array(rewards, dtype=np.float32), \
+                  np.array(dones, dtype=np.uint8), \
+                  np.array(next_states, dtype=np.float32)
 
         # calculate weights for samples in the batch (the value for each sample is defined as w_i = (N * P(i))^(-beta)
         # beta is a hyper-parameter between 0 and 1, for good convergence beta starting at 0.4 slowly increasing to 1.0
@@ -182,3 +183,8 @@ class PriorityExperienceBuffer:
 
 def random_id(n):
     return ''.join([random.choice(string.ascii_letters + string.digits) for _ in range(n)])
+
+
+class ExploringStrategy(enum.Enum):
+    EPSILON_GREEDY = 0
+    NOISY_NETWORK = 1
