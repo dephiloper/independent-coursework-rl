@@ -16,11 +16,11 @@ def main():
     env = TeeworldsEnv(
         monitor=Monitor(600, 40, 960, 540),
         path_to_teeworlds=path_to_teeworlds,
-        server_tick_speed=200,
+        server_tick_speed=50,
         is_human=True,
         game_information_port=5005,
         episode_duration=20,
-        map_name='level_2'
+        map_name='newlevel_0'
     )
 
     env.reset()

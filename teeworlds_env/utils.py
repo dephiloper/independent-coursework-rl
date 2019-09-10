@@ -1,3 +1,4 @@
+import enum
 import queue
 import random
 import string
@@ -104,18 +105,18 @@ class ExperienceBuffer:
 
     # for training we randomly sample the batch of transitions from the replay buffer
     # this allows to break the correlation between subsequent steps in the environment
-    def sample(self, batch_size):
+    def sample(self, batch_size, beta=None):
         # controls whether the sample is returned to the sample pool, for unique samples this should be false
         indices = np.random.choice(len(self.buffer), batch_size, replace=False)
         states, actions, rewards, dones, next_states, worker_index = zip(*[self.buffer[idx] for idx in indices])
-        try:
-            return np.array(states, dtype=np.float32), \
-                   np.array(actions, dtype=np.int64), \
-                   np.array(rewards, dtype=np.float32), \
-                   np.array(dones, dtype=np.uint8), \
-                   np.array(next_states, dtype=np.float32)
-        except ValueError as e:
-            print(str(e))
+
+        samples = np.array(states, dtype=np.float32), \
+            np.array(actions, dtype=np.int64), \
+            np.array(rewards, dtype=np.float32), \
+            np.array(dones, dtype=np.uint8), \
+            np.array(next_states, dtype=np.float32)
+
+        return samples, None, None
 
 
 class PriorityExperienceBuffer:
@@ -182,3 +183,8 @@ class PriorityExperienceBuffer:
 
 def random_id(n):
     return ''.join([random.choice(string.ascii_letters + string.digits) for _ in range(n)])
+
+
+class ExploringStrategy(enum.Enum):
+    EPSILON_GREEDY = 0
+    NOISY_NETWORK = 1

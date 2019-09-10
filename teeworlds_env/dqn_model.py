@@ -4,9 +4,23 @@ from torch import nn
 import torch.nn.functional as F
 
 
+def get_parameter_stats(parameters):
+    mean_sum = 0
+    std_sum = 0
+    num_parameters = 0
+    for param in parameters:
+        num_parameters += 1
+        mean_sum += param.mean().item()
+        std_sum += param.std().item()
+
+    return mean_sum, std_sum / num_parameters
+
+
 class Net(nn.Module):
-    def __init__(self, input_shape, n_actions):
+    def __init__(self, input_shape, n_actions, linear_layer_class):
         super(Net, self).__init__()
+
+        self.linear_layer_class = linear_layer_class
 
         # in_channel of the first conv layer is the number color's / color depth of the image and represents later
         # the amount of channels, which means output filter of the first conv needs to be input of the second and so on
@@ -21,14 +35,15 @@ class Net(nn.Module):
 
         conv_out_size = self._get_conv_out(input_shape)
 
-        self.noisy_layers = [
-            NoisyLinear(conv_out_size, 512),
-            NoisyLinear(512, n_actions)
+        self.layers = [
+            linear_layer_class(conv_out_size, 512),
+            linear_layer_class(512, n_actions)
         ]
+
         self.fc = nn.Sequential(
-            self.noisy_layers[0],
+            self.layers[0],
             nn.ReLU(),
-            self.noisy_layers[1]
+            self.layers[1]
         )
 
     def _get_conv_out(self, shape):
@@ -41,27 +56,78 @@ class Net(nn.Module):
         return self.fc(conv_out)
 
     def get_stats(self):
-        mean_sum = 0
-        std_sum = 0
-        num_parameters = 0
-        for param in self.parameters():
-            num_parameters += 1
-            mean_sum += param.mean().item()
-            std_sum += param.std().item()
-
-        return mean_sum, std_sum / num_parameters
-
-    def print_stats(self):
-        mean, std = self.get_stats()
-        print('net stats:')
-        print(f'mean: {mean}')
-        print(f'std: {std}')
+        return get_parameter_stats(self.parameters())
 
     def noisy_layers_sigma_snr(self):
+        if self.linear_layer_class == nn.Linear:
+            raise TypeError("No noise layer used, so there is no possibility to calculate sigma snr.")
+
         return [
             ((layer.weight ** 2).mean().sqrt() / (layer.sigma_weight ** 2).mean().sqrt()).item() for
-            layer in self.noisy_layers
+            layer in self.layers
         ]
+
+
+class DuelingNet(nn.Module):
+    def __init__(self, input_shape, n_actions, linear_layer_class=nn.Linear):
+        super(DuelingNet, self).__init__()
+
+        self.conv = nn.Sequential(
+            nn.Conv2d(input_shape[0], 32, kernel_size=8, stride=4),
+            nn.ReLU(),
+            nn.Conv2d(32, 64, kernel_size=4, stride=2),
+            nn.ReLU(),
+            nn.Conv2d(64, 64, kernel_size=3, stride=1),
+            nn.ReLU()
+        )
+
+        conv_out_size = self._get_conv_out(input_shape)
+
+        self.linear_layer_class = linear_layer_class
+
+        self.layers = [
+            # advantage layers
+            linear_layer_class(conv_out_size, 512),
+            linear_layer_class(512, n_actions),
+
+            # value layers
+            linear_layer_class(conv_out_size, 512),
+            linear_layer_class(512, 1)
+        ]
+
+        self.fc_adv = nn.Sequential(
+            self.layers[0],
+            nn.ReLU(),
+            self.layers[1]
+        )
+        self.fc_val = nn.Sequential(
+            self.layers[2],
+            nn.ReLU(),
+            self.layers[3]
+        )
+
+    def _get_conv_out(self, shape):
+        o = self.conv(torch.zeros(1, *shape))
+        return int(np.prod(o.size()))
+
+    def forward(self, x):
+        fx = x.float() / 256.0
+        conv_out = self.conv(fx).view(fx.size()[0], -1)
+        val = self.fc_val(conv_out)
+        adv = self.fc_adv(conv_out)
+        return val + adv - adv.mean()
+
+    def get_stats(self):
+        return get_parameter_stats(self.parameters())
+
+    def noisy_layers_sigma_snr(self):
+        if self.linear_layer_class == NoisyLinear:
+            return [
+                ((layer.weight ** 2).mean().sqrt() / (layer.sigma_weight ** 2).mean().sqrt()).item() for
+                layer in self.layers
+            ]
+
+        raise AssertionError('noisy_layers_sigma_snr() is only implemented for NoisyLayers.')
 
 
 class NoisyLinear(nn.Linear):
