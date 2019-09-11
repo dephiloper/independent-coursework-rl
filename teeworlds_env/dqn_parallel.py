@@ -23,7 +23,7 @@ MODEL_NAME = "teeworlds-v0.6-"
 
 # exp collecting
 NUM_WORKERS = 4
-COLLECT_EXPERIENCE_SIZE = 1000  # init: 2000 (amount of experiences to collect after each training step)
+COLLECT_EXPERIENCE_SIZE = 2000  # init: 2000 (amount of experiences to collect after each training step)
 GAME_TICK_SPEED = 200  # default: 50 (game speed, when higher more screenshots needs to be captures)
 EPISODE_DURATION = 40  # default: 40
 MONITOR_WIDTH = 84  # init: 84 width of game screen
@@ -47,7 +47,7 @@ EPSILON_START = 1.0  # init: 1.0
 EPSILON_DECAY = 0.01  # init: 0.01
 
 # training
-REPLAY_START_SIZE = 1000  # init: 10000 (min amount of experiences in replay buffer before training starts)
+REPLAY_START_SIZE = 4000  # init: 10000 (min amount of experiences in replay buffer before training starts)
 REPLAY_SIZE = 10000  # init: 10000 (max capacity of replay buffer)
 DEVICE = 'cuda'  # init: 'cpu'
 BATCH_SIZE = 512  # init: 32 (sample size of experiences from replay buffer)
