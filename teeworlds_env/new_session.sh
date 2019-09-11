@@ -20,7 +20,7 @@ if [ -n "$SESSION_EXISTS" ]; then
   exit 1
 fi
 
-# git checkout -b "$GIT_BRANCH"
+git checkout -b "$GIT_BRANCH"
 
 echo "rewriting config file"
 
