@@ -19,8 +19,6 @@ from utils import ExperienceBuffer, ACTIONS, ACTION_LABELS, Experience, load_con
     ExploringStrategy
 
 
-MODEL_NAME = "teeworlds-v0.6-"
-
 # exp collecting
 NUM_WORKERS = 4
 COLLECT_EXPERIENCE_SIZE = 2000  # init: 2000 (amount of experiences to collect after each training step)
@@ -66,6 +64,13 @@ MEAN_REWARD_BOUND = 12
 config = load_config()
 path_to_teeworlds = str(config['path_to_teeworlds'])
 set_priority = bool(config.get('set_priority', False))
+session_name = str(config['session_name'])
+
+MODEL_NAME = f'model_{session_name}'
+TENSORBOARD_LOG_DIR = f'./runs/{session_name}'
+
+if os.path.isdir(TENSORBOARD_LOG_DIR):
+    raise AssertionError(f'log dir for tensorboard already exists \"{TENSORBOARD_LOG_DIR}\"')
 
 
 class GameStats:
@@ -262,7 +267,7 @@ def main():
     beta = BETA_START
     eval_states = None
 
-    writer = SummaryWriter()
+    writer = SummaryWriter(TENSORBOARD_LOG_DIR)
     game_stats = []
 
     max_mean_reward = 0
