@@ -55,9 +55,9 @@
 Machine Learning Methoden werden zunehmend benutzt, um Probleme in der realen Welt zu
 lösen und erhalten daher in der Zukunft einen immer höheren Stellenwert. Spiele im
 speziellen stellen meist Problemstellungen dar, welche zum Teil auch schon durch Machine
-Learning Verfahren absolviert werden konnten. Darunter zählen klassische Spiele, wie Go
-oder Schach (siehe Google Deep Mind, Alpha Zero) aber auch echtzeit Spiele, wie Dota 2,
-Quake oder Starcraft (siehe OpenAI). Für das Supervised Research Independent Coursework
+Learning Verfahren absolviert werden konnten. Darunter zählen klassische Brettspiele, wie Go
+oder Schach\cite{DM2018} aber auch echtzeit Spiele, wie Dota 2\cite{OA2019},
+Quake\cite{DM2019} oder Starcraft\cite{DM2019_2}. Für das Supervised Research Independent Coursework
 ergibt sich folgende Problemstellung: Welche Machine Learning Verfahren können für das
 absolvieren eines Computerspieles verwendet werden und wie integriert man diese in die
 virtuelle Umgebung?
@@ -77,11 +77,50 @@ Echtzeitspiel gesteuert wird.
 
 \newpage
 \section{Fundamentals}
-In diesem Abschnitt sollen die Grundlagen des Reinforcement Learning Bereichs erläu\-tert
-werden. Damit soll die Grundlage für Erläuterungen in nachfolgenden Kapiteln geschaffen
+In diesem Abschnitt werden die Grundlagen des Machine Learning Bereichs Reinforcement Learning 
+erläutert. Damit soll eine Grundlage für Themenbereiche in nachfolgenden Kapiteln geschaffen
 werden, welche sich auf die Terminologie dieses Abschnittes beziehen.
+
 \subsection{Reinforcement Learning}
-Erläuterung der Einordnung von Reinforcement Learning im Bereich Machine Learning sowie Beschreibung der nachfolgenden Terminologien:
+Reinforcement Learning beschreibt eine Ansammlung von Machine Learning Verfahren, in denen die 
+lernende Entität, auch \textit{Agent}, keine bezeichneten Beispiele für das Lösen eines Problemes 
+erhält. Die einzige Information, welche mitgeteilt wird, ist Feedback zu gewählten Aktionen in Form
+einer Belohnung oder Bestrafung. Diese Art des Feedbacks wird auch als Verstärkung bezeichnet.
+Somit muss vom Lernenden selbstständig eine Strategie entwickelt werden, um das gegebene
+Problem zu lösen, indem versucht wird den erhaltenen Belohnungswert zu maximieren. Anschließend
+werden die Terminologien im Bereich Reinforcement Learning geklärt sowie Kategorisierungen zu 
+nachfolgend beschriebenen Verfahren erläutert.
+
+\subsubsection{Agent}
+Ein Agent nimmt seine Umgebung (\textit{Environment}) über Sensoren wahr und kann mittels Aktuatoren
+Handlungen (\textit{Actions}) vollziehen um diese Umgebung zu beeinflussen oder zu verändern 
+\cite[~S.60]{RN2009}. Für die ausgeführten Aktionen erhält der Agent einen Leitwert wie positiv oder
+negativ sich diese Aktion auf die Umgebung oder den Agenten ausgewirkt hat. Wie bereits im vorherigen
+Absatz erwähnt, kann der Agent als lernende Entität bezeichnet werden, da dieser seine Verhaltensweise
+im Bereich  Reinforcement Learning selbstständig immer weiter in Richtung bestmöglicher Lösung einer 
+Problemstellung optimiert. In einem Computerspiel kann ein Agent als menschlicher Spieler
+repräsentiert werden. Dabei zählen die Augen und Ohren zu seinen Sensoren mit denen das Spiel
+wahrgenommen wird und über seine motorischen Fähigkeiten und somit dem bedienen einer Tastatur
+können Handlungen vollzogen werden. Ein im Spiel umgesetzter Nicht-Spieler-Charakter wird ebenfalls
+als Agent gesehen, wobei dessen Wahrnehmung und Aktuatoren meist direkt im Spiel umgesetzt sind.
+
+
+\subsubsection{Environment}
+Das Environment definiert alles was den Agenten umgibt. Die Kommunikation zwischen einem Environment
+und dem Agenten ist limitiert auf die \textit{Actions}, welche der Agent ausführen kann, die 
+\textit{Observations}, welche der Agent nach dem Ausführen einer Action vom Environment erhält, 
+sprich wahrnimmt, und durch die Bewertung der getätigten Aktionen, dem \textit{Reward} 
+\cite[~S.5]{L2018}. Im Falle eines Computerspiels umfasst das Environment alle im Spiel festgelegten
+Gesetzmäßigkeiten, aber auch die Netzwerkverbindung oder das Medium auf dem das Spiel ausgeführt
+wird kann zum Environment gezählt werden.
+
+
+\subsubsection{Observation}
+
+\subsubsection{Action}
+
+\subsubsection{Reward}
+
 \begin{itemize}
 \itemsep0pt
 \item Agent, Environment, Reward, Observation, Action
