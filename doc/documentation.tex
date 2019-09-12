@@ -114,16 +114,65 @@ sprich wahrnimmt, und durch die Bewertung der getätigten Aktionen, dem \textit{
 Gesetzmäßigkeiten, aber auch die Netzwerkverbindung oder das Medium auf dem das Spiel ausgeführt
 wird kann zum Environment gezählt werden.
 
+\subsubsection{Action}
+Eine Action bietet die Möglichkeit für einen Agenten aktiv Einfluss auf das Geschehen im
+Environment zu nehmen. Zu Actions zählen das Ausführen von Spielzügen, die durch das
+Regelwerk erlaubt sind sowie die Änderung eines Zustandes in umfangreicheren Systemen. Die
+Komplexität der Actions kann dabei ebenfalls variieren. Des Weiteren unterscheidet man im Bereich
+Reinforcement Learning zwischen zwei Arten von Actions: diskrete und kontinuierliche Actions.
+Diskrete Actions definieren eine endliche Menge an gegenseitig ausschließenden Handlungen die ein
+Agent vollziehen kann \cite[~S.8]{L2018}. Dazu zählen Actions wie sich nach links und rechts zu
+bewegen oder zu springen. Unter kontinuierlichen Actions versteht man hingegen Handlungen, die
+über einen zusätzlichen Wert beeinflusst werden, wie zum Beispiel das Steuern eines Fahrzeuges
+mit einem Lenkrad. Dabei ist nich ausschließlich die Lenkrichtung ausschlaggebend, sondern auch
+der Einschlagswinkel des Lenkrades, welcher die Intensität der Lenkung festlegt.
 
 \subsubsection{Observation}
+Unter einer Observation versteht man die Wahrnehmung des Agenten, welche von dem Environment 
+bereitgestellt wird. Dabei enthält eine Observation immer Informationen dazu, was gerade in der
+Umgebung des Agenten passiert. Jedoch geben Observations für den Agenten nicht den Einblick
+in das gesamte Environment, sondern limitieren dessen Wahrnehmung auf notwendige bzw. ausschließlich
+gewollte Informationen \cite[~S.8 f.]{L2018}. Eine Observation kann aus einzelnen Werten bestehen, 
+welche zum Beispiel im Falle von Pong Informationen wie Position und Geschwindigkeiten zu den
+Schlägern und dem Spielball zurückliefern. Zusätzlich kann eine Observationen auch in Form eines 
+Bildes oder einer Aneinanderreihung von Bildern umgesetzt sein. Das Bild wird dabei von 
+dem Agent verarbeitet und dieser führt dementsprechende Actions zum visuell wargenommenen Zustand
+bzw. der Anordnung von Pixeln aus. 
 
-\subsubsection{Action}
 
 \subsubsection{Reward}
+Im Gebiet Reinforcement Learning beschreibt der Reward einen Wert, welcher periodisch oder nach
+dem Eintreffen einer definierten Gegebenheit dem Agenten vom Environment bereitgestellt wird.
+Ziel des Rewards ist es dem Agenten Auskunft darüber zu geben, wie gut sich dieser Verhält, sprich
+diesen zu bewerten. Wie bereits beschrieben, versucht der Agent den erhaltenen Reward zu
+maximieren. Somit bildet der Reward als Feedback ein Kernelement im Bereich Reinforcement
+Learning und definiert den \textit{bestärkenden} Anteil der Verfahren des machinellen Lernens 
+\cite[~S.6 f.]{L2018}. Der Reward ist immer lokal zu betrachten, dass heißt er gibt ausschließlich 
+Auskunft über den Erfolg der aktuell ausgeführten Actions und nicht über das bereits insgesamt
+gesammelte Ergebnis aller Erfolge und Misserfolge. Des Weiteren bedeutet ein hoher lokaler Reward 
+nicht, dass der daraus folgende Zustand global betrachet keine noch größeren negativen Auswirkungen 
+auf den Agenten haben wird.
+
+\subsection{Markov Decision Process}
+Der Makrov Prozess und seine Erweiterungen bilden das theoretische Konstrukt für Reinforcement Learning
+Verfahren. Durch die Beleuchtung dieser Prozesse werden weitere Terminologien geklärt, welche ebenfalls
+ihren Einsatz im Reinforcement Learning finden. Die einfachste Variante der Markov Familie ist der 
+Markov Prozess (Markov-Kette). Ein Markov Prozess beschreibt ein System, welches ausschließlich
+observiert werden kann, sprich es kann nicht in die Dynamik des Systems eingegriffen werden. Jeder
+Markov Prozess enthält eine Menge von \textit{States}, zwischen denen das System nach den
+Gesetzlichkeiten der Systemdynamik hin und her wechseln kann. Die Menge aller möglichen States wird
+dabei als State Space bezeichnet. Wird das System observiert ergibt sich durch die Wechsel von State zu 
+State eine Folge, welche als \textit{History} bezeichnet wird. 
+
+Damit ein Prozess als Markov Prozess bezeichnet werden kann muss dieser die Markov Eigenschaft aufweisen,
+welche definiert, dass die zukünftige Dynamik des Systems von jedem State nur von diesem State abhängen 
+darf. Die Markov Eigenschaft legt somit fest, dass ein State differenziert von jedem anderen State des
+Systems betrachtet werden kann und deshalb die History für die Vorhersage der Systemdynamik nicht
+notwendig ist.
+
 
 \begin{itemize}
 \itemsep0pt
-\item Agent, Environment, Reward, Observation, Action
 \item Exploration vs. Exploitation
 \item model-free vs. model-based
 \item on- vs. off-policy
