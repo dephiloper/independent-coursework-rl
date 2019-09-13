@@ -53,7 +53,7 @@ NUM_TRAININGS_PER_EPOCH = 50  # init: 50 (amount of BATCH_SIZE x NUM_TRAININGS_P
 GAMMA = 0.99  # init: .99 (bellman equation)
 LEARNING_RATE = 1e-3  # init: 1e-4 (also quite low eventually using default 1e-3)
 SYNC_TARGET_FRAMES = COLLECT_EXPERIENCE_SIZE * 5  # init: 1000 (how frequently we sync target net with net)
-MAP_NAMES = ['newlevel_1', 'newlevel_2']
+MAP_NAMES = ['newlevel_2']
 
 # evaluation
 STATES_TO_EVALUATE = 1000
