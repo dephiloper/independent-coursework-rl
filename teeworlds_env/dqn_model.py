@@ -39,8 +39,6 @@ class Net(nn.Module):
 
         self.layers = [
             linear_layer_class(conv_out_size, 512),
-            linear_layer_class(512, 512),
-            linear_layer_class(512, 512),
             linear_layer_class(512, n_actions)
         ]
 
@@ -48,10 +46,6 @@ class Net(nn.Module):
             self.layers[0],
             nn.ReLU(),
             self.layers[1],
-            nn.ReLU(),
-            self.layers[2],
-            nn.ReLU(),
-            self.layers[3],
         )
 
     def _get_conv_out(self, shape):
@@ -96,22 +90,35 @@ class DuelingNet(nn.Module):
         self.layers = [
             # advantage layers
             linear_layer_class(conv_out_size, 512),
+            linear_layer_class(512, 512),
+            linear_layer_class(512, 512),
             linear_layer_class(512, n_actions),
+
 
             # value layers
             linear_layer_class(conv_out_size, 512),
+            linear_layer_class(512, 512),
+            linear_layer_class(512, 512),
             linear_layer_class(512, 1)
         ]
 
         self.fc_adv = nn.Sequential(
             self.layers[0],
             nn.ReLU(),
-            self.layers[1]
-        )
-        self.fc_val = nn.Sequential(
+            self.layers[1],
+            nn.ReLU(),
             self.layers[2],
             nn.ReLU(),
             self.layers[3]
+        )
+        self.fc_val = nn.Sequential(
+            self.layers[4],
+            nn.ReLU(),
+            self.layers[5],
+            nn.ReLU(),
+            self.layers[6],
+            nn.ReLU(),
+            self.layers[7]
         )
 
     def _get_conv_out(self, shape):
