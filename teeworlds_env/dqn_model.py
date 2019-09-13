@@ -39,13 +39,19 @@ class Net(nn.Module):
 
         self.layers = [
             linear_layer_class(conv_out_size, 512),
+            linear_layer_class(512, 512),
+            linear_layer_class(512, 512),
             linear_layer_class(512, n_actions)
         ]
 
         self.fc = nn.Sequential(
             self.layers[0],
             nn.ReLU(),
-            self.layers[1]
+            self.layers[1],
+            nn.ReLU(),
+            self.layers[2],
+            nn.ReLU(),
+            self.layers[3],
         )
 
     def _get_conv_out(self, shape):
