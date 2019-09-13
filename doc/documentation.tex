@@ -1,3 +1,10 @@
+% Allgemeine section Aufbau
+% - Theorie
+% - Einordnung (on-policy/off-policy, value-based/policy-based)
+% - Implementationen
+%   - Herausstellen wie Exploration und Exploitation umgesetzt ist
+%   - falls vorhanden Graphs einbauen, die den Trainingsprozess veranschaulichen
+
 \documentclass[11pt]{scrartcl}
 \usepackage[utf8]{inputenc}
 \usepackage[german]{babel}
@@ -74,6 +81,11 @@ Kenntnisse im Bereich Reinforcement Learning zu erhalten und bereits bestehendes
 den Schwerpunkten Artificial Intelligence und Machine Learning zu festigen. Weiterhin soll
 dieses Wissen anschließend in einem Prototyp umgesetzt werden, bei dem ein Agent in einem
 Echtzeitspiel gesteuert wird.
+
+% Philipp TODO: - Arbeit beinhaltet:
+%                 - Recherche/Aufarbeitung (wichtiger Teil). Deshalb auch theoretische
+%                   Bereiche ausgeführt
+%                 - Implementierungen
 
 \newpage
 \section{Fundamentals}
@@ -170,7 +182,7 @@ darf. Die Markov Eigenschaft legt somit fest, dass ein State differenziert von j
 Systems betrachtet werden kann und deshalb die History für die Vorhersage der Systemdynamik nicht
 notwendig ist.
 
-
+% Philipp TODO
 \begin{itemize}
 \itemsep0pt
 \item Exploration vs. Exploitation
@@ -188,6 +200,8 @@ Der Makrov Decision Process dient als Fundament von Umsetzungen im Bereich Reinf
 \end{itemize}
 
 \newpage
+% Bruno TODO: - subsection name: Exploration vs Exploitation
+%             - k-armed bandit as example
 \subsection{k-armed Bandit}
 Hierbei soll das k-armed Bandit Problem der Wahrscheinlichkeitstheorie erläutert werden
 und dabei auf  Schwerpunkte Exploration vs. Exploitation, einem Kernproblem des
@@ -288,6 +302,11 @@ Erläuterung des Q-Learning Verfahrens und deren Erweiterungen, dessen Einordnun
 Bereich value learning sowie Begriffserklärung und Implementierung von Q-learning anhand
 der Verwendung eines bereits existierenden Gyms. Erläuterung folgender Terminologien:
 
+% Bruno TODO: - write section
+%             - tictactoe implementation example
+%             - frozen lake
+%             - frozen lake 2x2 explanation
+
 \begin{itemize}
 \itemsep0pt
 \item value learning Familie
@@ -300,6 +319,7 @@ der Verwendung eines bereits existierenden Gyms. Erläuterung folgender Terminol
   % \url{https://github.com/dephiloper/independent-coursework-rl/tree/master/preparation/05_v_learning}
 \end{itemize}
 
+% Bruno TODO
 \section{Deep Q-Learning}
 Erweitung des Q-learning Verfahrens um neuronales Netz, was die Nutzung von Spielen und
 Simulationen mit kontinuierlichem Spielbereich (Observation-Space) ermöglicht. Umsetzung
@@ -319,6 +339,7 @@ Funktionsweise sowie folgender Terminologien und Verfahren mit diversen Implemen
 \item extensions: duelling dqn, categorical dqn, n-step dqn
 \end{itemize}
 
+% Philipp TODO
 \section{Policy Gradients}
 Erneute Beschreibung von Verfahren im Bereich policy learning. Dabei fokussieren der
 Policy Gradients Verfahren und der REINFORCE Methode. Thematisierung und Vergleich von
@@ -333,6 +354,7 @@ policy und value sowie Erweiterungen.
 \item high variance, Einführung einer Baseline
 \end{itemize}
 
+% Philipp TODO
 \section{Actor Critic}
 Beschreibung einer state-of-the-art RL Methode Actor Critic. Kombination aus policy learning und value learning. Ansatz mit mehreren Environments parallel zur Beschleunigung und Stabilisierung des Lernprozesses.
 \begin{itemize}
@@ -343,9 +365,14 @@ Beschreibung einer state-of-the-art RL Methode Actor Critic. Kombination aus pol
 \end{itemize}
 
 \section{Teeworlds}
-Wie in der Einleitung erwähnt Erfolg die Umsetzung eines eigenen Environments mittels des Spiels Teeworlds (\url{https://teeworlds.com/}). Initial wird das Spiel erläutert und dessen grundlegende Struktur. Anschließend erfolgt eine Beschreibung zur Umsetzung des Environments, wobei folgende Themen kategorisiert werden:
+Wie in der Einleitung erwähnt Erfolg die Umsetzung eines eigenen Environments mittels des
+Spiels Teeworlds (\url{https://teeworlds.com/}). Initial wird das Spiel erläutert und
+dessen grundlegende Struktur. Anschließend erfolgt eine Beschreibung zur Umsetzung des
+Environments, wobei folgende Themen kategorisiert werden:
 \begin{itemize}
 \itemsep0pt	
+\item Warum wir uns dafür entschieden haben
+\item Wahl des Verfahrens
 \item FOSS, teeworlds client, teeworlds server
 \item custom environment (gym)
 \item Bilder als Input $\rightarrow$ stack of images

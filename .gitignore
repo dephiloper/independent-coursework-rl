@@ -13,3 +13,5 @@ rec/
 *.dat
 /teeworlds_env/config.yaml
 /teeworlds_env/logs/
+/doc/documentation.bbl
+/doc/documentation.blg
