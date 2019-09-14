@@ -20,7 +20,7 @@ from utils import ExperienceBuffer, ACTIONS, ACTION_LABELS, Experience, load_con
 
 
 # exp collecting
-NUM_WORKERS = 6
+NUM_WORKERS = 4
 COLLECT_EXPERIENCE_SIZE = 5000  # init: 2000 (amount of experiences to collect after each training step)
 GAME_TICK_SPEED = 200  # default: 50 (game speed, when higher more screenshots needs to be captures)
 EPISODE_DURATION = 40  # default: 40
