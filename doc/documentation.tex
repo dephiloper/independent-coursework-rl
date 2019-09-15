@@ -202,30 +202,38 @@ Der Makrov Decision Process dient als Fundament von Umsetzungen im Bereich Reinf
 \newpage
 % Bruno TODO: - subsection name: Exploration vs Exploitation
 %             - k-armed bandit as example
-\subsection{k-armed Bandit}
-Hierbei soll das k-armed Bandit Problem der Wahrscheinlichkeitstheorie erläutert werden
-und dabei auf  Schwerpunkte Exploration vs. Exploitation, einem Kernproblem des
-Reinforcement Learning, eingegangen werden. Die dabei realisierten Implementierungen
-sollen genauer erläutert und deren Bewandtnis in allgemeinen RL genauer beschrieben
-werden.
+\subsection{Exploration und Exploitation}
+In diesem Abschnitt wird der Konflikt zwischen Exploration vs Exploitation des
+Reinforcement Learnings erläutert und anhand des k-armed-Bandit Problems veranschaulicht.
+Die dabei realisierten Implementierungen werden beschrieben und deren Ergebnisse
+vorgestellt.
 
 \subsubsection{Das k-armed-Bandit Problem}
 % Erklärung des k-armed-Bandit Problems
-Das k-armed-Bandit Problem beschreibt auf vereinfachte Weise eine Grundproblemstellung vor
-der ein Agent steht. Das Problem besteht darin aus $k$ verschiedenen $Aktionen$ zu wählen.
-Nachdem eine Aktion gewählt wurde, erhält der Agent einen $Reward$, der aus einer
+Das k-armed-Bandit Problem besteht darin aus $k$ verschiedenen Actions zu wählen.
+Nachdem eine Action gewählt wurde, erhält der Agent einen Reward, der aus einer
 Wahrscheinlichkeitsverteilung gezogen wird. Der Erwartungswert der
-Wahrscheinlichkeitsverteilung hängt von der gewählten Aktion ab. Das Ziel besteht darin
-mit $n$ Aktions den höchstmöglichen Reward zu erhalten.\\
-Würden wir den Erwartungswert der einzelnen Verteilungen kennen, so wäre die Wahl der
-Aktion einfach, indem die Aktion mit dem höchsten Erwartungswert gewählt werden würde. Der
-Erwartungswert der hinter einer Verteilung einer Aktion steht wird $Value$ der Aktion
-genannt.\\
-Allgemein ist in Reinforcement Learning Problemen der Erwartungswert der Aktionen nicht
-bekannt, sodass dieser durch versuchen ermittelt werden muss. Stattdessen gibt es nur
-Abschätzungen bezüglich des Values einer Aktion. Das ermitteln des erwarteten Rewards wird
-$Exploration$ genannt. Im Gegensatz dazu steht die $Exploitation$ bei der die gesammelten
-Erfahrungen genutzt werden, um die Aktion auszuwählen, die den höchsten Reward verspricht.
+Wahrscheinlichkeitsverteilung hängt von der gewählten Action ab. Das Ziel besteht darin
+mit der Ausführung von $n$ Actions die höchstmögliche Summe von Rewards zu erhalten.\\
+Der Erwartungswert der hinter einer Verteilung einer Action steht wird $Value$ der Action
+genannt. Würden wir die Values der einzelnen Actions kennen, so wäre die Wahl der Action
+einfach, indem die Action mit dem höchsten Erwartungswert gewählt werden würde.
+Allgemein ist in Reinforcement Learning Problemen der Value einer Action nicht bekannt.
+Stattdessen gibt es nur Abschätzungen bezüglich des Values einer Action, die aus den
+vorhergehenden Erfahrungen hervorgehen.\\
+Um den Value einer Action besser abschätzen zu können, muss diese Action ausprobiert
+werden. Umso häufiger die Action ausgeführt wurde, umso besser ist auch die Abschätzung
+des Values dieser Action.\\
+Der Vorgang des Ausprobierens wird $Exploration$ genannt. Im Gegensatz dazu steht die
+$Exploitation$ bei der die gesammelten Erfahrungen genutzt werden, um die Action
+auszuwählen, die den höchsten Reward verspricht.\\
+Das k-armed-Bandit Problem gilt als Vereinfachung zu allgemeinen Reinforcement Learning
+Problemen, da nicht zwischen unterschiedlichen Ausgangszuständen unterschieden wird. Mit
+anderen Worten wird keine Observation durchgeführt. Weiterhin wird der Erwartungswert des
+Rewards einer Action nicht über die Dauer des Spiels verändert. Dies bedeutet, dass die
+Values der unterschiedlichen Actions am Anfang und Ende des Spiels identisch sind, wodurch
+auch Erfahrungen, die zu Beginn des Spielens gemacht wurden, am Ende benutzt werden
+können.
 
 \subsubsection{Exploration Strategien}
 Im folgenden werden verschiedene Exploration-Strategien beleuchtet. Dazu werden diese erst
@@ -234,45 +242,50 @@ vergleichen.
 % Die Implementationen sind unter \url{https://github.com/Bluemi/rl_testbed} zu finden.
 
 \paragraph{$\epsilon$ greedy / decaying $\epsilon$ greedy}
-Eine Strategie, die zu jedem Zeitpunkt die Aktion wählt, die nach derzeitigem Wissen den
-höchsten Reward verspricht wird $greedy$ genannt. Epsilon-greedy Strategien sind greedy
-Strategien, die mit einer gewissen Wahrscheinlichkeit $\epsilon$ eine zufällige Aktion
-wählen. Sie wählen also mit einer Wahrscheinlichkeit von $1 - \epsilon$ die Aktion, von
-der sie sich den höchsten Reward versprechen und andernfalls eine zufällige Aktion.\\
+Eine Strategie, die zu jedem Zeitpunkt die Action wählt, die nach derzeitigem Wissen den
+höchsten Value hat wird $greedy$ genannt. Epsilon-greedy Strategien sind greedy
+Strategien, die mit einer gewissen Wahrscheinlichkeit $\epsilon$ eine zufällige Action
+wählen. Sie wählen also mit einer Wahrscheinlichkeit von $1 - \epsilon$ die Action, von
+der sie sich den höchsten Reward versprechen und andernfalls eine zufällige Action.\\
 In der Praxis werden häufig decaying $\epsilon$ greedy Strategien verwendet, bei denen der
 $\epsilon$ Wert über den Trainingsprozess hinweg verringert wird. Dadurch werden zu Beginn
-des Trainings viele neue Aktionen ausprobiert, während gegen Ende das Anwenden des
+des Trainings viele neue Actions ausprobiert, während gegen Ende das Anwenden des
 gelernten stärker in den Vordergrund rückt.
 
 \paragraph{Optimistic Initial Values}
-Ein Agent, der ein k-armed-Bandit Problem lösen soll, bewertet die unterschiedlichen
-Aktionen, um Aktionen wählen zu können, die einen besseren Reward versprechen. Die
-Bewertung der Aktionen wird beeinflusst durch die erfahrenen Rewards nach dem wählen einer
-Aktion.\\
+Ein Agent, der ein k-armed-Bandit Problem lösen soll, besitzt eine interne Abschätzung der
+Values, um Actions wählen zu können, die einen besseren Reward versprechen. Die
+Bewertung der Actions wird beeinflusst durch die erfahrenen Rewards nach dem wählen einer
+Action.\\
 Neben $\epsilon$-greedy Verfahren ist es eine weitere Möglichkeit Exploration umzusetzen,
-die initiale Bewertung der Aktionen sehr optimistisch vorzunehmen. Dadurch wird der Agent
-bei der Wahl einer Aktion vom erhaltenen Reward "enttäuscht", sodass sich die Einschätzung
-dieser Aktion verschlechtert. Wird nun immer die Aktion gewählt, die am besten
-eingeschätzt ist, so werden über die Zeit alle Aktionen versucht, bis sie sich dem
+die initiale Bewertung der Values sehr optimistisch vorzunehmen. Dadurch wird der Agent
+bei der Wahl einer Action vom erhaltenen Reward "enttäuscht", sodass sich die Einschätzung
+dieser Action verschlechtert. Wird nun immer die Action gewählt, die am besten
+eingeschätzt ist, so werden über die Zeit alle Actions versucht, bis sie sich dem
 tatsächlichen Erwartungswert nähern.
 
 \paragraph{Upper Confidence Bound Action Selection}
-Während $\epsilon$ greedy Methoden zufällig zwischen allen nicht greedy Aktionen
-auswählen, wählt die Upper Confidence Bound Ac\-tion Selection Methode Aktionen entsprechend
+Während $\epsilon$ greedy Methoden zufällig zwischen allen nicht greedy Actions
+auswählen, wählt die Upper Confidence Bound Ac\-tion Selection Methode Actions entsprechend
 dreier Parameter aus.\\
-Der erste Parameter ist $t$ die Anzahl der Aktionen, die bis jetzt gespielt wurden, der
-zweite ist der bis jetzt ermittelte $Value$ der Aktion $a$ bezeichnet mit $Q(a)$ und der
-dritte Parameter ist die Anzahl, wie oft $a$ schon ausprobiert wurde. Die nächste zu
-spielende Aktion wird dann nach folgender Gleichung gewählt:
+Der erste Parameter ist $t$ die Anzahl der Actions, die bis jetzt gespielt wurden, der
+zweite ist der bis jetzt ermittelte $Value$ der Action $a$ bezeichnet mit $Q(a)$ und der
+dritte Parameter ist die Anzahl, wie oft Action $a$ schon ausprobiert wurde. Die nächste
+zu spielende Action wird dann nach folgender Gleichung gewählt:
 
 \[ A = \argmax_a\left( Q(a) + c*\sqrt\frac{N(a)}{\ln(t)} \right) \]
 
 \noindent
-$A$ ist die zu wählende Aktion. $N(a)$ ist die Anzahl, wie oft die Aktion $a$ schon
-gewählt wurde. Durch den Term $c*\sqrt\frac{N(a)}{\ln(t)}$ wird sichergestellt, dass
-selten benutzte Aktionen eine höhere Bewertung erhalten.
+$A$ ist die gewählte Aktion. $N(a)$ ist die Anzahl, wie oft die Aktion $a$ schon gewählt
+wurde. Durch den Term $c*\sqrt\frac{N(a)}{\ln(t)}$ wird sichergestellt, dass selten
+benutzte Aktionen eine höhere Bewertung erhalten und damit wahrscheinlicher Ausprobiert
+werden. Über den Hyperparameter $c$ lässt sich bestimmen, wie stark selten benutzte
+Actions ausprobiert werden sollen.\\
+Ein Vorteil gegenüber $\epsilon$-greedy Strategien ist, dass durch die Einbeziehung von
+$Q(a)$ Actions häufiger ausprobiert werden, die besser wirken, während Actions, die sehr
+schlecht wirken weniger oft ausprobiert werden.
 
-% \subsubsection{Umsetzung Tic-Tac-Toe}
+\subsubsection{Implementation}
 
 \newpage
 \subsection{Open AI Gym}
