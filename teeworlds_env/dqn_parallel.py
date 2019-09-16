@@ -21,7 +21,7 @@ from utils import ExperienceBuffer, ACTIONS, ACTION_LABELS, Experience, load_con
 
 # exp collecting
 NUM_WORKERS = 3
-COLLECT_EXPERIENCE_SIZE = 2000  # init: 2000 (amount of experiences to collect after each training step)
+COLLECT_EXPERIENCE_SIZE = 1000  # init: 2000 (amount of experiences to collect after each training step)
 GAME_TICK_SPEED = 100  # default: 50 (game speed, when higher more screenshots needs to be captures)
 EPISODE_DURATION = 40  # default: 40
 MONITOR_WIDTH = 84  # init: 84 width of game screen
@@ -31,6 +31,7 @@ MONITOR_Y_PADDING = 20
 PRIORITY_REPLAY_ALPHA = 0.6
 BETA_START = 0.4
 BETA_FRAMES = 10 ** 5
+PRINT_EXPERIENCE_BUFFER = False
 
 
 DOUBLE_DQN = True
@@ -203,19 +204,61 @@ def setup():
 
 
 def print_experience_buffer(experience_buffer: Union[ExperienceBuffer, PriorityExperienceBuffer]):
-    index = 0
-    for experience in experience_buffer.buffer:
+    current_index = None
+    for index, experience in enumerate(experience_buffer.buffer):
         assert (type(experience) == Experience)
-        if experience.worker_index == 0:
-            # img_cur = np.concatenate(experience.state, axis=1)
-            img = np.concatenate(experience.new_state, axis=1)
-            # img = np.concatenate((img_cur, img_new), axis=0)
-            cv2.imshow(f'{index}: {ACTION_LABELS[experience.action]} reward={experience.reward}', img)
-            if cv2.waitKey() == 27:
-                break
-            index += 1
+        if experience.reward:
+            current_index = index
 
-    cv2.destroyAllWindows()
+    if current_index is None:
+        return
+
+    worker_index = experience_buffer.buffer[current_index].worker_index
+
+    while True:
+        experience = experience_buffer.buffer[current_index]
+
+        img = np.concatenate(experience.new_state, axis=1)
+
+        cv2.imshow(f'{current_index}: {ACTION_LABELS[experience.action]} reward={experience.reward}', img)
+        key = cv2.waitKey()
+        if key == 27:  # ESC
+            cv2.destroyAllWindows()
+            break
+        elif key == 97:  # A
+            new_index = current_index
+            while new_index > 0:
+                new_index -= 1
+                if experience_buffer.buffer[new_index].worker_index == worker_index:
+                    current_index = new_index
+                    break
+        elif key == 100:  # D
+            new_index = current_index
+            while new_index < len(experience_buffer) - 1:
+                new_index += 1
+                if experience_buffer.buffer[new_index].worker_index == worker_index:
+                    current_index = new_index
+                    break
+        elif key == 119:  # W
+            worker_index = (worker_index + 1) % NUM_WORKERS
+            new_index = current_index
+            while new_index > 0:
+                new_index -= 1
+                if experience_buffer.buffer[new_index].worker_index == worker_index:
+                    current_index = new_index
+                    break
+        elif key == 115:  # S
+            worker_index -= worker_index
+            if worker_index < 0:
+                worker_index = NUM_WORKERS - 1
+            new_index = current_index
+            while new_index > 0:
+                new_index -= 1
+                if experience_buffer.buffer[new_index].worker_index == worker_index:
+                    current_index = new_index
+                    break
+
+        cv2.destroyAllWindows()
 
 
 def main():
@@ -307,7 +350,10 @@ def main():
                 if EXPERIENCE_BUFFER_CLASS == PriorityExperienceBuffer:
                     writer.add_scalar('beta', beta, frame_idx)
 
-        # print_experience_buffer(experience_buffer)
+        if PRINT_EXPERIENCE_BUFFER:
+            for worker in workers:
+                worker.stop_collecting_experience()
+            print_experience_buffer(experience_buffer)
 
         # check if buffer is large enough for training else back to collecting training data
         if len(experience_buffer) < REPLAY_START_SIZE:
