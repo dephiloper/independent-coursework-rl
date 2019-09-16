@@ -75,12 +75,10 @@ class DuelingNet(nn.Module):
         super(DuelingNet, self).__init__()
 
         self.conv = nn.Sequential(
-            nn.Conv2d(input_shape[0], 32, kernel_size=8, stride=4),
+            nn.Conv2d(input_shape[0], 64, kernel_size=8, stride=4),
             nn.ReLU(),
-            nn.Conv2d(32, 64, kernel_size=4, stride=2),
+            nn.Conv2d(64, 32, kernel_size=4, stride=4),
             nn.ReLU(),
-            nn.Conv2d(64, 64, kernel_size=3, stride=1),
-            nn.ReLU()
         )
 
         conv_out_size = self._get_conv_out(input_shape)
@@ -93,8 +91,8 @@ class DuelingNet(nn.Module):
             linear_layer_class(512, n_actions),
 
             # value layers
-            linear_layer_class(conv_out_size, 512),
-            linear_layer_class(512, 1)
+            linear_layer_class(conv_out_size, 256),
+            linear_layer_class(256, 1)
         ]
 
         self.fc_adv = nn.Sequential(
