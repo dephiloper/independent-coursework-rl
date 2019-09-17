@@ -380,19 +380,22 @@ Um auf einem Bandit zu spielen wurde ein \lstinline!Solver! umgesetzt, der eine 
 Abschätzung der Action Values ermittelt, indem die erfahrenen Rewards dieser Action
 gemittelt werden. Der Solver wählt Actions wobei unterschiedliche Exploration Strategien
 ausprobiert werden können. Die Unterklasse \lstinline!EpsilonGreedySolver! implementiert
-beispielsweise die $\epsilon$-greedy Strategie.
+beispielsweise die $\epsilon$-greedy Strategie.\\
 In \lstinline!src/main.py! werden unterschiedliche Solver anhand des gleichen Bandits
-getestet und die Ergebnisse geplottet. Jeder Solver spielt 2000 mal 5000 Actions auf
-einem 10-armed-Bandit. Die resultierenden Graphen sind in Abbildung
-\ref{fig:karmed_bandit} zu sehen.
+getestet und die Ergebnisse geplottet. Jeder Solver trainiert 5000 Actions auf einem
+10-armed-Bandit. Die dabei resultierenden Rewards sind in Abbildung
+\ref{fig:karmed_bandit} graphisch dargestellt. Die zu sehenden Rewards wurden über 2000
+Experimente gemittelt, um ein anschaulicheres Ergebnis zu erhalten.
 
 \begin{figure}[htp]
 \centering
-\includegraphics[scale=0.2]{res/karmedbandit_results.png}
+\includegraphics[scale=0.3]{res/karmedbandit_results.png}
+\includegraphics[scale=0.3]{res/karmed_bandit_optimistic.png}
 \caption{Ergebnisse k-armed-Bandit}
 \label{fig:karmed_bandit}
 \end{figure}
 \noindent
+
 
 
 
