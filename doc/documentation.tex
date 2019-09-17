@@ -244,9 +244,36 @@ wird als \textit{Policy} bezeichnet. Formal wird diese als Wahrscheinlichkeitsve
 über Actions für jeden möglichen Zustand definiert \cite[~S.22 f.]{L2018}. 
 
 \subsection{Further Taxonomy} % Überschrift gefällt mir irgendwie nicht so richtig
-\subsubsection{Policy Learning vs. Value Learning}
-\subsubsection{On-Policy vs. Off-Policy}
-\subsubsection{Model-Free vs. Model-Based}
+In diesem Kapitel werden diverse Kategorisierungen für Reinforcement Learning Verfahren beschrieben,
+welche nachfolgend bei der Erläuterung der realisierten Verfahren für deren Einordnung genutzt werden.  
+
+
+\subsubsection{Value learning vs. policy learning}
+Bei value learning Verfahren wird jedem State oder jeder Kombination aus State und Action ein Value bzw.
+Score zugewiesen, welcher diese/n State/State-Action bewertet. Anhand der Value kann der Agent 
+anschließend eine Wahl zur besten Action treffen \cite[~S.NA]{L2018}.
+
+Policy learning bezeichnet hingegen das direkte Lernen einer Verhaltensweise, wobei anhand einer 
+Observation eine Wahrscheinlichkeitsverteilung der zu wählenden Actions erzeugt wird. Der Agent wählt
+anschließend anhand der jeweiligen Wahrscheinlichkeiten die möglichen Actions \cite[~S.NA]{L2018}.
+
+
+\subsubsection{On-policy vs. off-policy}
+Die Kategorisierung off-policy beschreibt die Fähigkeit von Reinforcement Learning Verfahren auf
+Grundlage alter, bereits vor längerer Zeit aufgenommener Daten zu trainieren \cite[~S.NA]{L2018}. 
+Im Kontrast dazu definiert on-policy die Notwendigkeit von immer neu aufgezeichneten 
+Trainingsdaten, welche nach einem Trainingsdurchlauf wieder verworfen und somit neu gesammelt
+werden müssen.
+
+
+\subsubsection{Model-free vs. model-based}
+Der Term model-free bezieht sich auf Verfahren, welche kein Modell der Umgebung oder des Rewards
+während des Trainingsprozesses aufbauen. Es werden ausschließlich anhand von aktuellen Observations
+zugehörige Actions berechnet. Model-based Methoden versuchen im Kontrast dazu vorherzusagen, was 
+die nächste Observation oder wie hoch der nächste Reward sein wird \cite[~S.NA]{L2018}. Anhand dieser
+Vorhersage versucht der Agent anschließend die bestmögliche Action zu wählen, wobei in den meisten
+Fällen diese Vorhersagen mehrfach und dabei auch mit der Brachtung zukünftiger Schritte durchgeführt
+wird \cite[~S.NA]{L2018}.
 
 \newpage
 % Bruno TODO: - subsection name: Exploration vs Exploitation
