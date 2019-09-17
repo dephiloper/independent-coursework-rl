@@ -9,8 +9,10 @@
 \usepackage[utf8]{inputenc}
 \usepackage[german]{babel}
 \usepackage{geometry}
-
 \usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{array}
+
 \DeclareMathOperator*{\argmax}{arg\,max}
 \DeclareMathOperator*{\argmin}{arg\,min}
 
@@ -19,7 +21,14 @@
 \usepackage{listings}
 \usepackage{subcaption}
 
+\newcommand{\source}[1]{\vspace{-5pt} \caption*{\hfill \textbf{Source:} {#1}} }
+
+\newenvironment{conditions}
+  {\par\vspace{\abovedisplayskip}\noindent\begin{tabular}{>{$}l<{$} @{${}:{}$} l}}
+  {\end{tabular}\par\vspace{\belowdisplayskip}}
+
 \newcommand{\lbparagraph}[1]{\paragraph*{#1}\mbox{}\\}
+
 \renewcommand{\baselinestretch}{1.2}
 \geometry{
   left=3cm,
@@ -165,39 +174,106 @@ gesammelte Ergebnis aller Erfolge und Misserfolge. Des Weiteren bedeutet ein hoh
 nicht, dass der daraus folgende Zustand global betrachet keine noch größeren negativen Auswirkungen 
 auf den Agenten haben wird.
 
-\subsection{Markov Decision Process}
+\subsection{Markov Processes}
 Der Makrov Prozess und seine Erweiterungen bilden das theoretische Konstrukt für Reinforcement Learning
 Verfahren. Durch die Beleuchtung dieser Prozesse werden weitere Terminologien geklärt, welche ebenfalls
-ihren Einsatz im Reinforcement Learning finden. Die einfachste Variante der Markov Familie ist der 
-Markov Prozess (Markov-Kette). Ein Markov Prozess beschreibt ein System, welches ausschließlich
-observiert werden kann, sprich es kann nicht in die Dynamik des Systems eingegriffen werden. Jeder
-Markov Prozess enthält eine Menge von \textit{States}, zwischen denen das System nach den
-Gesetzlichkeiten der Systemdynamik hin und her wechseln kann. Die Menge aller möglichen States wird
-dabei als State Space bezeichnet. Wird das System observiert ergibt sich durch die Wechsel von State zu 
-State eine Folge, welche als \textit{History} bezeichnet wird. 
+ihren Einsatz im Reinforcement Learning finden.
 
-Damit ein Prozess als Markov Prozess bezeichnet werden kann muss dieser die Markov Eigenschaft aufweisen,
-welche definiert, dass die zukünftige Dynamik des Systems von jedem State nur von diesem State abhängen 
-darf. Die Markov Eigenschaft legt somit fest, dass ein State differenziert von jedem anderen State des
-Systems betrachtet werden kann und deshalb die History für die Vorhersage der Systemdynamik nicht
+\subsubsection{Markov Process}
+Die einfachste Variante in der Markov Familie ist der Markov Prozess (Markov-Kette). Ein Markov Prozess
+beschreibt ein System, welches ausschließlich observiert werden kann, sprich es kann nicht in die Dynamik
+des Systems eingegriffen werden. Jeder Markov Prozess enthält eine Menge von \textit{States}, zwischen
+denen das System nach den Gesetzlichkeiten der Systemdynamik hin und her wechseln kann. Die Menge aller
+möglichen States wird dabei als \textit{State Space} bezeichnet. Wird das System observiert ergibt sich
+durch die Wechsel von State zu State eine Folge, welche als \textit{History} bezeichnet wird. 
+
+Damit ein Prozess als Markov Prozess bezeichnet werden kann muss dieser die \textit{Markov Eigenschaft}
+aufweisen, welche definiert, dass die zukünftige Dynamik des Systems von jedem State nur von diesem State abhängen darf. Die Markov Eigenschaft legt somit fest, dass ein State differenziert von jedem anderen State 
+des Systems betrachtet werden kann und deshalb die History für die Vorhersage der Systemdynamik nicht
 notwendig ist.
 
-% Philipp TODO
-\begin{itemize}
-\itemsep0pt
-\item Exploration vs. Exploitation
-\item model-free vs. model-based
-\item on- vs. off-policy
-\item policy learning vs. value learning
-\end{itemize}
-\subsection{Markov Decision Process}
-Der Makrov Decision Process dient als Fundament von Umsetzungen im Bereich Reinforcement Learning. In diesem Kapitel sollen dabei die Zusammenhänge und Unterschiede der einzelnen Markov Prozesse erläutert werden. Dabei wird unterschieden in:
-\begin{itemize}
-\itemsep0pt
-\item Markov Process
-\item Markov Reward Process
-\item Markov Decision Process 
-\end{itemize}
+Ein Prozess der die Markov Eigenschaft aufweißt muss die Fähigkeit bieten, eine Vorhersage über
+die Wahrscheinlichkeit des Eintreffens eines Folgezustandes, ausgehend von einem Ausgangszustand, zu 
+ermitteln. Dafür werden Wahrscheinlichkeiten für die Übergänge zwischen zwei States in einer 
+\textit{Transition Matrix} festgehalten. \autoref{fig:markov}: \nameref{fig:markov} veranschaulicht
+ein Wettermodell in der Repräsentationsform eines Markov Prozesses mit den States \textit{Sunny} und
+\textit{Rainy} und deren Übergangswahrscheinlichkeiten in zukünftige Folgezustände.
+
+\begin{figure}[htp]
+\centering
+\includegraphics[scale=0.2]{/home/phil/Pictures/srwm.png}
+\caption{Sunny/Rainy weather model}
+\source{Figure 4: Sunny/Rainy weather model \cite[~S.13]{L2018}}
+\label{fig:markov}
+\end{figure}
+
+\subsubsection{Markov Reward Process}
+Die erste Erweiterung zum Markov Process ensteht durch die Hinzunahme eines weiteren Wertes zu den 
+Übergängen zwischen zwei States, dem \textit{Reward} $R$. Dieser Wert definiert wie hoch die Belohnung
+oder Bestrafung bei einem Wechsel der States ausfällt. Durch den Reward kann anschließend der
+\textit{value of state} $V(s)$ berechnet werden. Für jeden State $s$ ist der value of state $V(s)$
+der durchschnittliche (oder erwartete) Ertrag, welcher durch das Verfolgen des Markov-Reward-Prozess
+entsteht und somit durch alleiniges Observieren die Bewertung von Zuständen ermöglicht.
+Zusätzlich wird der \textit{discount factor} $\gamma$ eingeführt, welcher den erhaltenen Reward
+für Übergänge die weiter in der Zukunft liegen verringert. Der value of state wird dabei wie
+nachfolgend formuliert für eine \textit{Episode} berechnet, wobei eine Episode immer aus einer
+Folge von States besteht und entweder durch das Eintreffen eines terminierenden States oder das
+Erreichen einer Maximalanzahl von States beendet wird:
+
+\begin{equation}
+V(s)_t = R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} ... = \sum_{k=0}^\infty \gamma^{k} R_{t+k+1}
+\label{eq:value-of-state}
+\end{equation} 
+
+\begin{conditions}
+ V(s)     	&  value of state \\
+ R	     	&  Reward \\   
+ \gamma 	&  discount factor für Rewards, die weiter in der Zukunft liegen
+\end{conditions}
+
+\subsubsection{Markov Decision Process}
+Der Markov Decision Process erweitert den Markov Reward Process um eine endliche Menge an Actions.
+Diese Menge entspricht dem \textit{Action Space} des Agenten. Dadurch kommt es nun nicht mehr
+ausschließlich zur passiven Observierung, sondern der Agent kann zu jeder Zeit eine Action wählen um
+somit die Wahrscheinlichkeiten des Zielzustandes selbstständig zu beeinflussen. Des Weiteren hängt 
+der Reward, den der Agent erhält, nun nicht mehr ausschließlich von dem Zustand ab, in dem er endet,
+sondern auch von der Action, die zu diesem Zustand führt. 
+
+Die Verhaltensweise, die der Agent ausübt und welche für die Wahl der Actions verantwortlich ist,
+wird als \textit{Policy} bezeichnet. Formal wird diese als Wahrscheinlichkeitsverteilung
+über Actions für jeden möglichen Zustand definiert \cite[~S.22 f.]{L2018}. 
+
+\subsection{Further Taxonomy} % Überschrift gefällt mir irgendwie nicht so richtig
+In diesem Kapitel werden diverse Kategorisierungen für Reinforcement Learning Verfahren beschrieben,
+welche nachfolgend bei der Erläuterung der realisierten Verfahren für deren Einordnung genutzt werden.  
+
+
+\subsubsection{Value learning vs. policy learning}
+Bei value learning Verfahren wird jedem State oder jeder Kombination aus State und Action ein Value bzw.
+Score zugewiesen, welcher diese/n State/State-Action bewertet. Anhand der Value kann der Agent 
+anschließend eine Wahl zur besten Action treffen \cite[~S.NA]{L2018}.
+
+Policy learning bezeichnet hingegen das direkte Lernen einer Verhaltensweise, wobei anhand einer 
+Observation eine Wahrscheinlichkeitsverteilung der zu wählenden Actions erzeugt wird. Der Agent wählt
+anschließend anhand der jeweiligen Wahrscheinlichkeiten die möglichen Actions \cite[~S.NA]{L2018}.
+
+
+\subsubsection{On-policy vs. off-policy}
+Die Kategorisierung off-policy beschreibt die Fähigkeit von Reinforcement Learning Verfahren auf
+Grundlage alter, bereits vor längerer Zeit aufgenommener Daten zu trainieren \cite[~S.NA]{L2018}. 
+Im Kontrast dazu definiert on-policy die Notwendigkeit von immer neu aufgezeichneten 
+Trainingsdaten, welche nach einem Trainingsdurchlauf wieder verworfen und somit neu gesammelt
+werden müssen.
+
+
+\subsubsection{Model-free vs. model-based}
+Der Term model-free bezieht sich auf Verfahren, welche kein Modell der Umgebung oder des Rewards
+während des Trainingsprozesses aufbauen. Es werden ausschließlich anhand von aktuellen Observations
+zugehörige Actions berechnet. Model-based Methoden versuchen im Kontrast dazu vorherzusagen, was 
+die nächste Observation oder wie hoch der nächste Reward sein wird \cite[~S.NA]{L2018}. Anhand dieser
+Vorhersage versucht der Agent anschließend die bestmögliche Action zu wählen, wobei in den meisten
+Fällen diese Vorhersagen mehrfach und dabei auch mit der Brachtung zukünftiger Schritte durchgeführt
+wird \cite[~S.NA]{L2018}.
 
 \newpage
 % Bruno TODO: - subsection name: Exploration vs Exploitation
