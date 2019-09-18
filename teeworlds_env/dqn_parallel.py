@@ -10,17 +10,17 @@ import torch.optim
 from tensorboardX import SummaryWriter
 from torch.multiprocessing import Process, Value, Queue, Event
 from torch.nn import Linear
+import torch.nn.functional as F
 from tqdm import tqdm
 
-from dqn_model import Net, NoisyLinear, DuelingNet
+from dqn_model import NoisyLinear, DuelingNet, DistributionalNet, Net, V_MIN, V_MAX, N_ATOMS
 from gym_teeworlds import teeworlds_env_settings_iterator, OBSERVATION_SPACE, TeeworldsEnvSettings, Action, \
     NUMBER_OF_IMAGES
 from utils import ExperienceBuffer, ACTIONS, ACTION_LABELS, Experience, load_config, PriorityExperienceBuffer, \
     ExploringStrategy
 
-
 # exp collecting
-NUM_WORKERS = 4
+NUM_WORKERS = 1
 COLLECT_EXPERIENCE_SIZE = 2000  # init: 2000 (amount of experiences to collect after each training step)
 GAME_TICK_SPEED = 200  # default: 50 (game speed, when higher more screenshots needs to be captures)
 EPISODE_DURATION = 40  # default: 40
@@ -33,13 +33,12 @@ BETA_START = 0.4
 BETA_FRAMES = 10 ** 5
 PRINT_EXPERIENCE_BUFFER = False
 
-
 DOUBLE_DQN = True
 EXPERIENCE_BUFFER_CLASS = PriorityExperienceBuffer
 
 EXPLORING_STRATEGY = ExploringStrategy.NOISY_NETWORK
 LINEAR_LAYER_CLASS = Linear if EXPLORING_STRATEGY == ExploringStrategy.EPSILON_GREEDY else NoisyLinear
-NET_TYPE = DuelingNet  # use DuelingNet for DuelingDQN and Net for default
+NET_TYPE = DistributionalNet  # use DuelingNet for DuelingDQN and Net for default
 
 MIN_EPSILON = 0.02  # init: 0.02
 EPSILON_START = 1.0  # init: 1.0
@@ -48,25 +47,19 @@ EPSILON_DECAY = 0.01  # init: 0.01
 # training
 REPLAY_START_SIZE = 4000  # init: 10000 (min amount of experiences in replay buffer before training starts)
 REPLAY_SIZE = 10000  # init: 10000 (max capacity of replay buffer)
-DEVICE = 'cuda'  # init: 'cpu'
+DEVICE = 'cpu'  # init: 'cpu'
 BATCH_SIZE = 512  # init: 32 (sample size of experiences from replay buffer)
 NUM_TRAININGS_PER_EPOCH = 50  # init: 50 (amount of BATCH_SIZE x NUM_TRAININGS_PER_EPOCH will be trained)
 GAMMA = 0.99  # init: .99 (bellman equation)
 LEARNING_RATE = 1e-4  # init: 1e-4 (also quite low eventually using default 1e-3)
 SYNC_TARGET_FRAMES = COLLECT_EXPERIENCE_SIZE * 5  # init: 10000 (how frequently we sync target net with net)
-MAP_NAMES = ['newlevel_0', 'newlevel_1', 'newlevel_2', 'newlevel_3']
+MAP_NAMES = ['newlevel_0', 'newlevel_1']
 
 # evaluation
 STATES_TO_EVALUATE = 1000
 EVAL_EVERY_FRAME = 100
 
 MEAN_REWARD_BOUND = 12
-
-# distributional
-V_MAX = 10
-V_MIN = -10
-N_ATOMS = 51
-DELTA_Z = (V_MAX - V_MIN) / (N_ATOMS - 1)
 
 config = load_config()
 path_to_teeworlds = str(config['path_to_teeworlds'])
@@ -396,8 +389,11 @@ def main():
             batch, batch_weights, batch_indices = experience_buffer.sample(BATCH_SIZE, beta=beta)
 
             # perform optimization by minimizing the loss
-            loss_v, sample_priorities_v = calc_loss(batch, batch_weights, net, target_net,
-                                                    device=DEVICE, is_double=DOUBLE_DQN)  # double dqn enabled!
+            loss_v, sample_priorities_v = calc_distributional_loss(batch, batch_weights,
+                                                                   net,
+                                                                   target_net,
+                                                                   GAMMA,
+                                                                   device=DEVICE)
             total_loss.append(loss_v.item())
             loss_v.backward()
             optimizer.step()
@@ -429,14 +425,15 @@ def main():
 # equations:
 #   https://bit.ly/2I7iBqa <- steps which aren't end of episode
 #   https://bit.ly/2HFsOec <- final steps
-def calc_loss(batch, batch_weights, net, tgt_net, device="cpu", is_double=True):
+def calc_loss(batch, batch_weights, net, target_net, device="cpu", is_double=True):
     states, actions, rewards, dones, next_states = batch  # unpack the sample
 
     # wrap numpy data in torch tensors <- execution on gpu fast like sonic
     states_v = torch.tensor(states, dtype=torch.float32).to(device)
-    next_states_v = torch.tensor(next_states, dtype=torch.float32).to(device)
     actions_v = torch.tensor(actions, dtype=torch.int64).to(device)
+    next_states_v = torch.tensor(next_states, dtype=torch.float32).to(device)
     rewards_v = torch.tensor(rewards, dtype=torch.float32).to(device)
+
     # noinspection PyArgumentList
     done_mask = torch.BoolTensor(dones).to(device)
 
@@ -459,9 +456,9 @@ def calc_loss(batch, batch_weights, net, tgt_net, device="cpu", is_double=True):
     # but, values corresponding to this action come from the target network
     if is_double:
         next_state_actions = net(next_states_v).max(1)[1]
-        next_state_values = tgt_net(next_states_v).gather(1, next_state_actions.unsqueeze(-1)).squeeze(-1)
+        next_state_values = target_net(next_states_v).gather(1, next_state_actions.unsqueeze(-1)).squeeze(-1)
     else:
-        next_state_values = tgt_net(next_states_v).max(1)[0]
+        next_state_values = target_net(next_states_v).max(1)[0]
 
     # this part is mentioned as very important!
     # if transition in the batch is from the last step in the episode, then our value of the action does not
@@ -484,6 +481,90 @@ def calc_loss(batch, batch_weights, net, tgt_net, device="cpu", is_double=True):
         losses_v = (state_action_values - expected_state_action_values) ** 2
 
     return losses_v.mean(), losses_v + 1e-5  # small loss added to handle zero loss situations
+
+
+def calc_distributional_loss(batch, batch_weights, net, target_net, gamma, device="cpu"):
+    states, actions, rewards, dones, next_states = batch  # unpack the sample
+    batch_size = len(batch)
+
+    states_v = torch.tensor(states).to(device)
+    actions_v = torch.tensor(actions).to(device)
+    next_states_v = torch.tensor(next_states).to(device)
+
+    if batch_weights is not None:
+        batch_weights_v = torch.tensor(batch_weights, dtype=torch.float32).to(device)
+    else:
+        batch_weights_v = None
+
+    # next state distribution
+    # dueling arch -- actions from main net, distribution from target_net
+
+    # calc at once both next and cur states
+    distribution_v, q_values_v = net.both(torch.cat((states_v, next_states_v)))
+    next_q_values_v = q_values_v[batch_size:]
+    distribution_v = distribution_v[:batch_size]
+
+    next_actions_v = next_q_values_v.max(1)[1]
+    next_distribution_v = target_net(next_states_v)
+    next_best_distribution_v = next_distribution_v[range(batch_size), next_actions_v.data]
+    next_best_distribution_v = target_net.apply_softmax(next_best_distribution_v)
+    next_best_distribution = next_best_distribution_v.data.cpu().numpy()
+
+    dones = dones.astype(np.bool)
+
+    # project our distribution using Bellman update
+    projected_distribution = distributional_projection(next_best_distribution, rewards, dones, V_MIN, V_MAX, N_ATOMS,
+                                                       gamma)
+
+    # calculate net output
+    state_action_values = distribution_v[range(batch_size), actions_v.data]
+    state_log_sm_v = F.log_softmax(state_action_values, dim=1)
+    projected_distribution_v = torch.tensor(projected_distribution).to(device)
+
+    loss_v = -state_log_sm_v * projected_distribution_v
+
+    if batch_weights_v is not None:
+        loss_v = batch_weights_v * loss_v.sum(dim=1)
+
+    return loss_v.mean(), loss_v + 1e-5
+
+
+def distributional_projection(next_distribution, rewards, dones, v_min, v_max, n_atoms, gamma):
+    """
+    Perform distribution projection aka Catergorical Algorithm from the
+    "A Distributional Perspective on RL" paper
+    """
+    batch_size = len(rewards)
+    projected_distribution = np.zeros((batch_size, n_atoms), dtype=np.float32)
+    delta_z = (v_max - v_min) / (n_atoms - 1)
+    for atom in range(n_atoms):
+        tz_j = np.minimum(v_max, np.maximum(v_min, rewards + (v_min + atom * delta_z) * gamma))
+        b_j = (tz_j - v_min) / delta_z
+        l = np.floor(b_j).astype(np.int64)
+        u = np.ceil(b_j).astype(np.int64)
+        eq_mask = u == l
+        projected_distribution[eq_mask, l[eq_mask]] += next_distribution[eq_mask, atom]
+        ne_mask = u != l
+        projected_distribution[ne_mask, l[ne_mask]] += next_distribution[ne_mask, atom] * (u - b_j)[ne_mask]
+        projected_distribution[ne_mask, u[ne_mask]] += next_distribution[ne_mask, atom] * (b_j - l)[ne_mask]
+    if dones.any():
+        projected_distribution[dones] = 0.0
+        tz_j = np.minimum(v_max, np.maximum(v_min, rewards[dones]))
+        b_j = (tz_j - v_min) / delta_z
+        l = np.floor(b_j).astype(np.int64)
+        u = np.ceil(b_j).astype(np.int64)
+        eq_mask = u == l
+        eq_dones = dones.copy()
+        eq_dones[dones] = eq_mask
+        if eq_dones.any():
+            projected_distribution[eq_dones, l[eq_mask]] = 1.0
+        ne_mask = u != l
+        ne_dones = dones.copy()
+        ne_dones[dones] = ne_mask
+        if ne_dones.any():
+            projected_distribution[ne_dones, l[ne_mask]] = (u - b_j)[ne_mask]
+            projected_distribution[ne_dones, u[ne_mask]] = (b_j - l)[ne_mask]
+    return projected_distribution
 
 
 # just for comparision of training process w/ and w/o double dqn

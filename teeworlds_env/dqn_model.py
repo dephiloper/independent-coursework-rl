@@ -3,8 +3,11 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 
-from dqn_parallel import V_MIN, V_MAX, DELTA_Z, N_ATOMS
-
+# distributional
+V_MAX = 10
+V_MIN = -10
+N_ATOMS = 51
+DELTA_Z = (V_MAX - V_MIN) / (N_ATOMS - 1)
 
 def get_parameter_stats(parameters):
     mean_sum = 0
