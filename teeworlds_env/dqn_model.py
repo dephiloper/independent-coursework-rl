@@ -3,6 +3,8 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 
+from dqn_parallel import V_MIN, V_MAX, DELTA_Z, N_ATOMS
+
 
 def get_parameter_stats(parameters):
     mean_sum = 0
@@ -119,6 +121,86 @@ class DuelingNet(nn.Module):
         val = self.fc_val(conv_out)
         adv = self.fc_adv(conv_out)
         return val + adv - adv.mean()
+
+    def get_stats(self):
+        return get_parameter_stats(self.parameters())
+
+    def noisy_layers_sigma_snr(self):
+        if self.linear_layer_class == NoisyLinear:
+            return [
+                ((layer.weight ** 2).mean().sqrt() / (layer.sigma_weight ** 2).mean().sqrt()).item() for
+                layer in self.layers
+            ]
+
+        raise AssertionError('noisy_layers_sigma_snr() is only implemented for NoisyLayers.')
+
+
+# noinspection DuplicatedCode
+class DistributionalNet(nn.Module):
+    def __init__(self, input_shape, n_actions, linear_layer_class=nn.Linear):
+        super(DistributionalNet, self).__init__()
+
+        self.conv = nn.Sequential(
+            nn.Conv2d(input_shape[0], 32, kernel_size=8, stride=4),
+            nn.ReLU(),
+            nn.Conv2d(32, 64, kernel_size=4, stride=2),
+            nn.ReLU(),
+            nn.Conv2d(64, 64, kernel_size=3, stride=1),
+            nn.ReLU()
+        )
+
+        conv_out_size = self._get_conv_out(input_shape)
+
+        self.linear_layer_class = linear_layer_class
+
+        self.layers = [
+            # advantage layers
+            linear_layer_class(conv_out_size, 512),
+            linear_layer_class(512, n_actions),
+
+            # value layers
+            linear_layer_class(conv_out_size, 512),
+            linear_layer_class(512, 1)
+        ]
+
+        self.fc_adv = nn.Sequential(
+            self.layers[0],
+            nn.ReLU(),
+            self.layers[1]
+        )
+        self.fc_val = nn.Sequential(
+            self.layers[2],
+            nn.ReLU(),
+            self.layers[3]
+        )
+
+        self.register_buffer("supports", torch.arange(V_MIN, V_MAX + DELTA_Z, DELTA_Z))
+        self.softmax = nn.Softmax(dim=1)
+
+    def _get_conv_out(self, shape):
+        o = self.conv(torch.zeros(1, *shape))
+        return int(np.prod(o.size()))
+
+    def forward(self, x):
+        fx = x.float() / 256.0
+        conv_out = self.conv(fx).view(fx.size()[0], -1)
+
+        val = self.fc_val(conv_out)
+        adv = self.fc_adv(conv_out)
+        return val + adv - adv.mean()
+
+    def both(self, x):
+        cat_out = self(x)
+        probabilities = self.apply_softmax(cat_out)
+        weights = probabilities * self.supports
+        res = weights.sum(dim=2)
+        return cat_out, res
+
+    def get_q_values(self, x):
+        return self.both(x)[1]
+
+    def apply_softmax(self, t):
+        return self.softmax(t.view(-1, N_ATOMS)).view(t.size())
 
     def get_stats(self):
         return get_parameter_stats(self.parameters())

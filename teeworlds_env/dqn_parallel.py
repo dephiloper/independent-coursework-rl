@@ -62,6 +62,12 @@ EVAL_EVERY_FRAME = 100
 
 MEAN_REWARD_BOUND = 12
 
+# distributional
+V_MAX = 10
+V_MIN = -10
+N_ATOMS = 51
+DELTA_Z = (V_MAX - V_MIN) / (N_ATOMS - 1)
+
 config = load_config()
 path_to_teeworlds = str(config['path_to_teeworlds'])
 set_priority = bool(config.get('set_priority', False))
