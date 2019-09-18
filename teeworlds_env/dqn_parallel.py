@@ -380,7 +380,9 @@ def main():
         if should_save_model(frame_idx, mean_reward, max_mean_reward, last_frame_model_saved):
             max_mean_reward = mean_reward
             last_frame_model_saved = frame_idx
-            torch.save(net.state_dict(), f"saves/{MODEL_NAME}_epoch-{epoch:04d}_rew-{max_mean_reward:08.1f}.dat")
+            save_name = f"saves/{MODEL_NAME}_epoch-{epoch:04d}_rew-{max_mean_reward:08.1f}.dat"
+            torch.save(net.state_dict(), save_name)
+            print(f'saved model "{save_name}" with mean reward {mean_reward:08.1f}')
         finished_episodes = 0
 
         if eval_states is None:
