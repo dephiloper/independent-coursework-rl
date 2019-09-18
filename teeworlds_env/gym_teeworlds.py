@@ -40,6 +40,7 @@ class Action:
         self.shoot = False
         self.direction = 0  # -1, 0, 1
         self.reset = False
+        self.rotate = False
 
     def to_bytes(self) -> bytes:
         action_mask = 0
@@ -49,6 +50,7 @@ class Action:
         action_mask += 8 if self.direction == 1 else 0
         action_mask += 16 if self.direction == -1 else 0
         action_mask += 32 if self.reset else 0
+        action_mask += 64 if self.rotate else 0
         return struct.pack("!hhB", self.mouse_x, self.mouse_y, action_mask)
 
     @staticmethod
@@ -61,6 +63,9 @@ class Action:
 
 reset_action = Action()
 reset_action.reset = True
+
+rotate_map_action = Action()
+rotate_map_action.rotate = True
 
 
 class GameInformation:
@@ -339,9 +344,15 @@ class TeeworldsEnv(gym.Env):
     def set_last_reset(self):
         self._last_reset = time.time()
 
-    def reset(self, reset_duration=RESET_DURATION):
+    def reset(self, reset_duration=RESET_DURATION, rotate_map=False):
         self.image_buffer.clear()
-        self.socket.send(reset_action.to_bytes())
+
+        if rotate_map:
+            print("map rotate")
+            self.socket.send(rotate_map_action.to_bytes())
+        else:
+            self.socket.send(reset_action.to_bytes())
+
         if GAME_INFORMATION_DELAY:
             self.game_information_deque = deque([GameInformation.empty()] * GAME_INFORMATION_DELAY)
         else:
