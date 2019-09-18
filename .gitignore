@@ -15,3 +15,5 @@ rec/
 /teeworlds_env/logs/
 /doc/documentation.bbl
 /doc/documentation.blg
+run.sh
+clear_saves_logs_runs.py
