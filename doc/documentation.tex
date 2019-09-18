@@ -12,6 +12,7 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{array}
+\usepackage{listings}
 
 \DeclareMathOperator*{\argmax}{arg\,max}
 \DeclareMathOperator*{\argmin}{arg\,min}
@@ -201,7 +202,7 @@ ein Wettermodell in der Repräsentationsform eines Markov Prozesses mit den Stat
 
 \begin{figure}[htp]
 \centering
-\includegraphics[scale=0.2]{/home/phil/Pictures/srwm.png}
+% \includegraphics[scale=0.2]{/home/phil/Pictures/srwm.png}
 \caption{Sunny/Rainy weather model}
 \source{Figure 4: Sunny/Rainy weather model \cite[~S.13]{L2018}}
 \label{fig:markov}
@@ -311,37 +312,36 @@ Values der unterschiedlichen Actions am Anfang und Ende des Spiels identisch sin
 auch Erfahrungen, die zu Beginn des Spielens gemacht wurden, am Ende benutzt werden
 können.
 
-\subsubsection{Exploration Strategien}
+\subsubsection{Exploration-Strategien}
 Im folgenden werden verschiedene Exploration-Strategien beleuchtet. Dazu werden diese erst
 theoretisch erklärt, um diese anschließend praktisch an einem k-armed-Bandit Problem zu
 vergleichen.
-% Die Implementationen sind unter \url{https://github.com/Bluemi/rl_testbed} zu finden.
 
 \paragraph{$\epsilon$ greedy / decaying $\epsilon$ greedy}
 Eine Strategie, die zu jedem Zeitpunkt die Action wählt, die nach derzeitigem Wissen den
-höchsten Value hat wird $greedy$ genannt. Epsilon-greedy Strategien sind greedy
+höchsten Value hat wird $greedy$ genannt. $\epsilon$-greedy-Strategien sind greedy
 Strategien, die mit einer gewissen Wahrscheinlichkeit $\epsilon$ eine zufällige Action
 wählen. Sie wählen also mit einer Wahrscheinlichkeit von $1 - \epsilon$ die Action, von
 der sie sich den höchsten Reward versprechen und andernfalls eine zufällige Action.\\
-In der Praxis werden häufig decaying $\epsilon$ greedy Strategien verwendet, bei denen der
-$\epsilon$ Wert über den Trainingsprozess hinweg verringert wird. Dadurch werden zu Beginn
+In der Praxis werden häufig decaying-$\epsilon$-greedy-Strategien verwendet, bei denen der
+$\epsilon$-Wert über den Trainingsprozess hinweg verringert wird. Dadurch werden zu Beginn
 des Trainings viele neue Actions ausprobiert, während gegen Ende das Anwenden des
-gelernten stärker in den Vordergrund rückt.
+Gelernten stärker in den Vordergrund rückt.
 
 \paragraph{Optimistic Initial Values}
 Ein Agent, der ein k-armed-Bandit Problem lösen soll, besitzt eine interne Abschätzung der
 Values, um Actions wählen zu können, die einen besseren Reward versprechen. Die
-Bewertung der Actions wird beeinflusst durch die erfahrenen Rewards nach dem wählen einer
+Bewertung der Actions wird beeinflusst durch die erfahrenen Rewards nach dem Wählen einer
 Action.\\
 Neben $\epsilon$-greedy Verfahren ist es eine weitere Möglichkeit Exploration umzusetzen,
 die initiale Bewertung der Values sehr optimistisch vorzunehmen. Dadurch wird der Agent
-bei der Wahl einer Action vom erhaltenen Reward "enttäuscht", sodass sich die Einschätzung
-dieser Action verschlechtert. Wird nun immer die Action gewählt, die am besten
-eingeschätzt ist, so werden über die Zeit alle Actions versucht, bis sie sich dem
+bei der Wahl einer Action vom erhaltenen Reward \grqq enttäuscht\grqq, sodass sich die
+Einschätzung dieser Action verschlechtert. Wird nun immer die Action gewählt, die am
+besten eingeschätzt ist, so werden über die Zeit alle Actions versucht, bis sie sich dem
 tatsächlichen Erwartungswert nähern.
 
 \paragraph{Upper Confidence Bound Action Selection}
-Während $\epsilon$ greedy Methoden zufällig zwischen allen nicht greedy Actions
+Während $\epsilon$-greedy-Methoden zufällig zwischen allen nicht greedy Actions
 auswählen, wählt die Upper Confidence Bound Ac\-tion Selection Methode Actions entsprechend
 dreier Parameter aus.\\
 Der erste Parameter ist $t$ die Anzahl der Actions, die bis jetzt gespielt wurden, der
@@ -352,16 +352,64 @@ zu spielende Action wird dann nach folgender Gleichung gewählt:
 \[ A = \argmax_a\left( Q(a) + c*\sqrt\frac{N(a)}{\ln(t)} \right) \]
 
 \noindent
-$A$ ist die gewählte Aktion. $N(a)$ ist die Anzahl, wie oft die Aktion $a$ schon gewählt
+$A$ ist die gewählte Action. $N(a)$ ist die Anzahl, wie oft die Action $a$ schon gewählt
 wurde. Durch den Term $c*\sqrt\frac{N(a)}{\ln(t)}$ wird sichergestellt, dass selten
-benutzte Aktionen eine höhere Bewertung erhalten und damit wahrscheinlicher Ausprobiert
+benutzte Actions eine höhere Bewertung erhalten und damit wahrscheinlicher ausprobiert
 werden. Über den Hyperparameter $c$ lässt sich bestimmen, wie stark selten benutzte
 Actions ausprobiert werden sollen.\\
 Ein Vorteil gegenüber $\epsilon$-greedy Strategien ist, dass durch die Einbeziehung von
 $Q(a)$ Actions häufiger ausprobiert werden, die besser wirken, während Actions, die sehr
 schlecht wirken weniger oft ausprobiert werden.
 
+\newpage
 \subsubsection{Implementation}
+% Repo
+% Es wurde implementiert:
+%   - NArmedBandit
+%   - Solver
+%   - main
+Das k-armed-Bandit Problem sowie verschiedene Varianten der Action-Selection wurden
+implementiert. Der Quellcode ist unter \url{https://github.com/Bluemi/rl_testbed}
+abrufbar.\\
+In der Klasse \lstinline!NArmedBandit! wird das k-armed-Bandit Problem umgesetzt. Es
+werden zu Beginn die Values der einzelnen Actions aus einer Standardnormalverteilung
+gezogen und gespeichert. Wird nun eine Action auf dem erstellten Bandit gespielt, so wird
+eine Zufallszahl aus einer Normalverteilung mit dem Erwartungswert der jeweiligen Action
+gezogen und als Reward zurück gegeben.\\
+Um auf einem Bandit zu spielen wurde ein \lstinline!Solver! umgesetzt, der eine interne
+Abschätzung der Action Values ermittelt, indem die erfahrenen Rewards dieser Action
+gemittelt werden. Der Solver wählt Actions wobei unterschiedliche Exploration Strategien
+ausprobiert werden können. Die Unterklasse \lstinline!EpsilonGreedySolver! implementiert
+beispielsweise die $\epsilon$-greedy Strategie.\\
+In \lstinline!src/main.py! werden unterschiedliche Solver anhand des gleichen Bandits
+getestet und die Ergebnisse geplottet. Jeder Solver trainiert 5000 Actions auf einem
+10-armed-Bandit. Die dabei resultierenden Rewards sind in Abbildung
+\ref{fig:karmed_bandit} graphisch dargestellt. Die zu sehenden Rewards wurden über 2000
+Experimente gemittelt, um ein anschaulicheres Ergebnis zu erhalten.
+
+\begin{figure}[htp]
+\centering
+\includegraphics[scale=0.3]{res/k_armed_bandit_epsilon.png}
+\includegraphics[scale=0.3]{res/k_armed_bandit_optimistic_upper.png}
+\caption{Ergebnisse k-armed-Bandit}
+\label{fig:karmed_bandit}
+\end{figure}
+
+\noindent
+Auf der linken Seite werden 3 unterschiedliche $\epsilon$ greedy Verfahren verglichen.
+Vergleicht man die Verfahren ohne decay (blau und orange), so kann man erkennen, dass
+$\epsilon = 0.1$ zu Beginn besser funktioniert, da mehr Zeit für Exploration verwendet
+wird und so schneller bessere Actions gefunden werden. Dafür funktioniert $\epsilon =
+0.01$ nach circa 1500 Action Selections besser, da mehr Zeit verwendet wird, um die schon
+gefundenen guten Actions zu exploiten.\\
+Um die Vorteile beider Möglichkeiten zu nutzen, verwendet das dritte Experiment einen
+decay, um $\epsilon$ auf $0$ zu senken. Dadurch werden zu Beginn viele zufällige Actions
+ausgewählt, um die Values der einzelnen Actions besser einzuschätzen. Wenn durch den decay
+$\epsilon$ gegen Ende des Experiments $\epsilon$ sinkt, werden die gefundenen Actions
+benutzt und ein relativ hoher Reward entsteht.\\
+Noch besser funktionieren Optimistic Initial Values oder Upper Bound Confidence Action
+Selection. Diese beiden Verfahren haben den Vorteil, dass sie gezielter Actions
+ausprobieren, die schon gezeigt haben, dass sie funktionieren könnten.
 
 \newpage
 \subsection{Open AI Gym}
