@@ -266,7 +266,7 @@ def print_experience_buffer(experience_buffer: Union[ExperienceBuffer, PriorityE
 def should_save_model(frame_idx, mean_reward, max_mean_reward, last_frame_model_saved):
     save_because_new_reward = mean_reward > max_mean_reward
     save_because_interval = (mean_reward + 1 > max_mean_reward) and \
-                            (last_frame_model_saved + MODEL_SAVE_INTERVAL > frame_idx)
+                            (last_frame_model_saved + MODEL_SAVE_INTERVAL < frame_idx)
     return save_because_new_reward or save_because_interval
 
 
