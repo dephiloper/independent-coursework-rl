@@ -22,7 +22,7 @@ from utils import ExperienceBuffer, ACTIONS, ACTION_LABELS, Experience, load_con
 # exp collecting
 NUM_WORKERS = 4
 COLLECT_EXPERIENCE_SIZE = 2000  # init: 2000 (amount of experiences to collect after each training step)
-GAME_TICK_SPEED = 200  # default: 50 (game speed, when higher more screenshots needs to be captures)
+GAME_TICK_SPEED = 100  # default: 50 (game speed, when higher more screenshots needs to be captures)
 EPISODE_DURATION = 40  # default: 40
 MONITOR_WIDTH = 84  # init: 84 width of game screen
 MONITOR_HEIGHT = 84  # init: 84 height of game screen (important for conv)
@@ -54,11 +54,13 @@ NUM_TRAININGS_PER_EPOCH = 50  # init: 50 (amount of BATCH_SIZE x NUM_TRAININGS_P
 GAMMA = 0.99  # init: .99 (bellman equation)
 LEARNING_RATE = 1e-4  # init: 1e-4 (also quite low eventually using default 1e-3)
 SYNC_TARGET_FRAMES = COLLECT_EXPERIENCE_SIZE * 5  # init: 10000 (how frequently we sync target net with net)
+L2_REGULARIZATION = 1e-5  # init: 1e-5
 MAP_NAMES = ['newlevel_0', 'newlevel_1', 'newlevel_2', 'newlevel_3']
 
 # evaluation
 STATES_TO_EVALUATE = 1000
 EVAL_EVERY_FRAME = 100
+MODEL_SAVE_INTERVAL = 100000
 
 MEAN_REWARD_BOUND = 12
 
@@ -261,6 +263,13 @@ def print_experience_buffer(experience_buffer: Union[ExperienceBuffer, PriorityE
         cv2.destroyAllWindows()
 
 
+def should_save_model(frame_idx, mean_reward, max_mean_reward, last_frame_model_saved):
+    save_because_new_reward = mean_reward > max_mean_reward
+    save_because_interval = (mean_reward + 1 > max_mean_reward) and \
+                            (last_frame_model_saved + MODEL_SAVE_INTERVAL < frame_idx)
+    return save_because_new_reward or save_because_interval
+
+
 def main():
     setup()
 
@@ -277,7 +286,7 @@ def main():
 
     # noinspection PyUnresolvedReferences
     target_net = NET_TYPE(observation_size, n_actions=len(ACTIONS), linear_layer_class=LINEAR_LAYER_CLASS).to(DEVICE)
-    optimizer = torch.optim.Adam(net.parameters(), lr=LEARNING_RATE, weight_decay=1e-5)
+    optimizer = torch.optim.Adam(net.parameters(), lr=LEARNING_RATE, weight_decay=L2_REGULARIZATION)
 
     for worker_index, env_setting in enumerate(teeworlds_env_settings_iterator(
             n=NUM_WORKERS,
@@ -307,6 +316,7 @@ def main():
         worker.start_collecting_experience()
 
     frame_idx = 0
+    last_frame_model_saved = 0
     beta = BETA_START
     eval_states = None
 
@@ -367,9 +377,12 @@ def main():
             worker.stopped.wait()
 
         mean_reward = np.mean([stat.reward for stat in game_stats[-finished_episodes:]])
-        if mean_reward > max_mean_reward:
+        if should_save_model(frame_idx, mean_reward, max_mean_reward, last_frame_model_saved):
             max_mean_reward = mean_reward
-            torch.save(net.state_dict(), f"saves/{MODEL_NAME}_epoch-{epoch:04d}_rew-{max_mean_reward:08.0f}.dat")
+            last_frame_model_saved = frame_idx
+            save_name = f"saves/{MODEL_NAME}_epoch-{epoch:04d}_rew-{max_mean_reward:08.1f}.dat"
+            torch.save(net.state_dict(), save_name)
+            print(f'saved model "{save_name}" with mean reward {mean_reward:.1f}')
         finished_episodes = 0
 
         if eval_states is None:
