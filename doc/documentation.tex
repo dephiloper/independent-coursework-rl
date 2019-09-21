@@ -368,15 +368,14 @@ schlecht wirken weniger oft ausprobiert werden.
 %   - Solver
 %   - main
 Das k-armed-Bandit Problem sowie verschiedene Varianten der Action-Selection wurden
-implementiert. Der Quellcode ist unter \url{https://github.com/Bluemi/rl_testbed}
-abrufbar.\\
+implementiert und sind unter \url{https://github.com/Bluemi/rl_testbed} abrufbar.\\
 In der Klasse \lstinline!NArmedBandit! wird das k-armed-Bandit Problem umgesetzt. Es
 werden zu Beginn die Values der einzelnen Actions aus einer Standardnormalverteilung
 gezogen und gespeichert. Wird nun eine Action auf dem erstellten Bandit gespielt, so wird
 eine Zufallszahl aus einer Normalverteilung mit dem Erwartungswert der jeweiligen Action
 gezogen und als Reward zurück gegeben.\\
 Um auf einem Bandit zu spielen wurde ein \lstinline!Solver! umgesetzt, der eine interne
-Abschätzung der Action Values ermittelt, indem die erfahrenen Rewards dieser Action
+Abschät\-zung der Action Values ermittelt, indem die erfahrenen Rewards dieser Action
 gemittelt werden. Der Solver wählt Actions wobei unterschiedliche Exploration Strategien
 ausprobiert werden können. Die Unterklasse \lstinline!EpsilonGreedySolver! implementiert
 beispielsweise die $\epsilon$-greedy Strategie.\\
@@ -408,8 +407,8 @@ $\epsilon$ gegen Ende des Experiments $\epsilon$ sinkt, werden die gefundenen Ac
 benutzt und ein vergleichsweise hoher Reward entsteht.\\
 In der rechten Abbildung sind das Verfahren Optimistic Initial Values und Upper Confidence
 Bound Action Selection zu sehen. Zusätzlich ist der $\epsilon$-greedy Solver mit
-$\epsilon=0.01$ aus der ersten Abbildung zum vergleich eingezeichnet. Die obere schwarz
-gestrichelte Linie zeigt das Value der optimalen Action.\\
+$\epsilon=0.01$ aus der ersten Abbildung zum Vergleich eingezeichnet. Die obere schwarz
+gestrichelte Linie deutet das Value der optimalen Action an.\\
 Tabelle \ref{tab:explorationstrategies} zeigt die erreichten durchschnittlichen Rewards
 der unterschiedlichen Verfahren.
 
