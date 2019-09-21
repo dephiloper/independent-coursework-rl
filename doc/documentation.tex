@@ -277,8 +277,6 @@ Fällen diese Vorhersagen mehrfach und dabei auch mit der Brachtung zukünftiger
 wird \cite[~S.NA]{L2018}.
 
 \newpage
-% Bruno TODO: - subsection name: Exploration vs Exploitation
-%             - k-armed bandit as example
 \subsection{Exploration und Exploitation}
 In diesem Abschnitt wird der Konflikt zwischen Exploration vs Exploitation des
 Reinforcement Learnings erläutert und anhand des k-armed-Bandit Problems veranschaulicht.
@@ -344,19 +342,20 @@ tatsächlichen Erwartungswert nähern.
 Während $\epsilon$-greedy-Methoden zufällig zwischen allen nicht greedy Actions
 auswählen, wählt die Upper Confidence Bound Ac\-tion Selection Methode Actions entsprechend
 dreier Parameter aus.\\
-Der erste Parameter ist $t$ die Anzahl der Actions, die bis jetzt gespielt wurden, der
+Der erste Parameter ist $t$ die Anzahl der Actions, die bis jetzt gespielt wurden. Der
 zweite ist der bis jetzt ermittelte $Value$ der Action $a$ bezeichnet mit $Q(a)$ und der
 dritte Parameter ist die Anzahl, wie oft Action $a$ schon ausprobiert wurde. Die nächste
 zu spielende Action wird dann nach folgender Gleichung gewählt:
 
-\[ A = \argmax_a\left( Q(a) + c*\sqrt\frac{N(a)}{\ln(t)} \right) \]
+\[ A = \argmax_a\left( Q(a) + c*\sqrt\frac{\ln(t)}{N(a)} \right) \]
 
 \noindent
 $A$ ist die gewählte Action. $N(a)$ ist die Anzahl, wie oft die Action $a$ schon gewählt
-wurde. Durch den Term $c*\sqrt\frac{N(a)}{\ln(t)}$ wird sichergestellt, dass selten
-benutzte Actions eine höhere Bewertung erhalten und damit wahrscheinlicher ausprobiert
-werden. Über den Hyperparameter $c$ lässt sich bestimmen, wie stark selten benutzte
-Actions ausprobiert werden sollen.\\
+wurde. Existiert eine Action, die noch nie gespielt wurde, also $N(a)=0$, so wird eine der
+Actions gespielt, die noch nicht gespielt wurden. Durch den Term
+$c*\sqrt\frac{\ln(t)}{N(a)}$ wird sichergestellt, dass selten benutzte Actions eine höhere
+Bewertung erhalten und damit wahrscheinlicher ausprobiert werden. Über den Hyperparameter
+$c$ lässt sich bestimmen, wie stark selten benutzte Actions ausprobiert werden sollen.\\
 Ein Vorteil gegenüber $\epsilon$-greedy Strategien ist, dass durch die Einbeziehung von
 $Q(a)$ Actions häufiger ausprobiert werden, die besser wirken, während Actions, die sehr
 schlecht wirken weniger oft ausprobiert werden.
@@ -391,7 +390,7 @@ Experimente gemittelt, um ein anschaulicheres Ergebnis zu erhalten.
 \centering
 \includegraphics[scale=0.3]{res/k_armed_bandit_epsilon.png}
 \includegraphics[scale=0.3]{res/k_armed_bandit_optimistic_upper.png}
-\caption{Ergebnisse k-armed-Bandit}
+\caption{Ergebnisse 10-armed-Bandit}
 \label{fig:karmed_bandit}
 \end{figure}
 
@@ -406,10 +405,37 @@ Um die Vorteile beider Möglichkeiten zu nutzen, verwendet das dritte Experiment
 decay, um $\epsilon$ auf $0$ zu senken. Dadurch werden zu Beginn viele zufällige Actions
 ausgewählt, um die Values der einzelnen Actions besser einzuschätzen. Wenn durch den decay
 $\epsilon$ gegen Ende des Experiments $\epsilon$ sinkt, werden die gefundenen Actions
-benutzt und ein relativ hoher Reward entsteht.\\
-Noch besser funktionieren Optimistic Initial Values oder Upper Bound Confidence Action
-Selection. Diese beiden Verfahren haben den Vorteil, dass sie gezielter Actions
-ausprobieren, die schon gezeigt haben, dass sie funktionieren könnten.
+benutzt und ein vergleichsweise hoher Reward entsteht.\\
+In der rechten Abbildung sind das Verfahren Optimistic Initial Values und Upper Confidence
+Bound Action Selection zu sehen. Zusätzlich ist der $\epsilon$-greedy Solver mit
+$\epsilon=0.01$ aus der ersten Abbildung zum vergleich eingezeichnet. Die obere schwarz
+gestrichelte Linie zeigt das Value der optimalen Action.\\
+Tabelle \ref{tab:explorationstrategies} zeigt die erreichten durchschnittlichen Rewards
+der unterschiedlichen Verfahren.
+
+\begin{table}[h]
+  \begin{center}
+    \begin{tabular}{l | l}
+      \textbf{Verfahren} & \textbf{Mean Reward} \\
+      \hline
+      Optimal & $1.579$\\
+      Upper Confidence Bound & $1.556$ \\
+      $\epsilon$-greedy with decay ($\epsilon=0.01$) & $1.523$ \\
+      Optimistic Initial Values & $1.520$ \\
+      $\epsilon$-greedy ($\epsilon=0.01$) & $1.439$ \\
+      $\epsilon$-greedy ($\epsilon=0.1$) & $1.437$ \\
+    \end{tabular}
+
+    \caption[ExplorationStrategies]{Vergleich unterschiedlicher Exploration Strategien}
+    \label{tab:explorationstrategies}
+  \end{center}
+\end{table}
+
+\noindent
+Im gezeigten Experiment erhielten die einfachen Versionen der $\epsilon$-greedy Solver die
+kleinsten Rewards. Deutlich besser funktionierte die erweiterte Version mit decay, die
+ungefähr genau so viel Reward erreichte, wie das Optimistic Initial Values Verfahren. Am
+besten schneidet die Upper Bound Confidence Action Selection ab.
 
 \newpage
 \subsection{Open AI Gym}
