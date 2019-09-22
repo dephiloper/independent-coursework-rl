@@ -130,7 +130,7 @@ class Worker(Process):
             # if False was in queue
             if not token:
                 self.stopped.set()
-                self.state = self.env.reset()
+                self.state = self.env.reset(rotate_map=True)
                 # wait for next true
                 while True:
                     token = self._running_queue.get()
