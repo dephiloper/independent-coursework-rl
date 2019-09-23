@@ -481,7 +481,7 @@ Nachfolgend soll der Aufbau und die Nutzung eines Environments durch die Bibliot
 erläutert werden und es wird auf eine Referenzimplementierung eines Environments für das
 Spiel Tic-Tac-Toe eingegangen.
 
-\subsubsection{Aufbau}
+\subsubsection{Concept}
 Ein Environment ist eine von der Klasse gym.Env erbende Unterklasse, welche anhand der
 Hauptprogrammierschnittstelle des Toolkits die folgenden Methoden definiert.
 
@@ -558,9 +558,43 @@ Abschließend kann durch \textbf{close()} das Environment und somit gegebenenfal
 dahinterliegende Anwendung geschlossen werden und durch den Aufruf von 
 \textbf{seed(seed)} kann ein Seed für den \textit{random number generator}
 des Environments festgelegt werden.
+\newline
 %TODO explanation rng
 
-\subsubsection{Verwendung}
+\noindent
+Neben den beschriebenen Methoden exisiteren die Properties \textit{action\_space}, welcher die
+Art und Anzahl der zu wählenden Actions vorgibt (z.B. \textit{Discrete(9)} für 9 verschiedene
+diskrete Actions), \textit{observation\_space}, welcher gleiches für die Observation des
+Environments angibt und \textit{reward\_range}, welcher einen Wertebereich für den zu erhaltenen
+lokalen Reward definiert.
+\newline
+
+\noindent
+Für das Spiel Tic-Tac-Toe wurde ein Einspieler Environment implementiert, welches im Unterverzeichnis
+\textit{preparation/05\_v\_learning/} unter \url{github.com/dephiloper/independent-coursework-rl/}
+abgerufen werden kann.
+
+\subsubsection{Usage}
+Das nachfolgende Listing \autoref{lst:env-usage} veranschaulicht die Nutzung eines von Open AI
+bereitgestellten Environments mit der Bezeichnung CartPole-v0. Initial wird das Environment
+mit \textit{gym.make('CartPole-v0')} erzeugt und daraufhin mit \textit{reset()} vollständig
+zurückgesetzt, sodass alle internen Zustände wieder in die Ausgangssituation gebracht werden. 
+Anschließend werden in 1000 Frames das Environment mit \textit{render()} visualisiert und es
+wird eine zufällige Action aus dem action\_space des Environments gesampled und in der
+\textit{step(action)} Methode ausgeführt. Durch das Ausüben der Action wird eine neue
+Observation mit zugehörigem Reward vom Environment generiert und anschließend zurückgegeben.
+Nach 1000 Iterationen wird das Environment geschlossen. 
+\begin{lstlisting}[language=Python, caption=environment usage, label=lst:env-usage]
+import gym
+env = gym.make('CartPole-v0')
+env.reset()
+for _ in range(1000):
+    env.render()
+    # take a random action, gather observation and reward
+    obs, reward, done, _ = env.step(env.action_space.sample())
+env.close()
+\end{lstlisting}
+
 
 
 \begin{itemize}
