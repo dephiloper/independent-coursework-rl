@@ -13,6 +13,7 @@
 \usepackage{amssymb}
 \usepackage{array}
 \usepackage{listings}
+\usepackage{graphicx}
 
 \DeclareMathOperator*{\argmax}{arg\,max}
 \DeclareMathOperator*{\argmin}{arg\,min}
@@ -38,7 +39,36 @@
   bottom=3cm,
   bindingoffset=5mm
 }
-\usepackage{graphicx}
+
+
+\usepackage{xcolor}
+ 
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+ 
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
 
 \begin{document}
 % \sloppy
@@ -72,7 +102,7 @@
 Machine Learning Methoden werden zunehmend benutzt, um Probleme in der realen Welt zu
 lösen und erhalten daher in der Zukunft einen immer höheren Stellenwert. Spiele im
 speziellen stellen meist Problemstellungen dar, welche zum Teil auch schon durch Machine
-Learning Verfahren absolviert werden konnten. Darunter zählen klassische Brettspiele, wie Go
+Learning Verfahren absolviert werden konnten. Darunter fallen klassische Brettspiele, wie Go
 oder Schach\cite{DM2018} aber auch echtzeit Spiele, wie Dota 2\cite{OA2019},
 Quake\cite{DM2019} oder Starcraft\cite{DM2019_2}. Für das Supervised Research Independent Coursework
 ergibt sich folgende Problemstellung: Welche Machine Learning Verfahren können für das
@@ -90,12 +120,10 @@ Agenten für ein Computerspiel zu entwickeln. Das Ziel des Research Projektes is
 Kenntnisse im Bereich Reinforcement Learning zu erhalten und bereits bestehendes Wissen in
 den Schwerpunkten Artificial Intelligence und Machine Learning zu festigen. Weiterhin soll
 dieses Wissen anschließend in einem Prototyp umgesetzt werden, bei dem ein Agent in einem
-Echtzeitspiel gesteuert wird.
+Echtzeitspiel gesteuert wird. In der ausgearbeiteten Dokumentation wird dabei sowohl auf die
+Recherche und Aufarbeitung der theoretischen Teile von Reinforcement Learning als auch auf
+die abschließende Implementierung der prototypischen Umsetzung eines Agenten eingegangen.
 
-% Philipp TODO: - Arbeit beinhaltet:
-%                 - Recherche/Aufarbeitung (wichtiger Teil). Deshalb auch theoretische
-%                   Bereiche ausgeführt
-%                 - Implementierungen
 
 \newpage
 \section{Fundamentals}
@@ -109,9 +137,8 @@ lernende Entität, auch \textit{Agent}, keine bezeichneten Beispiele für das L�
 erhält. Die einzige Information, welche mitgeteilt wird, ist Feedback zu gewählten Aktionen in Form
 einer Belohnung oder Bestrafung. Diese Art des Feedbacks wird auch als Verstärkung bezeichnet.
 Somit muss vom Lernenden selbstständig eine Strategie entwickelt werden, um das gegebene
-Problem zu lösen, indem versucht wird den erhaltenen Belohnungswert zu maximieren. Anschließend
-werden die Terminologien im Bereich Reinforcement Learning geklärt sowie Kategorisierungen zu 
-nachfolgend beschriebenen Verfahren erläutert.
+Problem zu lösen, indem versucht wird den erhaltenen Belohnungswert zu maximieren. Die nachfolgenden
+Kapitel beschreiben Bestandteile und Hauptakteure von Systemen im Bereich Reinforcement Learning.
 
 \subsubsection{Agent}
 Ein Agent nimmt seine Umgebung (\textit{Environment}) über Sensoren wahr und kann mittels Aktuatoren
@@ -153,27 +180,27 @@ der Einschlagswinkel des Lenkrades, welcher die Intensität der Lenkung festlegt
 Unter einer Observation versteht man die Wahrnehmung des Agenten, welche von dem Environment 
 bereitgestellt wird. Dabei enthält eine Observation immer Informationen dazu, was gerade in der
 Umgebung des Agenten passiert. Jedoch geben Observations für den Agenten nicht den Einblick
-in das gesamte Environment, sondern limitieren dessen Wahrnehmung auf notwendige bzw. ausschließlich
-gewollte Informationen \cite[~S.8 f.]{L2018}. Eine Observation kann aus einzelnen Werten bestehen, 
-welche zum Beispiel im Falle von Pong Informationen wie Position und Geschwindigkeiten zu den
-Schlägern und dem Spielball zurückliefern. Zusätzlich kann eine Observationen auch in Form eines 
-Bildes oder einer Aneinanderreihung von Bildern umgesetzt sein. Das Bild wird dabei von 
-dem Agent verarbeitet und dieser führt dementsprechende Actions zum visuell wargenommenen Zustand
-bzw. der Anordnung von Pixeln aus. 
+in das gesamte Environment, sondern limitieren dessen Wahrnehmung auf notwendige oder auch
+ausschließlich gewollte Informationen \cite[~S.8 f.]{L2018}. Eine Observation kann aus einzelnen
+Werten bestehen, welche zum Beispiel im Falle von Pong Informationen wie Position und
+Geschwindigkeiten zu den Schlägern und dem Spielball zurückliefern. Zusätzlich kann eine
+Observationen auch in Form eines Bildes oder einer Aneinanderreihung von Bildern umgesetzt sein.
+Das Bild wird dabei von dem Agent verarbeitet und dieser führt dementsprechende Actions zum
+visuell wargenommenen Zustand, sprich der Anordnung der Pixel aus. 
 
 
 \subsubsection{Reward}
 Im Gebiet Reinforcement Learning beschreibt der Reward einen Wert, welcher periodisch oder nach
 dem Eintreffen einer definierten Gegebenheit dem Agenten vom Environment bereitgestellt wird.
-Ziel des Rewards ist es dem Agenten Auskunft darüber zu geben, wie gut sich dieser Verhält, sprich
-diesen zu bewerten. Wie bereits beschrieben, versucht der Agent den erhaltenen Reward zu
-maximieren. Somit bildet der Reward als Feedback ein Kernelement im Bereich Reinforcement
-Learning und definiert den \textit{bestärkenden} Anteil der Verfahren des machinellen Lernens 
-\cite[~S.6 f.]{L2018}. Der Reward ist immer lokal zu betrachten, dass heißt er gibt ausschließlich 
-Auskunft über den Erfolg der aktuell ausgeführten Actions und nicht über das bereits insgesamt
-gesammelte Ergebnis aller Erfolge und Misserfolge. Des Weiteren bedeutet ein hoher lokaler Reward 
-nicht, dass der daraus folgende Zustand global betrachet keine noch größeren negativen Auswirkungen 
-auf den Agenten haben wird.
+Ziel des Rewards ist es dem Agenten Auskunft darüber zu geben, wie gut sich dieser verhält, sprich
+diesen zu bewerten. Wie bereits beschrieben, versucht der Agent den erhaltenen Reward über den
+Verlauf des Trainingsprozesses hinweg zu maximieren. Somit bildet der Reward als Feedback ein
+Kernelement im Bereich Reinforcement Learning und definiert den \textit{bestärkenden} Anteil der 
+Verfahren des machinellen Lernens \cite[~S.6 f.]{L2018}. Der Reward ist immer lokal zu betrachten,
+dass heißt er gibt ausschließlich Auskunft über den Erfolg der aktuell ausgeführten Actions und
+nicht über das bereits insgesamt gesammelte Ergebnis aller Erfolge und Misserfolge. Des Weiteren
+bedeutet ein hoher lokaler Reward nicht, dass der daraus folgende Zustand global betrachet keine
+noch größeren negativen Auswirkungen auf den Agenten haben wird.
 
 \subsection{Markov Processes}
 Der Makrov Prozess und seine Erweiterungen bilden das theoretische Konstrukt für Reinforcement Learning
@@ -194,15 +221,15 @@ des Systems betrachtet werden kann und deshalb die History für die Vorhersage d
 notwendig ist.
 
 Ein Prozess der die Markov Eigenschaft aufweißt muss die Fähigkeit bieten, eine Vorhersage über
-die Wahrscheinlichkeit des Eintreffens eines Folgezustandes, ausgehend von einem Ausgangszustand, zu 
-ermitteln. Dafür werden Wahrscheinlichkeiten für die Übergänge zwischen zwei States in einer 
-\textit{Transition Matrix} festgehalten. \autoref{fig:markov}: \nameref{fig:markov} veranschaulicht
-ein Wettermodell in der Repräsentationsform eines Markov Prozesses mit den States \textit{Sunny} und
-\textit{Rainy} und deren Übergangswahrscheinlichkeiten in zukünftige Folgezustände.
+die Wahrscheinlichkeit des Eintreffens eines Folgezustandes bereitzustellen. Dafür werden 
+Wahrscheinlichkeiten für die Übergänge zwischen zwei States in einer \textit{Transition Matrix}
+festgehalten. \autoref{fig:markov}: \nameref{fig:markov} veranschaulicht ein Wettermodell in 
+der Repräsentationsform eines Markov Prozesses mit den States \textit{Sunny} und \textit{Rainy}
+und deren Übergangswahrscheinlichkeiten in zukünftige Folgezustände.
 
 \begin{figure}[htp]
 \centering
-% \includegraphics[scale=0.2]{/home/phil/Pictures/srwm.png}
+\includegraphics[scale=0.2]{res/sunny-rainy-weather-model.png}
 \caption{Sunny/Rainy weather model}
 \source{Figure 4: Sunny/Rainy weather model \cite[~S.13]{L2018}}
 \label{fig:markov}
@@ -250,35 +277,33 @@ welche nachfolgend bei der Erläuterung der realisierten Verfahren für deren Ei
 
 
 \subsubsection{Value learning vs. policy learning}
-Bei value learning Verfahren wird jedem State oder jeder Kombination aus State und Action ein Value bzw.
-Score zugewiesen, welcher diese/n State/State-Action bewertet. Anhand der Value kann der Agent 
-anschließend eine Wahl zur besten Action treffen \cite[~S.NA]{L2018}.
-
-Policy learning bezeichnet hingegen das direkte Lernen einer Verhaltensweise, wobei anhand einer 
-Observation eine Wahrscheinlichkeitsverteilung der zu wählenden Actions erzeugt wird. Der Agent wählt
-anschließend anhand der jeweiligen Wahrscheinlichkeiten die möglichen Actions \cite[~S.NA]{L2018}.
+Bei \textit{value learning} Verfahren wird jedem State oder jeder Kombination aus State und Action ein
+Value/Score zugewiesen, welcher diesen bewertet. Anhand der Value kann der Agent anschließend eine
+Wahl zur besten Action treffen \cite[~S.NA]{L2018}. \textit{Policy learning} bezeichnet hingegen das
+direkte Lernen einer Verhaltensweise, wobei anhand einer Observation eine Wahrscheinlichkeitsverteilung
+der zu wählenden Actions erzeugt wird. Der Agent wählt anschließend anhand der jeweiligen
+Wahrscheinlichkeiten die möglichen Actions \cite[~S.NA]{L2018}.
 
 
 \subsubsection{On-policy vs. off-policy}
-Die Kategorisierung off-policy beschreibt die Fähigkeit von Reinforcement Learning Verfahren auf
+Die Kategorisierung \textit{off-policy} beschreibt die Fähigkeit von Reinforcement Learning Verfahren auf
 Grundlage alter, bereits vor längerer Zeit aufgenommener Daten zu trainieren \cite[~S.NA]{L2018}. 
-Im Kontrast dazu definiert on-policy die Notwendigkeit von immer neu aufgezeichneten 
+Im Kontrast dazu definiert \textit{on-policy} die Notwendigkeit von immer neu aufgezeichneten 
 Trainingsdaten, welche nach einem Trainingsdurchlauf wieder verworfen und somit neu gesammelt
 werden müssen.
 
 
 \subsubsection{Model-free vs. model-based}
-Der Term model-free bezieht sich auf Verfahren, welche kein Modell der Umgebung oder des Rewards
+Der Term \textit{model-free} bezieht sich auf Verfahren, welche kein Modell der Umgebung oder des Rewards
 während des Trainingsprozesses aufbauen. Es werden ausschließlich anhand von aktuellen Observations
-zugehörige Actions berechnet. Model-based Methoden versuchen im Kontrast dazu vorherzusagen, was 
+zugehörige Actions berechnet. Model-based Methoden versuchen im Gegenzug vorherzusagen, was 
 die nächste Observation oder wie hoch der nächste Reward sein wird \cite[~S.NA]{L2018}. Anhand dieser
 Vorhersage versucht der Agent anschließend die bestmögliche Action zu wählen, wobei in den meisten
-Fällen diese Vorhersagen mehrfach und dabei auch mit der Brachtung zukünftiger Schritte durchgeführt
+Fällen die Vorhersage mehrfach und dabei auch mit der Brachtung zukünftiger Schritte durchgeführt
 wird \cite[~S.NA]{L2018}.
 
-\newpage
 \subsection{Exploration und Exploitation}
-In diesem Abschnitt wird der Konflikt zwischen Exploration vs Exploitation des
+In diesem Abschnitt wird der Konflikt zwischen Exploration und Exploitation des
 Reinforcement Learnings erläutert und anhand des k-armed-Bandit Problems veranschaulicht.
 Die dabei realisierten Implementierungen werden beschrieben und deren Ergebnisse
 vorgestellt.
@@ -289,19 +314,21 @@ Das k-armed-Bandit Problem besteht darin aus $k$ verschiedenen Actions zu wähle
 Nachdem eine Action gewählt wurde, erhält der Agent einen Reward, der aus einer
 Wahrscheinlichkeitsverteilung gezogen wird. Der Erwartungswert der
 Wahrscheinlichkeitsverteilung hängt von der gewählten Action ab. Das Ziel besteht darin
-mit der Ausführung von $n$ Actions die höchstmögliche Summe von Rewards zu erhalten.\\
-Der Erwartungswert der hinter einer Verteilung einer Action steht wird $Value$ der Action
-genannt. Würden wir die Values der einzelnen Actions kennen, so wäre die Wahl der Action
-einfach, indem die Action mit dem höchsten Erwartungswert gewählt werden würde.
-Allgemein ist in Reinforcement Learning Problemen der Value einer Action nicht bekannt.
-Stattdessen gibt es nur Abschätzungen bezüglich des Values einer Action, die aus den
-vorhergehenden Erfahrungen hervorgehen.\\
-Um den Value einer Action besser abschätzen zu können, muss diese Action ausprobiert
-werden. Umso häufiger die Action ausgeführt wurde, umso besser ist auch die Abschätzung
-des Values dieser Action.\\
+mit der Ausführung von $n$ Actions die höchstmögliche Summe von Rewards zu erhalten.
+
+Der Erwartungswert der hinter der Verteilung einer Action steht als $Value$ der Action
+bezeichnet. Würden die Values der einzelnen Actions den Agenten zur Verfügung stehen, wäre die 
+Wahl der Action einfach, indem die Action mit dem höchsten Erwartungswert gewählt werden 
+könnte. Allgemein ist in Reinforcement Learning Problemen der Value einer Action nicht bekannt.
+Stattdessen gibt es ausschließlich Abschätzungen bezüglich des Values einer Action, die aus den
+vorhergehenden Erfahrungen hervorgehen. Um den Value einer Action besser abschätzen zu können,
+muss diese Action ausprobiert werden. Umso häufiger die Action ausgeführt wurde, umso besser
+ist auch die Abschätzung des Values dieser Action.
+
 Der Vorgang des Ausprobierens wird $Exploration$ genannt. Im Gegensatz dazu steht die
 $Exploitation$ bei der die gesammelten Erfahrungen genutzt werden, um die Action
-auszuwählen, die den höchsten Reward verspricht.\\
+auszuwählen, die den höchsten Reward verspricht.
+
 Das k-armed-Bandit Problem gilt als Vereinfachung zu allgemeinen Reinforcement Learning
 Problemen, da nicht zwischen unterschiedlichen Ausgangszuständen unterschieden wird. Mit
 anderen Worten wird keine Observation durchgeführt. Weiterhin wird der Erwartungswert des
@@ -312,8 +339,7 @@ können.
 
 \subsubsection{Exploration-Strategien}
 Im folgenden werden verschiedene Exploration-Strategien beleuchtet. Dazu werden diese erst
-theoretisch erklärt, um diese anschließend praktisch an einem k-armed-Bandit Problem zu
-vergleichen.
+theoretisch erklärt und anschließend praktisch an einem k-armed-Bandit Problem verglichen.
 
 \paragraph{$\epsilon$ greedy / decaying $\epsilon$ greedy}
 Eine Strategie, die zu jedem Zeitpunkt die Action wählt, die nach derzeitigem Wissen den
@@ -436,14 +462,106 @@ kleinsten Rewards. Deutlich besser funktionierte die erweiterte Version mit deca
 ungefähr genau so viel Reward erreichte, wie das Optimistic Initial Values Verfahren. Am
 besten schneidet die Upper Bound Confidence Action Selection ab.
 
-\newpage
 \subsection{Open AI Gym}
-Ein von der Firma Open AI (\url{https://gym.openai.com/}) bereitgestelltes Toolkit,
-welches es ermöglicht Verfahren im Bereich Reinforcement Learning algorithmisch umzusetzen
-und anschließend miteinander zu vergleichen. Dabei werden Umgebungen wie Spiele oder
-Simulationen anhand einer definierten API zur Verfügung gestellt. Hierbei wird erneut auf
-die dabei zu beachtende Terminologie eingegangen und der Aufbau und die eigene
-Realisierung eines Gym Systems thematisiert.
+Die Python Bibliothek \textit{gym}, welche von der Firma Open AI umgesetzt wurde umfasst ein
+Toolkit, welches zur Entwicklung und zum Vergleich von Reinforcement Learning Algorithmen
+eingesetzt werden kann. Das Toolkit definiert keine Strukturen für die Umsetzung der Agenten,
+wodurch die Wahl der Machine Learning Bibliothek dem Entwickler frei zur Verfügung steht. In
+der gym Bibliothek wird hingegen eine Sammlung an Testumgebungen (Environments) zur Nutzung
+bereit gestellt, welche alle eine festgelegte Problemstellung definieren \cite{OAI2016}. 
+Diese Environments bieten eine einheitliche Schnittstelle, was das implementieren von
+generellen Algorithmen für nahezu jede Art von Environment ermöglicht. Da Reinforcement
+Learning Verfahren in komplexen Problemstellungen immer bessere Resultate erzielten, jedoch
+keine standartisierte Umsetzung für die Entwicklung und anschließende Nutzung von Environments
+und somit auch keine Möglichkeit für ein Benchmarking verschiedener Verfahren bestand,
+beschloss Open AI mit der gym Bibliothek genau diesen Problemen entgegenzuwirken
+\cite{OAI2016}.
+
+Nachfolgend soll der Aufbau und die Nutzung eines Environments durch die Bibliothek gym
+erläutert werden und es wird auf eine Referenzimplementierung eines Environments für das
+Spiel Tic-Tac-Toe eingegangen.
+
+\subsubsection{Aufbau}
+Ein Environment ist eine von der Klasse gym.Env erbende Unterklasse, welche anhand der
+Hauptprogrammierschnittstelle des Toolkits die folgenden Methoden definiert.
+
+\begin{itemize}
+\itemsep-6pt
+\item \textit{step}
+\item \textit{reset}
+\item \textit{render}
+\item \textit{close}
+\item \textit{seed}
+\end{itemize}  
+
+Mittels der \textbf{step(action)} Methode kann eine Action für einen timestamp im
+Environment ausgeführt werden. Diese Action kann sowohl diskrete Werte als auch 
+kontinuierliche Werte repräsentieren. Nachdem die Action im Environment ausgeführt wurde,
+wird die für den Agent bereitgestellte aktuelle \textit{Observation} des Environments
+aufgezeichnet. Des Weiteren wird ein, durch die Action initiierter und durch den Wechsel
+in den neuen Zustand erhaltener \textit{Reward} für den Agenten ermittelt sowie ein 
+\textit{done} Flag, welches Auskunft darüber gibt, ob die aktuelle Episode beendet wurde.
+Weitere Informationen werden im \textit{info} Dictionary gesammelt und dienen für optionale
+Analyseinformationen. Das Tuple \textit{observation, reward, done, info} wird anschließend
+an den Aufrufenden zurückgegeben. \autoref{lst:step-method} veranschaulicht eine
+Beispielimplementierung der \textit{step} Methode gegen die von Open AI bereitgestellte API.
+
+\begin{lstlisting}[language=Python, caption=step method, label=lst:step-method]
+def step(self, action):
+	# executes the action in the environment and validates it
+	valid = self._take_action(action)
+	
+	if not valid:
+		print("invalid action: player ", self._current_player)
+	
+	# calculates the obtained reward
+	reward = self._get_reward()
+	
+	# gathers current observation of the environment
+	observation = (self._player_0, self._player_1)
+	
+	# information if the episode is finished
+	is_done = self._check_if_done(reward)
+    
+	return observation, reward, is_done or not valid, {}
+\end{lstlisting}
+
+Die Funktionen \textit{\_take\_action(action)}, \textit{\_get\_reward()} und 
+\textit{\_check\_if\_done(reward)} setzen die Kommunikation mit dem Environment um. In
+diesem Bespiel besteht die Observation ausschließlich aus den Zuständen der beiden Spieler.
+Nach der Änderung der Systemdynamik und dem Erfassen der Observation wird das bereits
+beschriebene Tupel an Umgebungsinformationen zurückgeliefert.
+\newline
+
+\noindent
+Die Methode \textbf{reset()} dient zum vollständigen Zurücksetzen des Environments und aller
+darin gespeicherten Zustände. Anschließend gibt die Methode den Ausgangszustand als Observation
+an den Aufrufenden zurück. Reset kommt zum Einsatz, sobald eine Episode abgeschlossen wurde
+(done Flag) damit erneut Actions darin ausgeführt werden können.
+\newline
+
+\noindent
+Mit \textbf{render(mode='human')} kann der zwischenzeitliche Zustand des Environments
+visualisiert werden. Dabei legt die gym Bibliothek keine explizit zu nutzenden Renderverfahren
+fest, per Konvention sind aber folgende Verfahren definiert: 
+
+\begin{itemize}
+\itemsep0pt
+\item \textit{human} - für Menschen veranschaulicht, 
+\item \textit{rgb\_array} - ein numpy.ndarray mit RGB Pixelwerten, um dieses in einem Bild oder einem 
+Video zu visualisieren und 
+\item \textit{ansi} - als terminal-style Textrepräsentation.
+\end{itemize}
+
+\noindent
+Abschließend kann durch \textbf{close()} das Environment und somit gegebenenfalls die 
+dahinterliegende Anwendung geschlossen werden und durch den Aufruf von 
+\textbf{seed(seed)} kann ein Seed für den \textit{random number generator}
+des Environments festgelegt werden.
+%TODO explanation rng
+
+\subsubsection{Verwendung}
+
 
 \begin{itemize}
 \itemsep0pt
@@ -452,6 +570,7 @@ Realisierung eines Gym Systems thematisiert.
   % \url{https://github.com/dephiloper/independent-coursework-rl/blob/master/preparation/05_v_learning/tictactoe_v_learning.py}
 \end{itemize}
 
+\newpage
 \section{Cross-Entropy-Method}
 Erläuterung der Cross-Entropy-Method und der Verwendung eines neuronalen Netzes zum Lernen
 von Cart-Pole
@@ -459,6 +578,7 @@ von Cart-Pole
 \\
 Einordnung des Verfahrens im Bereich policy learning.
 
+\newpage
 \section{Q-Learning}
 Erläuterung des Q-Learning Verfahrens und deren Erweiterungen, dessen Einordnung im
 Bereich value learning sowie Begriffserklärung und Implementierung von Q-learning anhand
@@ -482,6 +602,7 @@ der Verwendung eines bereits existierenden Gyms. Erläuterung folgender Terminol
 \end{itemize}
 
 % Bruno TODO
+\newpage
 \section{Deep Q-Learning}
 Erweitung des Q-learning Verfahrens um neuronales Netz, was die Nutzung von Spielen und
 Simulationen mit kontinuierlichem Spielbereich (Observation-Space) ermöglicht. Umsetzung
@@ -502,6 +623,7 @@ Funktionsweise sowie folgender Terminologien und Verfahren mit diversen Implemen
 \end{itemize}
 
 % Philipp TODO
+\newpage
 \section{Policy Gradients}
 Erneute Beschreibung von Verfahren im Bereich policy learning. Dabei fokussieren der
 Policy Gradients Verfahren und der REINFORCE Methode. Thematisierung und Vergleich von
@@ -517,6 +639,7 @@ policy und value sowie Erweiterungen.
 \end{itemize}
 
 % Philipp TODO
+\newpage
 \section{Actor Critic}
 Beschreibung einer state-of-the-art RL Methode Actor Critic. Kombination aus policy learning und value learning. Ansatz mit mehreren Environments parallel zur Beschleunigung und Stabilisierung des Lernprozesses.
 \begin{itemize}
@@ -526,6 +649,7 @@ Beschreibung einer state-of-the-art RL Methode Actor Critic. Kombination aus pol
 \item extensions a3c
 \end{itemize}
 
+\newpage
 \section{Teeworlds}
 Wie in der Einleitung erwähnt Erfolg die Umsetzung eines eigenen Environments mittels des
 Spiels Teeworlds (\url{https://teeworlds.com/}). Initial wird das Spiel erläutert und
