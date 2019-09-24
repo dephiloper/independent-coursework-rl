@@ -613,30 +613,103 @@ von Cart-Pole
 Einordnung des Verfahrens im Bereich policy learning.
 
 \newpage
+% TODO Bruno
 \section{Q-Learning}
-Erläuterung des Q-Learning Verfahrens und deren Erweiterungen, dessen Einordnung im
-Bereich value learning sowie Begriffserklärung und Implementierung von Q-learning anhand
-der Verwendung eines bereits existierenden Gyms. Erläuterung folgender Terminologien:
+In diesem Abschnitt wird das Q-Learning Verfahren erläutert. Anschließend wird die Methode
+an zwei Praktischen Anwendungen getestet. Einerseits in der Testumgebung \grqq
+frozen-lake\grqq (TODO: cite) und andererseits in einer selbstständig entwickelten
+Tic-Tac-Toe Anwendung, in der das Verfahren gegen einen zufällig spielenden Gegner
+ausprobiert wird.
 
-% Bruno TODO: - write section
-%             - tictactoe implementation example
-%             - frozen lake
-%             - frozen lake 2x2 explanation
+\subsection{Einordnung}
+Das Q-Leaning Verfahren gehört zur Familie der value learning Verfahren, die
+unterschiedlichen Actions unterschiedliche Values zuordnen, um dann diejenigen Actions
+wählen zu können, die den höchsten Value aufweisen. Der Value einer Action oder ist dabei
+der zu erwartende Reward, den man erhält, führt man die gewählte Action im wahrgenommenen
+State aus.\\
+Weiterhin gehören Q-Learning Verfahren zu den off-policy Verfahren, da auch alte
+Erfahrungen zum training benutzt werden können. Die Q-Learning Methoden, die von uns
+behandelt werden sind model-free, was bedeutet, dass nicht versucht wird die nächsten
+States oder die folgenden Rewards vorherzusagen.\\
+Wie oben schon angesprochen, basieren Q-Leaning Verfahren auf einer Abschätzung des Values
+eines States oder einer Action. Die Abschätzung des Values einer Action $a$ in einem State
+$s$ wird bezeichnet mit $Q(s, a)$. Dieses Value kann auf unterschiedliche Weise ermittelt
+werden.\\
+Eine erste Variante von Q-Learning benutzt Tabellen, in denen die Abschätzungen
+für unterschiedliche States oder Actions gespeichert werden. Dieses Verfahren wird daher
+auch als \grqq Tabular Q-Learing\grqq (TODO cite) bezeichnet. Die Einsetzbarkeit dieses
+Verfahrens wird dadurch beschränkt, dass es in vielen Problemstellungen sehr viele
+unterschiedliche States gibt, welche sämtlich in einer Q-Table abgespeichert werden
+müssten. Um dieses Problem zu umgehen gibt es die Abwandlung \grqq Deep-Q-Learning\grqq,
+bei der ein neuronales Netz benutzt wird, um die Values von Actions oder States zu
+bestimmen. Diese werden dann nicht mehr in einer Tabelle gespeichert und gelesen, sondern
+von einem Modell berechnet.
 
-\begin{itemize}
-\itemsep0pt
-\item value learning Familie
-\item Bellman Equation und Proof of Bellman Optimality Equation 
-\item Frozen Lake Environement
-\item V(s) and Q(s,a)
-\item einfache Erläuterung der Abwandlung von Frozen Lake: 2x2 Nonslip Lake
-\item Vergleich von V(s) und Q(s,a) und deren Einsatz
-\item Implementierung q-learning und v-learning Frozen Lake:
-  % \url{https://github.com/dephiloper/independent-coursework-rl/tree/master/preparation/05_v_learning}
-\end{itemize}
+% Beschreibung des Verfahrens Tabular Q-Learning u. Unterscheidung zu Deep-Q-Learning
+\subsection{Tabular Q-Learning}
+In diesem Abschnitt wird auf das Tabular Q-Learning eingegangen. Um die
+Ver\-ständ\-lich\-keit zu verbessern wird das Verfahren anhand einer vereinfachten Version
+des Frozen Lake Environments veranschaulicht.
 
-% Bruno TODO
 \newpage
+\subsubsection{Frozen Lake}
+Frozen Lake ist ein einfaches Environment, das sich zum testen von Reinforcement Learning
+Methoden eignet. Das Ziel ist es einen Avatar vom Startpunkt in der linken oberen Ecke
+eines Spielfeldes auf die untere rechte Seite zum Ziel zu steuern. Auf dem Weg zum Ziel
+befinden sich Löcher, die das Spiel beenden, wenn man in diese fällt. Das Spielfeld ist in
+Abbildung \ref{fig:frozen_lake} zu sehen.
+
+\begin{figure}[htp]
+\centering
+\includegraphics[scale=0.3]{res/frozen_lake.png}
+\caption{Frozen Lake Spielfeld}
+\label{fig:frozen_lake}
+\end{figure}
+
+\noindent
+Der Agent kann die Actions \grqq left\grqq, \grqq up\grqq, \grqq right\grqq und \grqq
+down\grqq ausführen. Erschwert wird die Steuerung aber dadurch, dass die Oberfläche des
+Sees rutschig ist, was sich dadurch ausdrückt, dass die Folgeposition des Avatars nicht
+deterministisch ist.  Wählt man bespielsweise die Action \grqq down\grqq, so bewegt sich
+der Avatar mit einer Wahrscheinlichkeit von jeweils $1/3$ nach unten, rechts oder links.
+Allgemein gesprochen ist die Richtung, in die sich der Avatar nach der Wahl einer Action
+bewegt, eine zufällige Richtung, die nicht entgegengesetzt der Wahl der Action ist.
+
+\subsubsection{Das Verfahren}
+Da sich das Spielfeld nicht ändert, beschränken sich die Zustände von Frozen Lake auf die
+Positionen des Spielers. Daher lässt sich das Problem mit Tabular Q-Learning versuchen, da
+es möglich ist alle erreichbaren Zustände in einer Tabelle zu speichern. Die Tabelle
+enthält für jeden State eine Abschätzung der unterschiedlichen Actions. Tabelle
+\ref{tab:q_table} zeigt eine beispielhafte Q-Table mit zwei Actions und zwei States.
+
+\begin{table}[h]
+  \begin{center}
+    \begin{tabular}{c | c | c}
+       & $a_0$ & $a_1$ \\
+      \hline
+      $s_0$ & $Q(s_0, a_0)$ &$ Q(s_0, a_1)$ \\
+      \hline
+      $s_1$ & $Q(s_1, a_0)$ & $Q(s_1, a_1)$ \\
+    \end{tabular}
+
+    \caption[Q-Table]{Q-Table}
+    \label{tab:q_table}
+  \end{center}
+\end{table}
+
+\noindent
+Das Ziel des Verfahren ist es die Q-Values der Tabelle zu ermitteln. Dazu werden die
+Q-Values mit Nullen initialisiert, um sie dann iterativ zu bestimmen.
+
+
+% Beschreibung anhand des Beispiels non slippy frozen lake
+% frozen lake environment
+% tic tac toe
+
+
+
+\newpage
+% Bruno TODO
 \section{Deep Q-Learning}
 Erweitung des Q-learning Verfahrens um neuronales Netz, was die Nutzung von Spielen und
 Simulationen mit kontinuierlichem Spielbereich (Observation-Space) ermöglicht. Umsetzung
