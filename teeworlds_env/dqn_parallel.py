@@ -72,9 +72,6 @@ session_name = str(config['session_name'])
 MODEL_NAME = f'model_{session_name}'
 TENSORBOARD_LOG_DIR = f'./runs/{session_name}'
 
-if os.path.isdir(TENSORBOARD_LOG_DIR):
-    raise AssertionError(f'log dir for tensorboard already exists \"{TENSORBOARD_LOG_DIR}\"')
-
 
 class GameStats:
     def __init__(self, reward):
@@ -195,6 +192,9 @@ class Worker(Process):
 
 
 def setup():
+    if os.path.isdir(TENSORBOARD_LOG_DIR):
+        raise AssertionError(f'log dir for tensorboard already exists \"{TENSORBOARD_LOG_DIR}\"')
+
     assert (SYNC_TARGET_FRAMES % COLLECT_EXPERIENCE_SIZE == 0)
     torch.multiprocessing.set_start_method('spawn')
     torch.multiprocessing.set_sharing_strategy('file_system')

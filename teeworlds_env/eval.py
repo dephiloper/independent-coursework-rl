@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 
-from dqn_model import Net
+from dqn_model import Net, NoisyLinear, DuelingNet
 from dqn_parallel import MONITOR_HEIGHT, MONITOR_WIDTH
 from gym_teeworlds import TeeworldsEnv, NUMBER_OF_IMAGES, OBSERVATION_SPACE, Action
 from utils import Monitor, ACTIONS, load_config
@@ -11,9 +11,10 @@ path_to_teeworlds = str(config['path_to_teeworlds'])
 set_priority = bool(config.get('set_priority', False))
 
 
-MODEL_NAME = 'v1'
+MODEL_NAME = 'v09_12.0'
 MODEL_PATH = f'models/{MODEL_NAME}.dat'
 MAP_NAME = 'newlevel_1'
+DEVICE = 'cuda'
 
 
 def main():
@@ -21,7 +22,7 @@ def main():
     env = TeeworldsEnv(
         monitor=monitor,
         path_to_teeworlds=path_to_teeworlds,
-        # server_tick_speed=200,
+        server_tick_speed=100,
         episode_duration=20.0,
         map_name=MAP_NAME,
     )
@@ -29,7 +30,7 @@ def main():
     state = env.reset()
     env.set_last_reset()
 
-    net = Net(OBSERVATION_SPACE.shape, n_actions=len(ACTIONS)).to('cpu')
+    net = DuelingNet(OBSERVATION_SPACE.shape, n_actions=len(ACTIONS), linear_layer_class=NoisyLinear).to(DEVICE)
     net.load_state_dict(torch.load(MODEL_PATH))
 
     while True:
@@ -41,9 +42,10 @@ def main():
             (1, NUMBER_OF_IMAGES, MONITOR_WIDTH, MONITOR_HEIGHT)
         )
         # noinspection PyUnresolvedReferences,PyCallingNonCallable
-        state_v = torch.tensor(state_a, dtype=torch.float32).to('cpu')
+        state_v = torch.tensor(state_a, dtype=torch.float32).to(DEVICE)
 
         q_values_v = net(state_v)  # calculate q values
+        print(q_values_v.cpu().data.numpy())
         index = torch.argmax(q_values_v)  # get index of value with best outcome
 
         action = ACTIONS[index]  # extracting action from index ([0,-1], [0,0], [0,1]) <- (0, 1, 2)
