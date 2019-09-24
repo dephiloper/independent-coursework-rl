@@ -20,9 +20,9 @@ from utils import ExperienceBuffer, ACTIONS, ACTION_LABELS, Experience, load_con
 
 
 # exp collecting
-NUM_WORKERS = 4
+NUM_WORKERS = 1
 COLLECT_EXPERIENCE_SIZE = 2000  # init: 2000 (amount of experiences to collect after each training step)
-GAME_TICK_SPEED = 100  # default: 50 (game speed, when higher more screenshots needs to be captures)
+GAME_TICK_SPEED = 50  # default: 50 (game speed, when higher more screenshots needs to be captures)
 EPISODE_DURATION = 40  # default: 40
 MONITOR_WIDTH = 84  # init: 84 width of game screen
 MONITOR_HEIGHT = 84  # init: 84 height of game screen (important for conv)
@@ -48,7 +48,7 @@ EPSILON_DECAY = 0.01  # init: 0.01
 # training
 REPLAY_START_SIZE = 4000  # init: 10000 (min amount of experiences in replay buffer before training starts)
 REPLAY_SIZE = 10000  # init: 10000 (max capacity of replay buffer)
-DEVICE = 'cuda'  # init: 'cpu'
+DEVICE = 'cpu'  # init: 'cpu'
 BATCH_SIZE = 512  # init: 32 (sample size of experiences from replay buffer)
 NUM_TRAININGS_PER_EPOCH = 50  # init: 50 (amount of BATCH_SIZE x NUM_TRAININGS_PER_EPOCH will be trained)
 GAMMA = 0.99  # init: .99 (bellman equation)
@@ -127,7 +127,7 @@ class Worker(Process):
             # if False was in queue
             if not token:
                 self.stopped.set()
-                self.state = self.env.reset()
+                self.state = self.env.reset(rotate_map=True)
                 # wait for next true
                 while True:
                     token = self._running_queue.get()
@@ -172,7 +172,7 @@ class Worker(Process):
 
         # end of episode situation
         if is_done:
-            self.state = self.env.reset()
+            self.state = self.env.reset(rotate_map=True)
             self.stats_queue.put(GameStats(self.total_reward))
             self.total_reward = 0
             if self._stop_on_done.value:

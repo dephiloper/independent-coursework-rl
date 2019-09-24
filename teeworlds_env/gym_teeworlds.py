@@ -40,6 +40,7 @@ class Action:
         self.shoot = False
         self.direction = 0  # -1, 0, 1
         self.reset = False
+        self.rotate = False
 
     def to_bytes(self) -> bytes:
         action_mask = 0
@@ -49,6 +50,7 @@ class Action:
         action_mask += 8 if self.direction == 1 else 0
         action_mask += 16 if self.direction == -1 else 0
         action_mask += 32 if self.reset else 0
+        action_mask += 64 if self.rotate else 0
         return struct.pack("!hhB", self.mouse_x, self.mouse_y, action_mask)
 
     @staticmethod
@@ -61,6 +63,9 @@ class Action:
 
 reset_action = Action()
 reset_action.reset = True
+
+rotate_map_action = Action()
+rotate_map_action.rotate = True
 
 
 class GameInformation:
@@ -118,8 +123,6 @@ def teeworlds_env_settings_iterator(
     if map_names is None:
         map_names = ['level_0']
 
-    maps = itertools.cycle(map_names)
-
     for monitor in mon_iterator(
             n,
             monitor_width,
@@ -136,7 +139,7 @@ def teeworlds_env_settings_iterator(
             teeworlds_srv_port=str(teeworlds_server_port),
             server_tick_speed=server_tick_speed,
             episode_duration=episode_duration,
-            map_name=next(maps)
+            map_names=map_names
         )
 
         actions_port += 2
@@ -164,7 +167,7 @@ class TeeworldsEnv(gym.Env):
             ip="*",
             server_tick_speed=50,
             episode_duration: float = 5.0,
-            map_name="level_0",
+            map_names=None,
             device="cpu",
             is_human=False,
     ):
@@ -188,7 +191,7 @@ class TeeworldsEnv(gym.Env):
             "./teeworlds_srv",
             "sv_rcon_password 123",
             "sv_max_clients_per_ip 16",
-            f"sv_map {map_name}",
+            f"sv_map {map_names[0]}",
             "sv_register 1",
             f"game_information_port {game_information_port}",
             f"sv_port {teeworlds_srv_port}",
@@ -217,7 +220,8 @@ class TeeworldsEnv(gym.Env):
             "cl_skip_start_menu 1",
             f"actions_port {actions_port}",
             f"connect localhost:{teeworlds_srv_port}",
-            f"tick_speed {server_tick_speed}"
+            f"tick_speed {server_tick_speed}",
+            f"map_names {','.join(map_names)}"
         ]
 
         if device == "cuda":
@@ -339,9 +343,14 @@ class TeeworldsEnv(gym.Env):
     def set_last_reset(self):
         self._last_reset = time.time()
 
-    def reset(self, reset_duration=RESET_DURATION):
+    def reset(self, reset_duration=RESET_DURATION, rotate_map=False):
         self.image_buffer.clear()
-        self.socket.send(reset_action.to_bytes())
+
+        if rotate_map:
+            self.socket.send(rotate_map_action.to_bytes())
+        else:
+            self.socket.send(reset_action.to_bytes())
+
         if GAME_INFORMATION_DELAY:
             self.game_information_deque = deque([GameInformation.empty()] * GAME_INFORMATION_DELAY)
         else:
@@ -370,7 +379,7 @@ class TeeworldsEnvSettings:
             ip="*",
             server_tick_speed=50,
             episode_duration: float = 20.0,
-            map_name="level_0",
+            map_names=None,
             is_human=False
     ):
         self.monitor = monitor
@@ -381,7 +390,7 @@ class TeeworldsEnvSettings:
         self.ip = ip
         self.server_tick_speed = server_tick_speed
         self.episode_duration = episode_duration
-        self.map_name = map_name
+        self.map_names = map_names or ['level_0']
         self.is_human = is_human
 
     def create_env(self):
@@ -394,7 +403,7 @@ class TeeworldsEnvSettings:
             ip=self.ip,
             server_tick_speed=self.server_tick_speed,
             episode_duration=self.episode_duration,
-            map_name=self.map_name,
+            map_names=self.map_names,
             is_human=self.is_human,
         )
 
@@ -406,6 +415,6 @@ class TeeworldsEnvSettings:
                f'\n\tteeworlds_srv_port={self.teeworlds_srv_port}'\
                f'\n\tip={self.ip}'\
                f'\n\tserver_tick_speed={self.server_tick_speed}'\
-               f'\n\tmap_name={self.map_name}'\
+               f'\n\tmap_names={self.map_names}'\
                f'\n\tis_human={self.is_human}'\
                f'\n]'
