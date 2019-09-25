@@ -684,11 +684,11 @@ ausprobiert wird.
 \subsection{Categorisation}
 Das Q-Leaning Verfahren gehört zur Familie der value learning Verfahren, die
 unterschiedlichen Actions unterschiedliche Values zuordnen, um dann diejenigen Actions
-wählen zu können, die den höchsten Value aufweisen. Der Value einer Action oder ist dabei
-der zu erwartende Reward, den man erhält, führt man die gewählte Action im wahrgenommenen
+wählen zu können, die den höchsten Value aufweisen. Der Value einer Action ist dabei der
+zu erwartende Reward, den man erhält, führt man die gewählte Action im wahrgenommenen
 State aus.\\
 Weiterhin gehören Q-Learning Verfahren zu den off-policy Verfahren, da auch alte
-Erfahrungen zum training benutzt werden können. Die Q-Learning Methoden, die von uns
+Erfahrungen zum Training benutzt werden können. Die Q-Learning Methoden, die von uns
 behandelt werden sind model-free, was bedeutet, dass nicht versucht wird die nächsten
 States oder die folgenden Rewards vorherzusagen.\\
 Wie oben schon angesprochen, basieren Q-Leaning Verfahren auf einer Abschätzung des Values
@@ -759,7 +759,26 @@ enthält für jeden State eine Abschätzung der unterschiedlichen Actions. Tabel
 
 \noindent
 Das Ziel des Verfahren ist es die Q-Values der Tabelle zu ermitteln. Dazu werden die
-Q-Values mit Nullen initialisiert, um sie dann iterativ zu bestimmen.
+Q-Values mit Nullen initialisiert, um sie dann iterativ zu bestimmen. Dazu wird folgender
+Zusammenhang verwendet.
+
+\begin{align}
+Q(s, a) = r_{s,a} + \gamma \max_{a' \in A}Q(s', a')
+\label{aln:QValues}
+\end{align}
+
+\noindent
+$Q(s, a)$ ist das Value der Action $a$ im wahrgenommenen State $s$, also der long-term
+Reward, der erwartet wird, führt man in State $s$ die Action $a$ aus. Der Reward $r_{s,a}$
+ist der unmittelbare Reward, den man erhält, führt man in State $s$ die Action $a$ aus.
+Der State $s'$ ist der State, welcher beobachtet wurde, nachdem die Action $a$ getätigt
+wurde, also der Folgezustand von $s$. Der Term $\max_{a'\in A} Q(s', a')$ ist also der
+erwartete long-term Reward der besten Action des Folgezustandes, also auch der
+bestmögliche long-term Reward, den man in State $s'$ erwarten kann. Nach
+(\ref{aln:QValues}) gleicht $Q(s, a)$ dem unmittelbaren Reward $r_{s,a}$ addiert mit dem
+zu besten zu erwartenden long-term Reward des Folgezustandes. Der Wert des Folgezustandes
+wird dabei mit dem Hyperparameter $\gamma$ multipliziert, wobei $\gamma$ standardmäßig
+zwischen $0.9$ und $0.99$ gewählt wird.
 
 
 % Beschreibung anhand des Beispiels non slippy frozen lake
