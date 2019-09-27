@@ -11,10 +11,11 @@ path_to_teeworlds = str(config['path_to_teeworlds'])
 set_priority = bool(config.get('set_priority', False))
 
 
-MODEL_NAME = 'v09_12.0'
+MODEL_NAME = 'four_maps_12.0'
 MODEL_PATH = f'models/{MODEL_NAME}.dat'
-MAP_NAME = 'newlevel_1'
-DEVICE = 'cuda'
+# MAP_NAMES = ['newlevel_4', 'newlevel_1', 'newlevel_2', 'newlevel_3']
+MAP_NAMES = ['newlevel_4']
+DEVICE = 'cpu'
 
 
 def main():
@@ -24,14 +25,17 @@ def main():
         path_to_teeworlds=path_to_teeworlds,
         server_tick_speed=100,
         episode_duration=20.0,
-        map_name=MAP_NAME,
+        map_names=MAP_NAMES,
     )
 
     state = env.reset()
     env.set_last_reset()
 
     net = DuelingNet(OBSERVATION_SPACE.shape, n_actions=len(ACTIONS), linear_layer_class=NoisyLinear).to(DEVICE)
-    net.load_state_dict(torch.load(MODEL_PATH))
+    if DEVICE == 'cpu':
+        net.load_state_dict(torch.load(MODEL_PATH, map_location=torch.device('cpu')))
+    else:
+        net.load_state_dict(torch.load(MODEL_PATH))
 
     while True:
         state_a = np.array(

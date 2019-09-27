@@ -20,7 +20,7 @@ def main():
         is_human=True,
         game_information_port=5005,
         episode_duration=20,
-        map_name='newlevel_0'
+        map_names=['newlevel_4', 'newlevel_5']
     )
 
     env.reset()
@@ -41,7 +41,7 @@ def main():
 
         if done:
             print("done")
-            env.reset()
+            env.reset(rotate_map=True)
         # cv2.imshow("x", observation[0])
         # cv2.waitKey()
         # multi_envs[0].step_by_id(action, 0) # use this if you only want to perform any action with one client
