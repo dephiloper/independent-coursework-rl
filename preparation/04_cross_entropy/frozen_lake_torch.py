@@ -9,6 +9,7 @@ import gym.wrappers
 import gym.envs.toy_text.frozen_lake
 import numpy as np
 import torch
+from tensorboardX import SummaryWriter
 from torch import nn, optim
 
 HIDDEN_SIZE = 128
@@ -26,8 +27,9 @@ class Net(nn.Module):
         self.net = nn.Sequential(
             nn.Linear(obs_size, hidden_size),
             nn.ReLU(),
-            nn.Linear(hidden_size, n_actions)  # straightforward way would be to include softmax after the last layer
+            # straightforward way would be to include softmax after the last layer
             # --> would increase numerical stability
+            nn.Linear(hidden_size, n_actions)
         )
 
     def forward(self, x):
@@ -55,9 +57,9 @@ def iterate_batches(env, net, batch_size):
 
     while True:
         obs_v = torch.FloatTensor([obs])
-        act_probs_v = sm(net(obs_v))
-        act_probs = act_probs_v.data.numpy()[0]
-        action = np.random.choice(len(act_probs), p=act_probs)
+        act_probabilities_v = sm(net(obs_v))
+        act_probabilities = act_probabilities_v.data.numpy()[0]
+        action = np.random.choice(len(act_probabilities), p=act_probabilities)
         next_obs, reward, is_done, _ = env.step(action)
         episode_reward += reward
         episode_steps.append(EpisodeStep(observation=obs, action=action))
@@ -86,24 +88,20 @@ def filter_batch(batch, percentile):
             train_act.extend(map(lambda step: step.action, example.steps))
             elite_batch.append(example)
 
-    # train_obs_v = torch.FloatTensor(train_obs)
-    # train_act_v = torch.LongTensor(train_act)
     return elite_batch, train_obs, train_act, reward_bound
 
 
 if __name__ == "__main__":
-    env = gym.envs.toy_text.frozen_lake.FrozenLakeEnv(is_slippery=False)
+    env = gym.envs.toy_text.frozen_lake.FrozenLakeEnv(is_slippery=True)
     env = gym.wrappers.TimeLimit(env, max_episode_steps=100)
     env = DiscreteOneHotWrapper(env)
-    # env.render()
-    # env = gym.wrappers.Monitor(env, directory="mon", force=True)
     obs_size = env.observation_space.shape[0]
     n_actions = env.action_space.n
 
     net = Net(obs_size, HIDDEN_SIZE, n_actions)
     objective = nn.CrossEntropyLoss()
     optimizer = optim.Adam(params=net.parameters(), lr=0.001)
-    # writer = SummaryWriter()
+    writer = SummaryWriter()
 
     full_batch = []
     for iter_no, batch in enumerate(iterate_batches(env, net, BATCH_SIZE)):
@@ -125,14 +123,14 @@ if __name__ == "__main__":
 
         print("%d: loss=%.3f, reward_mean=%.3f, reward_bound=%.3f, batch=%d" % (
         iter_no, loss_v.item(), reward_mean, reward_bound, len(full_batch)))
-        # writer.add_scalar("loss", loss_v.item(), iter_no)
-        # writer.add_scalar("reward_bound", reward_b, iter_no)
-        # writer.add_scalar("reward_mean", reward_m, iter_no)
+        writer.add_scalar("loss", loss_v.item(), iter_no)
+        writer.add_scalar("reward_bound", reward_bound, iter_no)
+        writer.add_scalar("reward_mean", reward_mean, iter_no)
 
         if reward_mean >= 0.8:
             print("Solved")
             break
-        # writer.close()
+        writer.close()
         env.close()
 
     env = gym.envs.toy_text.frozen_lake.FrozenLakeEnv(is_slippery=False)
