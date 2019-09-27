@@ -10,21 +10,22 @@ from torch import nn, optim
 
 HIDDEN_SIZE = 128
 BATCH_SIZE = 16
-PERCENTILE = 70
-MAX_EPISODE_STEPS = 500
+PERCENTILE = 90
+MAX_EPISODE_STEPS = 200
 
 Episode = namedtuple('Episode', field_names=['reward', 'steps'])
 EpisodeStep = namedtuple('EpisodeStep', field_names=['observation', 'action'])
 
 
 class Net(nn.Module):
-    def __init__(self, obs_size, hidden_size, n_actions):
+    def __init__(self, observation_size, hidden_size, n_actions):
         super(Net, self).__init__()
         self.net = nn.Sequential(
-            nn.Linear(obs_size, hidden_size),
+            nn.Linear(observation_size, hidden_size),
             nn.ReLU(),
-            nn.Linear(hidden_size, n_actions)  # straightforward way would be to include softmax after the last layer
+            # straightforward way would be to include softmax after the last layer
             # --> would increase numerical stability
+            nn.Linear(hidden_size, n_actions)
         )
 
     def forward(self, x):
@@ -35,17 +36,17 @@ def iterate_batches(env, net, batch_size):
     batch = []
     episode_reward = 0.0
     episode_steps = []
-    obs = env.reset()
+    observation = env.reset()
     sm = nn.Softmax(dim=1)
 
     while True:
-        obs_v = torch.FloatTensor([obs])
-        act_probs_v = sm(net(obs_v))
+        observation_v = torch.FloatTensor([observation])
+        act_probs_v = sm(net(observation_v))
         act_probs = act_probs_v.data.numpy()[0]
         action = np.random.choice(len(act_probs), p=act_probs)
         next_obs, reward, is_done, _ = env.step(action)
         episode_reward += reward
-        episode_steps.append(EpisodeStep(observation=obs, action=action))
+        episode_steps.append(EpisodeStep(observation=observation, action=action))
 
         if is_done:
             batch.append(Episode(reward=episode_reward, steps=episode_steps))
@@ -56,51 +57,71 @@ def iterate_batches(env, net, batch_size):
                 yield batch
                 batch = []
 
-        obs = next_obs
+        observation = next_obs
 
 
 def filter_batch(batch, percentile):
     rewards = list(map(lambda s: s.reward, batch))
     reward_bound = np.percentile(rewards, percentile)
     reward_mean = float(np.mean(rewards))
-    train_obs = []
-    train_act = []
+    train_observations = []
+    train_actions = []
     for example in batch:
         if example.reward >= reward_bound:
-            train_obs.extend(map(lambda step: step.observation, example.steps))
-            train_act.extend(map(lambda step: step.action, example.steps))
+            train_observations.extend(map(lambda step: step.observation, example.steps))
+            train_actions.extend(map(lambda step: step.action, example.steps))
 
-    train_obs_v = torch.FloatTensor(train_obs)
-    train_act_v = torch.LongTensor(train_act)
+    train_obs_v = torch.FloatTensor(train_observations)
+    train_act_v = torch.LongTensor(train_actions)
     return train_obs_v, train_act_v, reward_bound, reward_mean
 
 
 def record_vid(net: Net, it: int):
     env = gym.make("CartPole-v0")
     env._max_episode_steps = MAX_EPISODE_STEPS
-    env = gym.wrappers.Monitor(env, directory="mon/"+ str(it) + "/", force=True)
-    obs = env.reset()
+    env = gym.wrappers.Monitor(env, directory="mon/" + str(it) + "/", force=True)
+    observation = env.reset()
     sm = nn.Softmax(dim=1)
 
     for _ in range(MAX_EPISODE_STEPS):
-        #env.render()
-        obs_v = torch.FloatTensor([obs])
+        # env.render()
+        obs_v = torch.FloatTensor([observation])
         act_probs_v = sm(net(obs_v))
         act_probs = act_probs_v.data.numpy()[0]
         # action = np.random.choice(len(act_probs), p=act_probs)
         action = np.argmax(act_probs)
-        #env.step(action=action)
-        obs, _, is_done, _ = env.step(action)
+        # env.step(action=action)
+        observation, _, is_done, _ = env.step(action)
 
         if is_done:
             break
     env.close()
 
+
+def evaluate(net: nn.Module):
+    env = gym.make("CartPole-v0")
+    env._max_episode_steps = MAX_EPISODE_STEPS
+
+    observation = env.reset()
+    sm = nn.Softmax(dim=1)
+
+    for _ in range(MAX_EPISODE_STEPS):
+        env.render()
+        obs_v = torch.FloatTensor([observation])
+        action_probabilities_v = sm(net(obs_v))
+        action_probabilities = action_probabilities_v.data.numpy()[0]
+        action = np.argmax(action_probabilities)
+        env.step(action=action)
+        observation, _, is_done, _ = env.step(action)
+
+        if is_done:
+            break
+    env.close()
+
+
 if __name__ == "__main__":
     env = gym.make("CartPole-v0")
     env._max_episode_steps = MAX_EPISODE_STEPS
-    # env.render()
-    #env = gym.wrappers.Monitor(env, directory="mon", force=True)
     obs_size = env.observation_space.shape[0]
     n_actions = env.action_space.n
 
@@ -124,7 +145,7 @@ if __name__ == "__main__":
         writer.add_scalar("reward_mean", reward_m, iter_no)
 
         if best_mean_reward < reward_m:
-            record_vid(net, iter_no)
+            # record_vid(net, iter_no)  # for video recording
             best_mean_reward = reward_m
 
         if reward_m >= MAX_EPISODE_STEPS:
@@ -133,23 +154,4 @@ if __name__ == "__main__":
     writer.close()
     env.close()
 
-    # env = gym.make("CartPole-v0")
-    # env._max_episode_steps = MAX_EPISODE_STEPS
-    # env = gym.wrappers.Monitor(env, directory="vids", force=True)
-    #
-    # obs = env.reset()
-    # sm = nn.Softmax(dim=1)
-    #
-    # for _ in range(MAX_EPISODE_STEPS):
-    #     env.render()
-    #     obs_v = torch.FloatTensor([obs])
-    #     act_probs_v = sm(net(obs_v))
-    #     act_probs = act_probs_v.data.numpy()[0]
-    #     # action = np.random.choice(len(act_probs), p=act_probs)
-    #     action = np.argmax(act_probs)
-    #     env.step(action=action)
-    #     obs, _, is_done, _ = env.step(action)
-    #
-    #     if is_done:
-    #         break
-    # env.close()
+    evaluate(net)
