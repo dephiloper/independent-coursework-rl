@@ -617,21 +617,23 @@ mittels neu aufgezeichneter Trainingsdaten gelernt werden kann. Prinzipiell hat 
 Hauptziel, den maximalen Reward innerhalb einer Episode anzusammeln. Um dieses Ziel zu erreichen
 orientiert es sich an klassischen Machine Learning Verfahren und führt eine nichtlineare trainierbare
 Funktion ein, die als Input die Observation des Agenten erhält und diesen auf einen Output abbildet.
-Durch diese Charaktersitik fällt die Cross-Entropy-Method in die Familie der policy learning Verfahren
+Durch diese Charakteristik fällt die Cross-Entropy-Method in die Familie der policy learning Verfahren
 (policy-based), da mittels neuronalen Netzes ein Policy erzeugt wird, welche für jede Observation die
 zu wählende Action in Form einer Wahrscheinlichkeitsverteilung über alle Actions ausgibt, sprich es
-wird eine Observation über direktem Wege auf eine zu wählende Action abgebildet.
+wird eine Observation über direktem Wege auf eine zu wählende Action abgebildet. Die
+Methode ist nicht value-based, da der zu erwartende Reward nicht approximiert wird.
 
 \subsection{Procedure} % TODO Überschrift gefällt mir irgendwie nicht so richtig
-Die zu lernende Policy ist wie bereits erwähnt als Wahrscheinlichkeitsverteilung repräsentiert
-und dadurch sehr ähnlich zu einem Klassifizierungsproblem, wobei die Anzahl der Klassen hier der
-Anzahl von auszuführenden Actions entspricht. Durch diese Verfahrensweise ist die Umsetzung des
-Agenten als eher einfach zu betrachten, da diese ausschließlich die Observation des Environments an
-das Netz weitergeben muss, von dem Netz anschließend die Wahrscheinlichkeitsverteilung erhält und
-anhand dieser dann eine Zufallsstichprobe (random sampling) unter Berücksichtigung der
-Wahrscheinlichkeiten aller Actions vollzieht \cite[~S.78]{L2018}. Nachdem der Agent durch das 
-random sampling eine Action gewählt hat führt er diese erneut im Environment aus und erhält die
-nächste Observation sowie den Reward für die zuvor ausgeführte Action. 
+Die zu lernende Policy ist wie bereits erwähnt als Wahrscheinlichkeitsverteilung der
+über die Actions repräsentiert und dadurch sehr ähnlich zu einem Klassifizierungsproblem,
+wobei die Anzahl der Klassen hier der Anzahl von auszuführenden Actions entspricht. Durch
+diese Verfahrensweise ist die Umsetzung des Agenten als eher einfach zu betrachten, da
+diese ausschließlich die Observation des Environments an das Netz weitergeben muss, von
+dem Netz anschließend die Wahrscheinlichkeitsverteilung erhält und anhand dieser dann eine
+Zufallsstichprobe (random sampling) unter Berücksichtigung der Wahrscheinlichkeiten aller
+Actions vollzieht \cite[~S.78]{L2018}. Nachdem der Agent durch das random sampling eine
+Action gewählt hat führt er diese erneut im Environment aus und erhält die nächste
+Observation sowie den Reward für die zuvor ausgeführte Action.
 
 Diese Schritte werden anschließend solange wiederholt, bis eine Ansammlung an Episoden (siehe 
 \autoref{sec:markov_reward_process}: \nameref{sec:markov_reward_process}), dass heißt eine Folge
@@ -654,6 +656,7 @@ Netz gegeben wird und die zuvor gewählten Actions als gewünschter Output vom N
 Während des Trainingsprozesses werden die beschriebenen Schritte solange wiederholt bis ein gewünschtes
 Ergebnis erzielt wurde. In \autoref{fig:cross_entropy_procedure} werden die beschriebenen Schritte
 zusätzlich visuell dargestellt: MountainCar-v0
+% TODO: ist das MountainCar-v0 beabsichtigt?
 
 \begin{figure}[htp]
 \centering
