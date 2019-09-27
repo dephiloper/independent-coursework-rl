@@ -636,7 +636,7 @@ nächste Observation sowie den Reward für die zuvor ausgeführte Action.
 Diese Schritte werden anschließend solange wiederholt, bis eine Ansammlung an Episoden (siehe 
 \autoref{sec:markov_reward_process}: \nameref{sec:markov_reward_process}), dass heißt eine Folge
 von Observations, Actions und Rewards, gesammelt wurde. Innerhalb jeder Episode wird nun der
-insgesamt erwirtschaftete Reward berechnet, der \textit{total reward}. Dadurch kann bewertet werden
+insgesamt erwirtschaftete Reward, der \textit{total reward}, berechnet. Dadurch kann bewertet werden
 wie gut eine Episode im Vergleich zu anderen Episoden ausgefallen ist. Aufgrund der Zufälligkeit
 bei der Selektion von Actions kommt es dazu, dass einige Episoden besser ausfallen als andere.
 
@@ -652,7 +652,15 @@ wohingegen die restlichten schlechteren Episoden verworfen werden. Anschließend
 das Model auf den übrigen \textit{elite} Episoden trainiert, wobei eine Observation als Input in das
 Netz gegeben wird und die zuvor gewählten Actions als gewünschter Output vom Netzes gefordert werden.
 Während des Trainingsprozesses werden die beschriebenen Schritte solange wiederholt bis ein gewünschtes
-Ergebnis erzielt wurde.
+Ergebnis erzielt wurde. In \autoref{fig:cross_entropy_procedure} werden die beschriebenen Schritte
+zusätzlich visuell dargestellt: 
+
+\begin{figure}[htp]
+\centering
+\includegraphics[scale=0.60]{res/cross-entropy-procedure.png}
+\caption{Cross Entropy Procedure}
+\label{fig:cross_entropy_procedure}
+\end{figure}
 
 \subsection{Cart-Pole}
 Das Cart-Pole Environment beschreibt ein eher einfach einzustufendes Environment, welches durch seine
@@ -662,14 +670,26 @@ befestigt ist \cite{OAI2016_2}. Der Agent kann den Wagen durch das Aufbringen ei
 von -1 oder +1 steuern, wobei sich der Wagen dementsprechend nach links oder rechts bewegt. Nach 
 dem Zurücksetzen des Enviroments startet der Stab in einer vertikalen Ausrichtung, nahezu orthogonal
 zentriert auf dem Wagen. Das zu erreichende Ziel für den Agenten ist es den Stab vom Umkippen zu hindern,
-wobei der Stab als umgekippt zählt sobald dessen Ausrichtung mehr als 15 Grad von einem genauen
+wobei der Stab als umgekippt zählt sobald dessen Ausrichtung mehr als 12 Grad von einem genauen
 senkrechten Winkel abweicht. Des Weiteren zählt eine Episode als beendet, wenn sich der Wagen mehr
 als 2.4 Units vom Ausgangspunkt wegbewegt. Das Environment liefert dem Agenten einen Reward von +1
-für jeden Frame in dem der Stab und der Wagen die beschriebenen Anforderungen erfüllen. In dem Toolkit
-von Open AI existieren diverse Versionen von Cart-Pole, wobei sich die eben erläuterte Beschreibung
-auf das Environment CartPole-v0 bezieht, des von Barto, Sutton und Anderson beschriebenen
-Cart-Pole-Problems \cite[~S.838 f.]{BSA1983}. Erreicht der Agent einen durchschnittlichen Reward von
-mindestens 195,0 über 100 aufeinanderfolgende Versuche hinweg gilt das Problem als gelöst.
+für jeden Frame in dem der Stab und der Wagen die beschriebenen Anforderungen erfüllen. Des Weiteren
+erhält der Agent als Observation die aktuelle Position und Geschwindigkeit des Wagens, sowie den Winkel
+der Ausrichtung des Stabs und die Geschwindigkeit die auf die Spitze des Stabs wirkt.
+
+In dem Toolkit von Open AI existieren diverse Versionen von Cart-Pole, wobei sich die eben
+erläuterte Beschreibung auf das Environment CartPole-v0 bezieht, des von Barto, Sutton und
+Anderson beschriebenen Cart-Pole-Problems \cite[~S.838 f.]{BSA1983}. Erreicht der Agent einen
+durchschnittlichen Reward von mindestens 195,0 über 100 aufeinanderfolgende Versuche hinweg gilt das
+Problem als gelöst. \autoref{fig:cart-pole} veranschaulicht die beschriebene Problemstellung aus dem 
+Paper\cite{BSA1983} von Barto, Sutton und Anderson:
+
+\begin{figure}[htp]
+\centering
+\includegraphics[scale=0.20]{res/cart-pole.png}
+\caption{Illustration des Cart-Pole Problems \cite[~S.838 f.]{BSA1983}}
+\label{fig:cart-pole}
+\end{figure}
 
 
 \newpage
