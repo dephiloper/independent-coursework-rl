@@ -13,7 +13,7 @@ set_priority = bool(config.get('set_priority', False))
 
 MODEL_NAME = 'v1'
 MODEL_PATH = f'models/{MODEL_NAME}.dat'
-MAP_NAME = 'newlevel_1'
+MAP_NAME = ['newlevel_0', 'newlevel_1', 'newlevel_2', 'newlevel_3']
 
 
 def main():

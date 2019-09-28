@@ -794,7 +794,7 @@ Tic-Tac-Toe Anwendung, in der das Verfahren gegen einen zufällig spielenden Geg
 ausprobiert wird.
 
 \subsection{Categorisation}
-Das Q-Leaning Verfahren gehört zur Familie der value learning Verfahren, die
+Das Q-Learning Verfahren gehört zur Familie der value learning Verfahren, die
 unterschiedlichen Actions unterschiedliche Values zuordnen, um dann diejenigen Actions
 wählen zu können, die den höchsten Value aufweisen. Der Value einer Action ist dabei der
 zu erwartende Reward, den man erhält, führt man die gewählte Action im wahrgenommenen
@@ -803,27 +803,22 @@ Weiterhin gehören Q-Learning Verfahren zu den off-policy Verfahren, da auch alt
 Erfahrungen zum Training benutzt werden können. Die Q-Learning Methoden, die von uns
 behandelt werden sind model-free, was bedeutet, dass nicht versucht wird die nächsten
 States oder die folgenden Rewards vorherzusagen.\\
-Wie oben schon angesprochen, basieren Q-Leaning Verfahren auf einer Abschätzung des Values
-eines States oder einer Action. Die Abschätzung des Values einer Action $a$ in einem State
-$s$ wird bezeichnet mit $Q(s, a)$. Dieses Value kann auf unterschiedliche Weise ermittelt
-werden.\\
+Wie oben schon angesprochen, basieren Q-Learning Verfahren auf einer Abschätzung des
+Values eines States oder einer Action. Die Abschätzung des Values einer Action $a$ in
+einem State $s$ wird bezeichnet mit $Q(s, a)$. Dieses Value kann auf unterschiedliche
+Weise ermittelt werden.\\
 Eine erste Variante von Q-Learning benutzt Tabellen, in denen die Abschätzungen
 für unterschiedliche States oder Actions gespeichert werden. Dieses Verfahren wird daher
-auch als \grqq Tabular Q-Learing\grqq (TODO cite) bezeichnet. Die Einsetzbarkeit dieses
-Verfahrens wird dadurch beschränkt, dass es in vielen Problemstellungen sehr viele
-unterschiedliche States gibt, welche sämtlich in einer Q-Table abgespeichert werden
-müssten. Um dieses Problem zu umgehen gibt es die Abwandlung \grqq Deep-Q-Learning\grqq,
-bei der ein neuronales Netz benutzt wird, um die Values von Actions oder States zu
-bestimmen. Diese werden dann nicht mehr in einer Tabelle gespeichert und gelesen, sondern
-von einem Modell berechnet.
+auch als \grqq Tabular Q-Learing\grqq (TODO cite) bezeichnet.
+
 
 % Beschreibung des Verfahrens Tabular Q-Learning u. Unterscheidung zu Deep-Q-Learning
 \subsection{Tabular Q-Learning}
 In diesem Abschnitt wird auf das Tabular Q-Learning eingegangen. Um die
-Ver\-ständ\-lich\-keit zu verbessern wird das Verfahren anhand einer vereinfachten Version
-des Frozen Lake Environments veranschaulicht.
+Ver\-ständ\-lich\-keit zu verbessern wird das Verfahren anhand des Frozen Lake
+Environments veranschaulicht.
 
-\subsubsection{Das Verfahren}
+\subsubsection{Das Value-Iteration Verfahren}
 Da sich das Spielfeld nicht ändert, beschränken sich die Zustände von Frozen Lake auf die
 Positionen des Spielers. Daher lässt sich das Problem mit Tabular Q-Learning versuchen, da
 es möglich ist alle erreichbaren Zustände in einer Tabelle zu speichern. Die Tabelle
@@ -847,7 +842,20 @@ enthält für jeden State eine Abschätzung der unterschiedlichen Actions. Tabel
 
 \noindent
 Das Ziel des Verfahren ist es die Q-Values der Tabelle zu ermitteln. Dazu werden die
-Q-Values mit Nullen initialisiert, um sie dann iterativ zu bestimmen. Dazu wird folgender
+Q-Values mit Nullen initialisiert, um sie dann iterativ zu bestimmen.  Dazu wird eine
+zufällige Action ausgewählt und in einem Environment ausprobiert.
+Daraus resultieren ein State, eine Action, ein Reward und ein Folgestate, auch SARS-Tupel. Der erste State ist der Ausgangszustand, in dem
+man anschließend die Action getätigt hat. Als Folge auf das Ausführen dieser Action erhält
+man einen unmittelbaren Reward, sowie einen Folgestate
+
+% Beschreibung des Verfahrens an Frozen Lake
+%  - Es werden random Actions getätigt
+%  - Daraus wird eine SARS Tupel geholt
+%  - Value Update
+%  - Testen, ob Ziel erreicht ist
+
+
+Dazu wird folgender
 Zusammenhang verwendet.
 
 \begin{align}
@@ -864,7 +872,7 @@ wurde, also der Folgezustand von $s$. Der Term $\max_{a'\in A} Q(s', a')$ ist al
 erwartete long-term Reward der besten Action des Folgezustandes, also auch der
 bestmögliche long-term Reward, den man in State $s'$ erwarten kann. Nach
 (\ref{aln:QValues}) gleicht $Q(s, a)$ dem unmittelbaren Reward $r_{s,a}$ addiert mit dem
-zu besten zu erwartenden long-term Reward des Folgezustandes. Der Wert des Folgezustandes
+besten zu erwartenden long-term Reward des Folgezustandes. Der Wert des Folgezustandes
 wird dabei mit dem Hyperparameter $\gamma$ multipliziert, wobei $\gamma$ standardmäßig
 zwischen $0.9$ und $0.99$ gewählt wird.
 
@@ -872,6 +880,16 @@ zwischen $0.9$ und $0.99$ gewählt wird.
 % Beschreibung anhand des Beispiels non slippy frozen lake
 % frozen lake environment
 % tic tac toe
+
+
+\subsection{Grenzen} % TODO: Andere Überschrift
+Die Einsetzbarkeit dieses
+Verfahrens wird dadurch beschränkt, dass es in vielen Problemstellungen sehr viele
+unterschiedliche States gibt, welche sämtlich in einer Q-Table abgespeichert werden
+müssten. Um dieses Problem zu umgehen gibt es die Abwandlung \grqq Deep-Q-Learning\grqq,
+bei der ein neuronales Netz benutzt wird, um die Values von Actions oder States zu
+bestimmen. Diese werden dann nicht mehr in einer Tabelle gespeichert und gelesen, sondern
+von einem Modell berechnet.
 
 
 
