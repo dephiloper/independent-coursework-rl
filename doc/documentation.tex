@@ -840,24 +840,23 @@ enthält für jeden State eine Abschätzung der unterschiedlichen Actions. Tabel
   \end{center}
 \end{table}
 
-\noindent
-Das Ziel des Verfahren ist es die Q-Values der Tabelle zu ermitteln. Dazu werden die
-Q-Values mit Nullen initialisiert, um sie dann iterativ zu bestimmen.  Dazu wird eine
-zufällige Action ausgewählt und in einem Environment ausprobiert.
-Daraus resultieren ein State, eine Action, ein Reward und ein Folgestate, auch SARS-Tupel. Der erste State ist der Ausgangszustand, in dem
-man anschließend die Action getätigt hat. Als Folge auf das Ausführen dieser Action erhält
-man einen unmittelbaren Reward, sowie einen Folgestate
-
 % Beschreibung des Verfahrens an Frozen Lake
 %  - Es werden random Actions getätigt
 %  - Daraus wird eine SARS Tupel geholt
 %  - Value Update
 %  - Testen, ob Ziel erreicht ist
 
-
-Dazu wird folgender
-Zusammenhang verwendet.
-
+\noindent
+Das Ziel des Verfahren ist es die Q-Values der Tabelle zu ermitteln. Dazu werden die
+Q-Values mit Null initialisiert, um sie dann iterativ zu bestimmen. Das Verfahren sieht
+vor, dass zufällige Actionen ausgewählt und in einem Environment ausprobiert werden.\\
+Daraus resultieren ein State, eine Action, ein Reward und ein Folgestate, auch SARS-Tupel
+genannt. Der erste State $s$ ist der Ausgangszustand, in dem man die zufällig gewählte
+Action $a$ getätigt hat. Als Folge auf das Ausführen dieser Action erhält man einen
+unmittelbaren Reward $r$, der vom Environment bestimmt wird, sowie den Folgestate $s'$,
+also dem State, den das Environment nach Ausführung von $a$ erreicht hat.\\
+Ist das SARS-Tupel gefunden, werden die Q-Values der Tabelle angepasst, wobei der folgende
+Zusammenhang verwendet wird.
 \begin{align}
 Q(s, a) = r_{s,a} + \gamma \max_{a' \in A}Q(s', a')
 \label{aln:QValues}
@@ -865,31 +864,65 @@ Q(s, a) = r_{s,a} + \gamma \max_{a' \in A}Q(s', a')
 
 \noindent
 $Q(s, a)$ ist das Value der Action $a$ im wahrgenommenen State $s$, also der long-term
-Reward, der erwartet wird, führt man in State $s$ die Action $a$ aus. Der Reward $r_{s,a}$
-ist der unmittelbare Reward, den man erhält, führt man in State $s$ die Action $a$ aus.
-Der State $s'$ ist der State, welcher beobachtet wurde, nachdem die Action $a$ getätigt
-wurde, also der Folgezustand von $s$. Der Term $\max_{a'\in A} Q(s', a')$ ist also der
-erwartete long-term Reward der besten Action des Folgezustandes, also auch der
-bestmögliche long-term Reward, den man in State $s'$ erwarten kann. Nach
-(\ref{aln:QValues}) gleicht $Q(s, a)$ dem unmittelbaren Reward $r_{s,a}$ addiert mit dem
-besten zu erwartenden long-term Reward des Folgezustandes. Der Wert des Folgezustandes
-wird dabei mit dem Hyperparameter $\gamma$ multipliziert, wobei $\gamma$ standardmäßig
-zwischen $0.9$ und $0.99$ gewählt wird.
+Reward, der erwartet wird, führt man in State $s$ die Action $a$ aus. Das Ziel ist es
+$Q(s, a)$ so anzupassen, dass es sich dem tatsächlich zu erwartenden long-term reward
+annähert. Der unmittelbare Reward $r_{s,a}$ wird aus dem SARS-Tupel erhalten, ebenso wie
+der State $s'$.\\
+Befindet sich der Agent im State $s'$, so ist der maximal zu erwartende Reward, der
+maximal zu erwartende Reward der besten Action im State $s'$. Das bedeutet, dass
+der Term $\max_{a'\in A} Q(s', a')$ der erwartete long-term Reward der besten Action des
+Folgezustandes, also auch der bestmögliche long-term Reward, den man in State $s'$
+erwarten kann, ist. Nach (\ref{aln:QValues}) gleicht $Q(s, a)$ dem unmittelbaren Reward
+$r_{s,a}$ addiert mit dem besten zu erwartenden long-term Reward des Folgezustandes. Der
+Wert des Folgezustandes wird dabei mit dem Hyperparameter $\gamma$ multipliziert, wobei
+$\gamma$ standardmäßig zwischen $0.9$ und $0.99$ gewählt wird.\\
+Mit Formel (\ref{aln:QValues}) erhalten wir einen neuen Wert für $Q(s, a)$, also einen
+neuen Wert in unserer Q-Table. Da die Wirkung einer Action in Frozen Lake nicht immer die
+selbe ist und wir daher auch nicht im Allgemeinen davon ausgehen dürfen, wäre es nicht gut
+den Wert der Q-Table gleich dem ermittelten Wert zu setzen. Stattdessen wird der Wert der
+Tabelle in Richtung des ermittelten Wertes angepasst. Dies geschieht durch die in
+(\ref{aln:QValueAdapt}) dargestellte Zuweisung.
+
+\begin{align}
+  Q(s, a) \leftarrow (1 - \alpha)Q(s, a) +
+  \alpha(r_{s, a} + \gamma \max_{a'\in A}Q(s', a'))
+\label{aln:QValueAdapt}
+\end{align}
+
+Wobei der Hyperparameter $\alpha$ zwischen 0 und 1 gesetzt wird, um den Wert $Q(s, a)$ bei
+jeder Iteration schrittweise zu überblenden. Dadurch nähern sich die Q-Values der Tabelle
+den tatsächlichen Q-Values an, wodurch sich das Environment erfolgreich spielen lässt.\\
+Um zu testen, wie gut unsere gefundenen Q-Values funktionieren, wird wie folgt
+vorgegangen. Man initialisiert ein Environment und lässt den Agenten in jedem erfahrenen
+State die Action wählen, die das höchste Q-Value besitzt.
+
+\subsection{Ergebnisse}
+In unserem Experiment wird als gelöst angesehen, wenn 80\% von 20 Spielen erfolgreich
+beendet wurden. Dieser Aufbau benötigt für 4x4 Frozen Lake zwischen 6000 und 42000
+Iterationen, was zwischen einer und sechs Sekunden benötigt. Abbildung
+\ref{fig:frozen-lake_q_learning} visualisiert den typischen Trainingsablauf, wobei der
+durchschnittliche Reward aus 20 Spielen gezeigt wird.
+
+\begin{figure}[htp]
+\centering
+\includegraphics[scale=0.7]{res/frozen_lake_reward_tabular_q.png}
+\caption{Ergebnisse Tabular-Q-Learning FrozenLake-v0}
+\label{fig:frozen-lake_q_learning}
+\end{figure}
 
 
-% Beschreibung anhand des Beispiels non slippy frozen lake
-% frozen lake environment
+\subsection{Tic Tac Toe}
+
 % tic tac toe
 
 
 \subsection{Grenzen} % TODO: Andere Überschrift
-Die Einsetzbarkeit dieses
-Verfahrens wird dadurch beschränkt, dass es in vielen Problemstellungen sehr viele
-unterschiedliche States gibt, welche sämtlich in einer Q-Table abgespeichert werden
-müssten. Um dieses Problem zu umgehen gibt es die Abwandlung \grqq Deep-Q-Learning\grqq,
-bei der ein neuronales Netz benutzt wird, um die Values von Actions oder States zu
-bestimmen. Diese werden dann nicht mehr in einer Tabelle gespeichert und gelesen, sondern
-von einem Modell berechnet.
+Die Einsetzbarkeit dieses Verfahrens wird dadurch beschränkt, dass es in vielen
+Problemstellungen viele unterschiedliche States gibt, welche nicht mehr in einer Q-Table
+gespeichert werden könnten. Um dieses Problem zu umgehen gibt es die Abwandlung \grqq
+Deep-Q-Learning\grqq, bei der ein neuronales Netz benutzt wird, um die Values von Actions
+zu bestimmen. Diese werden dann nicht mehr in einer Tabelle gespeichert und gelesen,
+sondern von einem Modell berechnet.
 
 
 
