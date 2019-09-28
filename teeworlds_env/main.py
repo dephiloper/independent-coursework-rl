@@ -17,6 +17,7 @@ def main():
         monitor=Monitor(600, 40, 960, 540),
         path_to_teeworlds=path_to_teeworlds,
         server_tick_speed=50,
+        step_interval=0.1,
         is_human=True,
         game_information_port=5005,
         episode_duration=20,

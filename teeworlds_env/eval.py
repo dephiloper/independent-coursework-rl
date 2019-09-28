@@ -24,6 +24,7 @@ def main():
         monitor=monitor,
         path_to_teeworlds=path_to_teeworlds,
         server_tick_speed=100,
+        step_interval=0.1,
         episode_duration=20.0,
         map_names=MAP_NAMES,
     )

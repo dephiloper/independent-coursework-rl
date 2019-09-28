@@ -112,6 +112,7 @@ def teeworlds_env_settings_iterator(
         monitor_height: int,
         top_spacing: int = 0,
         server_tick_speed: int = 50,
+        step_interval: float = 0.2,
         episode_duration: float = 20.0,
         monitor_x_padding: int = 0,
         monitor_y_padding: int = 0,
@@ -138,6 +139,7 @@ def teeworlds_env_settings_iterator(
             game_information_port=str(actions_port+1),
             teeworlds_srv_port=str(teeworlds_server_port),
             server_tick_speed=server_tick_speed,
+            step_interval=step_interval,
             episode_duration=episode_duration,
             map_names=map_names
         )
@@ -166,6 +168,7 @@ class TeeworldsEnv(gym.Env):
             teeworlds_srv_port="8303",
             ip="*",
             server_tick_speed=50,
+            step_interval=0.2,
             episode_duration: float = 5.0,
             map_names=None,
             device="cpu",
@@ -175,7 +178,7 @@ class TeeworldsEnv(gym.Env):
         self.observation_space = OBSERVATION_SPACE
         self.action_space = ACTION_SPACE
         self.image_buffer = collections.deque(maxlen=NUMBER_OF_IMAGES)
-        self.step_interval = 10 / server_tick_speed
+        self.step_interval = step_interval
         self.episode_duration = episode_duration
         # init video capturing
         self.sct = mss()
@@ -378,6 +381,7 @@ class TeeworldsEnvSettings:
             teeworlds_srv_port="8303",
             ip="*",
             server_tick_speed=50,
+            step_interval=0.2,
             episode_duration: float = 20.0,
             map_names=None,
             is_human=False
@@ -389,6 +393,7 @@ class TeeworldsEnvSettings:
         self.teeworlds_srv_port = teeworlds_srv_port
         self.ip = ip
         self.server_tick_speed = server_tick_speed
+        self.step_interval = step_interval
         self.episode_duration = episode_duration
         self.map_names = map_names or ['level_0']
         self.is_human = is_human
@@ -402,6 +407,7 @@ class TeeworldsEnvSettings:
             teeworlds_srv_port=self.teeworlds_srv_port,
             ip=self.ip,
             server_tick_speed=self.server_tick_speed,
+            step_interval=self.step_interval,
             episode_duration=self.episode_duration,
             map_names=self.map_names,
             is_human=self.is_human,
