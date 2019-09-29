@@ -689,7 +689,8 @@ Paper\cite{BSA1983} von Barto, Sutton und Anderson:
 \begin{figure}[htp]
 \centering
 \includegraphics[scale=0.15]{res/cart-pole.png}
-\caption{Illustration des Cart-Pole Problems \cite[~S.838 f.]{BSA1983}}
+\caption{Illustration des Cart-Pole Problems}
+\source{\cite[~S.838]{BSA1983}}
 \label{fig:cart-pole}
 \end{figure}
 
@@ -968,7 +969,7 @@ Funktionsweise sowie folgender Terminologien und Verfahren mit diversen Implemen
 Policy Gradients beschreibt eine Unterfamilie von Reinforcement Learning Methoden aus dem
 Bereich der policy learning Verfahren. Anders als die beiden zuvor beschriebenen Verfahren
 Tabular-Q-Learning und Deep Q-Learning fokussieren sich policy Verfahren auf das Erlernen
-einer direkten policy. Dies bringt den Vorteil mit sich, dass Policy Gradients auf
+einer direkten policy $\pi(s)$. Dies bringt den Vorteil mit sich, dass Policy Gradients auf
 Environments mit kontinuierlichen action space, sprich Actions mit Werterepräsentationen in 
 Gleitkommadarstellung, angewandt werden können (siehe \ref{sec:action} \nameref{sec:action}
 - Einschlagwinkel eines Lenkrads). Q-Learning Verfahren hingegen weisen jedem State oder
@@ -989,8 +990,14 @@ Actions nach Anwendung der Policy Approximation visualisiert.
 \label{fig:markov}
 \end{figure}
 
+Zusätzlich kommt, durch die Repräsentation der Actions als Wahrscheinlichkeit, der Vorteil einer
+\textit{smooth representation} des Netzes zum tragen. Das heißt, würde der Output des Netzes über
+diskrete Werte ausgedrückt werden, kann schon eine minimale Änderung an den Gewichten des Netzes 
+zu einer komplett anderen Action bei der Vorhersage führen. Aufgrund der
+Wahrscheinlichkeitsverteilung bewirken Änderungen hingegen nur moderate Änderungen in der
+resultierenden Verteilung des Output \cite[~S.243]{L2018}.
 
-
+\subsection{REINFORCE method}
 
 % Philipp TODO
 \newpage
