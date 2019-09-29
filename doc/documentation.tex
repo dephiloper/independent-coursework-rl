@@ -164,6 +164,7 @@ Gesetzmäßigkeiten, aber auch die Netzwerkverbindung oder das Medium auf dem da
 wird kann zum Environment gezählt werden.
 
 \subsubsection{Action}
+\label{sec:action}
 Eine Action bietet die Möglichkeit für einen Agenten aktiv Einfluss auf das Geschehen im
 Environment zu nehmen. Zu Actions zählen das Ausführen von Spielzügen, die durch das
 Regelwerk erlaubt sind sowie die Änderung eines Zustandes in umfangreicheren Systemen. Die
@@ -230,8 +231,8 @@ und deren Übergangswahrscheinlichkeiten in zukünftige Folgezustände.
 \begin{figure}[htp]
 \centering
 \includegraphics[scale=0.2]{res/sunny-rainy-weather-model.png}
-\caption{Sunny/Rainy weather model}
-\source{Figure 4: Sunny/Rainy weather model \cite[~S.13]{L2018}}
+\caption{Sunny/Rainy Wettermodell}
+\source{\cite[~S.13 - Chapter 1 - Figure 4]{L2018}}
 \label{fig:markov}
 \end{figure}
 
@@ -688,7 +689,8 @@ Paper\cite{BSA1983} von Barto, Sutton und Anderson:
 \begin{figure}[htp]
 \centering
 \includegraphics[scale=0.15]{res/cart-pole.png}
-\caption{Illustration des Cart-Pole Problems \cite[~S.838 f.]{BSA1983}}
+\caption{Illustration des Cart-Pole Problems}
+\source{\cite[~S.838]{BSA1983}}
 \label{fig:cart-pole}
 \end{figure}
 
@@ -721,7 +723,8 @@ Werten einer Verteilung die unter oder gleich einem festgelegten Wert sind (z.B.
 
 Die Implementierung der Cross-Entropy-Method zum Cart-Pole Problem ist unter
 \url{github.com/dephiloper/independent-coursework-rl} im Unterverzeichnis 
-\textit{preparation/04\_cross\_entropy} in der Datei \textit{cart\_pole\_torch.py} umgesetzt.
+\textit{preparation/04\_cross\_entropy} in der Datei
+\href{https://github.com/dephiloper/independent-coursework-rl/blob/master/preparation/04_cross_entropy/cart_pole_torch.py}{\nolinkurl{forzen\_lake\_torch.py}} umgesetzt.
 
 \subsubsection{Frozen Lake}
 \label{sec:frozen-lake}
@@ -737,8 +740,10 @@ sich der Avatar auf diese bewegt. Das Spielfeld ist in Abbildung \ref{fig:frozen
 \centering
 \includegraphics[scale=0.25]{res/frozen_lake.png}
 \caption{Frozen Lake Spielfeld}
+\source{\cite[~S.90 - Chapter 4 - Figure 5]{L2018}}
 \label{fig:frozen_lake}
 \end{figure}
+
 
 \noindent
 Der Agent kann die Actions \grqq left\grqq, \grqq up\grqq, \grqq right\grqq und \grqq
@@ -788,6 +793,11 @@ etwa 50\% erfolgreichen Lösung des Environments stagniert.
 \caption{Ergebnisse Cross-Entropy-Method FrozenLake-v0}
 \label{fig:frozen-lake_cross-entropy}
 \end{figure}
+
+Die Implementierung der Cross-Entropy-Method zum Frozen Lake Environment ist unter
+\url{github.com/dephiloper/independent-coursework-rl} im Unterverzeichnis 
+\textit{preparation/04\_cross\_entropy} in der Datei 
+\href{https://github.com/dephiloper/independent-coursework-rl/blob/master/preparation/04_cross_entropy/frozen_lake_torch.py}{\nolinkurl{forzen\_lake\_torch.py}} umgesetzt.
 
 
 \newpage
@@ -1021,18 +1031,38 @@ Funktionsweise sowie folgender Terminologien und Verfahren mit diversen Implemen
 % Philipp TODO
 \newpage
 \section{Policy Gradients}
-Erneute Beschreibung von Verfahren im Bereich policy learning. Dabei fokussieren der
-Policy Gradients Verfahren und der REINFORCE Methode. Thematisierung und Vergleich von
-policy und value sowie Erweiterungen.
-\begin{itemize}
-\itemsep0pt
-\item cross entropy method (bereits erläutert) dazu im Kontrast: REINFORCE
-\item continuous observation space \& action space
-\item Umsetzung von cart pole
-\item Umsetzung von atari pong
-\item limitations
-\item high variance, Einführung einer Baseline
-\end{itemize}
+Policy Gradients beschreibt eine Unterfamilie von Reinforcement Learning Methoden aus dem
+Bereich der policy learning Verfahren. Anders als die beiden zuvor beschriebenen Verfahren
+Tabular-Q-Learning und Deep Q-Learning fokussieren sich policy Verfahren auf das Erlernen
+einer direkten policy $\pi(s)$. Dies bringt den Vorteil mit sich, dass Policy Gradients auf
+Environments mit kontinuierlichen action space, sprich Actions mit Werterepräsentationen in 
+Gleitkommadarstellung, angewandt werden können (siehe \ref{sec:action} \nameref{sec:action}
+- Einschlagwinkel eines Lenkrads). Q-Learning Verfahren hingegen weisen jedem State oder
+jeder Action immer eine Value zu, was das Optimierungsproblem bei einem kontinuierlichen
+action space deutlich erschwert \cite[~S.242]{L2018}. Ein zusätzlicher Vorteil der Policy
+Gradients ist die stochastische Eigenschaft von Environments. Anders als Q-Learning wird es
+mit Policy Gradients möglich, die zugrundeliegende Wahrscheinlichkeitsverteilung des
+Environments besser aufzugreifen, da das Verfahren, statt mittels Erwartungswerten von aktuellen
+und zukünftigen Rewards zu rechnen, mit einer Wahrscheinlichkeitsverteilung von Actions arbeitet.
+In der nachfolgenden Abbildung wird genau diese Wahrscheinlichkeitsverteilung von diskreten 
+Actions nach Anwendung der Policy Approximation visualisiert.
+
+\begin{figure}[htp]
+\centering
+\includegraphics[scale=0.4]{res/policy_approxim.png}
+\caption{Wahrscheinlichkeitsverteilung von Actions mittels Policy Approximation}
+\source{\cite[~S.243 - Chapter 9 - Figure 1]{L2018}}
+\label{fig:markov}
+\end{figure}
+
+Zusätzlich kommt, durch die Repräsentation der Actions als Wahrscheinlichkeit, der Vorteil einer
+\textit{smooth representation} des Netzes zum tragen. Das heißt, würde der Output des Netzes über
+diskrete Werte ausgedrückt werden, kann schon eine minimale Änderung an den Gewichten des Netzes 
+zu einer komplett anderen Action bei der Vorhersage führen. Aufgrund der
+Wahrscheinlichkeitsverteilung bewirken Änderungen hingegen nur moderate Änderungen in der
+resultierenden Verteilung des Output \cite[~S.243]{L2018}.
+
+\subsection{REINFORCE method}
 
 % Philipp TODO
 \newpage
