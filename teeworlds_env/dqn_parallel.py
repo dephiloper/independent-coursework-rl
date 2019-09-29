@@ -20,7 +20,7 @@ from utils import ExperienceBuffer, ACTIONS, ACTION_LABELS, Experience, load_con
 
 
 # exp collecting
-NUM_WORKERS = 1
+NUM_WORKERS = 4
 COLLECT_EXPERIENCE_SIZE = 2000  # init: 2000 (amount of experiences to collect after each training step)
 GAME_TICK_SPEED = 50  # default: 50 (game speed, when higher more screenshots needs to be captures)
 STEP_INTERVAL = 0.2  # default: 0.2 (interval of calculating actions)
@@ -49,13 +49,13 @@ EPSILON_DECAY = 0.01  # init: 0.01
 # training
 REPLAY_START_SIZE = 4000  # init: 10000 (min amount of experiences in replay buffer before training starts)
 REPLAY_SIZE = 50000  # init: 10000 (max capacity of replay buffer)
-DEVICE = 'cpu'  # init: 'cpu'
+DEVICE = 'cuda'  # init: 'cpu'
 BATCH_SIZE = 512  # init: 32 (sample size of experiences from replay buffer)
 NUM_TRAININGS_PER_EPOCH = 50  # init: 50 (amount of BATCH_SIZE x NUM_TRAININGS_PER_EPOCH will be trained)
 GAMMA = 0.95  # init: .99 (bellman equation)
 LEARNING_RATE = 1e-4  # init: 1e-4 (also quite low eventually using default 1e-3)
 SYNC_TARGET_FRAMES = COLLECT_EXPERIENCE_SIZE * 5  # init: 10000 (how frequently we sync target net with net)
-L2_REGULARIZATION = 1e-5  # init: 1e-5
+L2_REGULARIZATION = 0  # init: 1e-5
 MAP_NAMES = ['newlevel_0', 'newlevel_1', 'newlevel_2', 'newlevel_3']
 
 # evaluation
