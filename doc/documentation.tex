@@ -814,9 +814,8 @@ Values eines States oder einer Action. Die Abschätzung des Values einer Action 
 einem State $s$ wird als $Q(s, a)$ bezeichnet. Diese Value kann auf unterschiedliche
 Weise ermittelt werden.\\
 Eine erste Variante von Q-Learning benutzt Tabellen, in denen die Abschätzungen
-für unterschiedliche States oder Actions gespeichert werden. Dieses Verfahren wird daher
-auch als \grqq Tabular Q-Learing\grqq (TODO cite) bezeichnet.
-
+für unterschiedliche States oder Actions gespeichert werden. Dieses Verfahren wird nach
+\cite[~S.193]{L2018} auch als \grqq Tabular Q-Learing\grqq bezeichnet.
 
 % Beschreibung des Verfahrens Tabular Q-Learning u. Unterscheidung zu Deep-Q-Learning
 \subsection{Tabular Q-Learning}
@@ -871,22 +870,22 @@ Q(s, a) = r_{s,a} + \gamma \max_{a' \in A}Q(s', a')
 \noindent
 $Q(s, a)$ ist das Value der Action $a$ im wahrgenommenen State $s$, also der long-term
 Reward, der erwartet wird, führt man in State $s$ die Action $a$ aus. Das Ziel ist es
-$Q(s, a)$ so anzupassen, dass es sich dem tatsächlich zu erwartenden long-term reward
-annähert. Der unmittelbare Reward $r_{s,a}$ wird aus dem SARS-Tupel erhalten, ebenso wie
-der State $s'$.\\ % TODO verstehe nicht ganz die Aussage des Satzes
+$Q(s, a)$ so anzupassen, dass es sich dem tatsächlich zu erwartenden long-term Reward
+annähert. Der unmittelbare Reward $r_{s,a}$ kann dem SARS-Tupel entnommen werden, ebenso
+wie der Folgestate $s'$.\\
 Befindet sich der Agent im State $s'$, so ist der maximal zu erwartende Reward, der 
 maximal zu erwartende Reward der besten Action im State $s'$. Das bedeutet, dass
 der Term $\max_{a'\in A} Q(s', a')$ der erwartete long-term Reward der besten Action des
 Folgezustandes, also auch der bestmögliche long-term Reward, den man in State $s'$
 erwarten kann, ist. Nach (\ref{aln:QValues}) gleicht $Q(s, a)$ dem unmittelbaren Reward
 $r_{s,a}$ addiert mit dem besten zu erwartenden long-term Reward des Folgezustandes. Der
-Wert des Folgezustandes wird dabei mit dem Hyperparameter $\gamma$ multipliziert, wobei % discount factor statt hyperparam
+Wert des Folgezustandes wird dabei mit dem Discount Factor $\gamma$ multipliziert, wobei 
 $\gamma$ standardmäßig zwischen $0.9$ und $0.99$ gewählt wird.\\
 Mit Formel (\ref{aln:QValues}) erhalten wir einen neuen Wert für $Q(s, a)$, also einen
-neuen Wert in unserer Q-Table. Da die Wirkung einer Action in Frozen Lake nicht immer die
-selbe ist und wir daher auch nicht im Allgemeinen davon ausgehen dürfen, wäre es nicht gut % bitte nicht wir schreiben
-den Wert der Q-Table gleich dem ermittelten Wert zu setzen. Stattdessen wird der Wert der
-Tabelle in Richtung des ermittelten Wertes angepasst. Dies geschieht durch die in
+neuen Wert in unserer Q-Table. Da die Wirkung einer Action in Frozen Lake nicht
+deterministisch ist und auch im Allgemeinen nicht davon ausgegangen werden kann, wäre es
+nicht gut den Wert der Q-Table gleich dem ermittelten Wert zu setzen. Stattdessen wird der
+Wert der Tabelle in Richtung des ermittelten Wertes angepasst. Dies geschieht durch die in
 (\ref{aln:QValueAdapt}) dargestellte Zuweisung.
 
 \begin{align}
@@ -898,12 +897,12 @@ Tabelle in Richtung des ermittelten Wertes angepasst. Dies geschieht durch die i
 Wobei der Hyperparameter $\alpha$ zwischen 0 und 1 gesetzt wird, um den Wert $Q(s, a)$ bei
 jeder Iteration schrittweise zu überblenden. Dadurch nähern sich die Q-Values der Tabelle
 den tatsächlichen Q-Values an, wodurch sich das Environment erfolgreich spielen lässt.\\
-Um zu testen, wie gut unsere gefundenen Q-Values funktionieren, wird wie folgt % bitte nicht unsere
-vorgegangen. Man initialisiert ein Environment und lässt den Agenten in jedem erfahrenen % bitte nicht Man initialisert 
-State die Action wählen, die das höchste Q-Value besitzt.
+Um zu testen, wie gut die gefundenen Q-Values funktionieren, wird wie folgt vorgegangen.
+Ein neues Environment wird initialisiert und der Agent wählt in jedem erfahrenen State die
+Action, die das höchste Q-Value besitzt.
 
-\subsection{Ergebnisse}
-In unserem Experiment wird als gelöst angesehen, wenn 80\% von 20 Spielen erfolgreich % bitte nicht unserem
+\subsubsection{Ergebnisse}
+Das vorgestellte Experiment wird als gelöst angesehen, wenn 80\% von 20 Spielen erfolgreich
 beendet wurden. Dieser Aufbau benötigt für 4x4 Frozen Lake zwischen 6000 und 42000
 Iterationen, was zwischen einer und sechs Sekunden benötigt. Abbildung
 \ref{fig:frozen-lake_q_learning} visualisiert den typischen Trainingsablauf, wobei der
@@ -918,19 +917,85 @@ durchschnittliche Reward aus 20 Spielen gezeigt wird.
 
 
 \subsection{Tic Tac Toe}
+Neben der Umsetzung von Frozen Lake wurde ebenfalls ein Tic Tac Toe Environment
+entwickelt, in dem ein Agent gegen einen zufällig spielenden Gegner trainiert und getestet
+wurde. Das benutzte Verfahren ist eine Form der value based Verfahren unterscheidet sich
+aber von Q-Learning.\\
+Wie auch in Q-Learning werden in diesem Verfahren Values ermittelt. Im Gegensatz zu der im
+letzten Kapitel gezeigten Q-Learning Methode werden hier allerdings die Values
+unterschiedlicher States und nicht die Values der Actions ermittelt. Die zu ermittelnde
+Funktion ist nicht mehr $Q(s, a)$, sondern $V(s)$. Das Verfahren setzt dafür allerdings
+voraus, dass aus einem gegebenen State und einer gegebenen Action der Folgezustand
+berechnet werden kann, was durch das deterministische Spiel Tic Tac Toe gegeben ist.\\
+Die Approximationen der Values der States werden in einem Dictionary gespeichert und mit
+dem Startwert 0 initialisiert. Anschließend wird ein Spiel gegen einen zufällig spielenden
+Gegner gespielt, wobei alle erreichten States zwischengespeichert werden. Am Ende des
+Spieles wird ein Reward vergeben, der davon abhängt, ob gewonnen oder verloren wurde.\\
+Nun werden alle $V(s)$ Werte der zwischengespeicherten States in Richtung des erhaltenen
+Rewards verändert. Um zu bestimmen wie stark sich der erhaltene Reward auf $V(s)$ auswirkt
+wird ein $step\_size$ Parameter verwendet, der wie in Zuweisung \ref{aln:ValueUpdate} benutzt wird.
 
-% tic tac toe
+\begin{align}
+  V(s) \leftarrow V(s) + step\_size * (reward - V(s))
+  \label{aln:ValueUpdate}
+\end{align}
 
+\noindent
+Über den Trainingsprozess hinweg wird der step\_size Parameter stufenweise herabgesetzt,
+um das Verfahren konvergieren zu lassen.\\
+Soll der trainierte Agent nun sein gewonnenes Wissen exploiten, so berechnet er aus den
+zur Verfügung stehenden Actions die daraus resultierenden States und wählt die Action, die
+zum State mit höchstem Value führt.
 
-\subsection{Grenzen} % TODO: Andere Überschrift
-Die Einsetzbarkeit dieses Verfahrens wird dadurch beschränkt, dass es in vielen
-Problemstellungen viele unterschiedliche States gibt, welche nicht mehr in einer Q-Table
-gespeichert werden könnten. Um dieses Problem zu umgehen gibt es die Abwandlung \grqq
-Deep-Q-Learning\grqq, bei der ein neuronales Netz benutzt wird, um die Values von Actions
-zu bestimmen. Diese werden dann nicht mehr in einer Tabelle gespeichert und gelesen,
-sondern von einem Modell berechnet.
+\subsubsection{Ergebnisse}
+Um das Verfahren zu testen wurden Agenten mit unterschiedlicher Anzahl an Trainingsspielen
+trainiert, wobei bei ein Agent entweder immer das Spiel eröffnete oder immer den zweiten
+Zug hatte. Als step\_size wurde initial 0.1 genutzt. Nach jedem Spiel wurde die step\_size
+dann mit einem decay multipliziert, um die Konvergenz der State Values zu garantieren.\\
+Tabelle \ref{tab:win_probability_tictactoe_begin} zeigt die Gewinnwahrscheinlichkeiten eines
+trainierten Agenten, der gegen einen zufällig spielenden Gegner getestet wird. Jede Zelle
+enthält zwei Gewinnwahrscheinlichkeiten. Die erste gibt die Gewinnwahrscheinlichkeit für
+den Fall an, das der Agent das Spiel eröffnet hat, die zweite die
+Gewinnwahrscheinlichkeit, falls der Gegner das Spiel eröffnet hat.
+\begin{table}[h]
+  \begin{center}
+    \begin{tabular}{l | c | c | c}
+      Anzahl Trainingsspiele & Gewonnen & Verloren & Unentschieden \\
+      \hline
+      100 & 68.9\% / 40.8\% & 14.3\% / 54.5\% & 16.9\% / 4.7\% \\
+      % 500 & 80.7\% / 53.6\% & 28.6\% / 37.1\% & 14.0\% / 9.3\% \\
+      1.000 & 83.6\% / 58.4\% & 10.1\% / 26.1\% & 6.4\% / 15.5\% \\
+      10.000 & 94.6\% / 77.3\% & 0.5\% / 7.7\% & 4.9\% / 15.0\% \\
+      100.000 & 98.1\% / 83.0\% & 0.0\% / 1.5\% & 1.9\% / 14.6\% \\
+      1.000.000 & 99.1\% / 87.7\% & 0.0\% / 0.7\% & 0.9\% / 11.5\% \\
+    \end{tabular}
 
+    \caption[Gewinnwahrscheinlichkeiten Tic Tac Toe bei Beginn]{Gewinnwahrscheinlichkeiten
+      Tic Tac Toe bei Beginn}
+    \label{tab:win_probability_tictactoe_begin}
+  \end{center}
+\end{table}
 
+\noindent
+Eine weitere Steigerung der Trainingsspiele führt nicht mehr zu einer Änderung der
+Gewinnwahrscheinlichkeiten. In allen gezeigten Experimenten ist die
+Gewinnwahrscheinlichkeit höher, wenn der Agent beginnt und die Wahrscheinlichkeit zu
+verlieren größer, wenn man nicht beginnt.\\
+Interessant ist vor allem, dass auch bei einer Millionen Trainingsspielen der nicht
+beginnende Agent verlieren kann. Dies kann gegen einen zufällig spielenden Gegner
+vernünftig sein, da ein kleines Risiko einzugehen dazu führen kann, dass deutlich häufiger
+gewonnen wird.
+
+\subsection{Limitierungen von Tabular-Q-Learning}
+% TODO: diskrete Action
+Nach \cite[~S.192]{L2018} wird die Einsetzbarkeit dieser Verfahren dadurch beschränkt,
+dass es in vielen Environments zu viele unterschiedliche States gibt, sodass dessen Values
+oder die Values der Actions in diesen States nicht mehr ausreichend approximiert werden
+können.\\
+Diese Limitierung wird in \grqq Deep-Q-Learning\grqq, dem nächsten vorgestellten
+Verfahren, gelöst indem ein neuronales Netz benutzt wird, um die Values von Actions $Q(s,
+a)$ zu bestimmen. Diese werden dann nicht mehr in einer Tabelle gespeichert und gelesen,
+sondern von einem Modell berechnet, dass zwischen ähnliche States abstrahieren kann.
 
 \newpage
 % Bruno TODO
