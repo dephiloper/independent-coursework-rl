@@ -607,9 +607,9 @@ können.
 \section{Cross-Entropy-Method}
 Das erste zu beleuchtende Reinforcement Learning Verfahren ist die Cross-Entropy-Method. Die
 Cross-Entropy-Method ist eine Monte Carlo Methode für Stichprobenentnahme nach Wichtigkeit
-(importance sampling) und Optimierung (optimization). Im folgenden Kapitel wird das Verfahren
-erläutert und in die bereits beschriebene Taxonomie eingeordnet. Des Weiteren erfolgt die
-Anwendung des Verfahrens innerhalb von zwei Testumgebungen. 
+(importance sampling) und Optimierung (optimization) \cite[~S.29 ff.]{R2004}. Im folgenden
+Kapitel wird das Verfahren erläutert und in die bereits beschriebene Taxonomie eingeordnet.
+Des Weiteren erfolgt die Anwendung des Verfahrens innerhalb von zwei Testumgebungen. 
 
 \subsection{Categorisation}
 Bei dem Verfahren handelt es sich um eine on-policy Methode, da im Trainingsprozess ausschließlich
@@ -618,7 +618,7 @@ Hauptziel, den maximalen Reward innerhalb einer Episode anzusammeln. Um dieses Z
 orientiert es sich an klassischen Machine Learning Verfahren und führt eine nichtlineare trainierbare
 Funktion ein, die als Input die Observation des Agenten erhält und diesen auf einen Output abbildet.
 Durch diese Charakteristik fällt die Cross-Entropy-Method in die Familie der policy learning Verfahren
-(policy-based), da mittels neuronalen Netzes ein Policy erzeugt wird, welche für jede Observation die
+(policy-based), da mittels neuronalen Netz eine Policy erzeugt wird, welche für jede Observation die
 zu wählende Action in Form einer Wahrscheinlichkeitsverteilung über alle Actions ausgibt, sprich es
 wird eine Observation über direktem Wege auf eine zu wählende Action abgebildet. Die
 Methode ist nicht value-based, da der zu erwartende Reward nicht approximiert wird.
@@ -641,10 +641,9 @@ von Observations, Actions und Rewards, gesammelt wurde. Innerhalb jeder Episode 
 insgesamt erwirtschaftete Reward, der \textit{total reward}, berechnet. Dadurch kann bewertet werden
 wie gut eine Episode im Vergleich zu anderen Episoden ausgefallen ist. Aufgrund der Zufälligkeit
 bei der Selektion von Actions kommt es dazu, dass einige Episoden besser ausfallen als andere.
-
 Die Cross-Entropy-Method macht sich dieses Verhalten zu nutze, verwirft schlechtere Episoden und
-trainiert ausschließlichen auf besseren Episoden. Das Kernprinzip wird dabei wie nachfolgend
-aufgelistet in die drei Schritte untergliedert \cite[~S.80 f.]{L2018}:
+trainiert ausschließlichen auf besseren Episoden. Das Kernprinzip des Verfahrens wird wie nachfolgend
+aufgelistet in drei Schritte untergliedert \cite[~S.80 f.]{L2018}:
 
 Initial wird eine definierte Anzahl $N$ an Episoden mit dem aktuellen Model im Enviroment gespielt
 oder auch wahrgenommen. Anschließend erfolgt die Berechnung des total rewards für jede gespielte
@@ -653,10 +652,9 @@ Episode. Zusätzlich wird in diesem Schritt eine Obergrenze für den Reward fest
 wohingegen die restlichten schlechteren Episoden verworfen werden. Anschließend wird im letzen Schritt
 das Model auf den übrigen \textit{elite} Episoden trainiert, wobei eine Observation als Input in das
 Netz gegeben wird und die zuvor gewählten Actions als gewünschter Output vom Netzes gefordert werden.
-Während des Trainingsprozesses werden die beschriebenen Schritte solange wiederholt bis ein gewünschtes
+Während des Trainingsprozesses werden diese Schritte solange wiederholt bis ein gewünschtes
 Ergebnis erzielt wurde. In \autoref{fig:cross_entropy_procedure} werden die beschriebenen Schritte
-zusätzlich visuell dargestellt: MountainCar-v0
-% TODO: ist das MountainCar-v0 beabsichtigt?
+zusätzlich visuell dargestellt:
 
 \begin{figure}[htp]
 \centering
@@ -689,7 +687,7 @@ Paper\cite{BSA1983} von Barto, Sutton und Anderson:
 
 \begin{figure}[htp]
 \centering
-\includegraphics[scale=0.18]{res/cart-pole.png}
+\includegraphics[scale=0.15]{res/cart-pole.png}
 \caption{Illustration des Cart-Pole Problems \cite[~S.838 f.]{BSA1983}}
 \label{fig:cart-pole}
 \end{figure}
@@ -697,14 +695,20 @@ Paper\cite{BSA1983} von Barto, Sutton und Anderson:
 \paragraph*{Evaluation}
 \noindent
 \newline
-Das Cross-Entropy-Verfahren wurde im Cart-Pole Environment mittels neuronalen Netzes mit einem Hidden 
-Layer mit 128 Nodes und einer Learning Rate von 0.01 trainiert. Als Optimizer wurde Adam verwendet und
-als Aktivierungsfunktion zwischen Input Layer und Hidden Layer die ReLu Funktion. Die
-nachfolgenden Graphen in \autoref{fig:cross-entropy-graph} veranschaulichen den \textit{loss}, den
-stetig wachsenden \textit{reward\_bound} (Reward Obergrenze) und den durchschnittlich erhaltenen Reward
-beim Spielen einer Episode (\textit{reward\_mean}). Das Model des orange dargestellten Graphs verwendet
-bei der Auswahl der elite Episoden einen Perzentil von 70, das blau dargestellte Model einen Perzentil
-von 80 und das rot dargestellte Model einen Perzentil von 90.
+Das Cross-Entropy-Verfahren wurde im Cart-Pole Environment mittels neuronalen Netz mit
+einem Hidden Layer mit 128 Nodes und einer Learning Rate von 0.01 trainiert. Als
+Optimizer wurde Adam verwendet und als Aktivierungsfunktion zwischen Input Layer und
+Hidden Layer die ReLu Funktion. Zur Berechnung eines Loss zwischen Vorhersage des Netzes
+und den während des Spielens aufgenommenen Actions wird der Cross-Entropy-Loss verwendet.
+
+Die nachfolgenden Graphen in \autoref{fig:cross-entropy-graph} veranschaulichen den
+\textit{loss}, den stetig wachsenden \textit{reward\_bound} (Reward Obergrenze) und den
+durchschnittlich erhaltenen Reward beim Spielen einer Episode (\textit{reward\_mean}).
+Das Model des orange dargestellten Graphs verwendet bei der Auswahl der elite Episoden
+einen Perzentil von 70, das blau dargestellte Model einen Perzentil von 80 und das
+rot dargestellte Model einen Perzentil von 90. Ein Perzentil definiert eine Menge von
+Werten einer Verteilung die unter oder gleich einem festgelegten Wert sind (z.B. Median 
+= 50\%-Perzentil). 
 
 \begin{figure}[htp]
 \centering
@@ -720,14 +724,14 @@ Die Implementierung der Cross-Entropy-Method zum Cart-Pole Problem ist unter
 \textit{preparation/04\_cross\_entropy} in der Datei \textit{cart\_pole\_torch.py} umgesetzt.
 
 \subsubsection{Frozen Lake}
+\label{sec:frozen-lake}
 Bei dem zweiten Environment Frozen Lake handelt es sich um ein Environment mit diskretem action-
-und diskretem observation-space, das heißt, dass sowohl die zu tätigenden Actions diskret sind,
+und diskretem observation-space, das heißt, dass sowohl die zu tätigende Action diskret ist,
 aber auch die Observation als diskreter Zahlenwert von 0-15 wahrgenommen wird. Der Zahlenwert
-der Observation repräsentiert dabei ausschließlich die Position des Agenten.
-Das Ziel ist es einen Avatar vom Startpunkt in der linken oberen Ecke
-eines Spielfeldes auf die untere rechte Seite zum Ziel zu steuern. Auf dem Weg zum Ziel
-befinden sich Löcher, die das Spiel beenden, wenn sich der Avatar auf diese bewegt. Das Spielfeld 
-ist in Abbildung \ref{fig:frozen_lake} zu sehen.
+der Observation repräsentiert dabei ausschließlich die Position des Agenten. Das Ziel ist es
+einen Avatar vom Startpunkt in der linken oberen Ecke eines Spielfeldes auf die untere rechte
+Seite zum Ziel zu steuern. Auf dem Weg zum Ziel befinden sich Löcher, die das Spiel beenden, wenn
+sich der Avatar auf diese bewegt. Das Spielfeld ist in Abbildung \ref{fig:frozen_lake} zu sehen.
 
 \begin{figure}[htp]
 \centering
@@ -743,20 +747,21 @@ Sees rutschig ist, weshalb die Folgeposition des Avatars nicht deterministisch i
 Wählt man bespielsweise die Action \grqq down\grqq, so bewegt sich der Avatar mit einer
 Wahrscheinlichkeit von jeweils $1/3$ nach unten, rechts oder links. Allgemein gesprochen
 ist die Richtung, in die sich der Avatar nach der Wahl einer Action bewegt, eine zufällige
-Richtung, wobei jedoch nicht die entgegengesetzte Action der Wahl vollzogen wird.
+Richtung, wobei jedoch nie die entgegengesetzte Action der Wahl vollzogen wird.
 
 \paragraph*{Evaluation}
 \noindent
 \newline
-Anders als das Cart-Pole Environment erhält der Agent bei dem Frozen Lake Environment ausschließlich
-einen von +1 Reward, sobald der gesteuerte Avatar das Ziel erreicht. Daraus folgt, dass anhand des
-\textit{total reward} einer Episode nicht darauf geschlossen werden kann, wie gut eine Episode gespielt
-wurde (Avatar kann lange umherwandern bevor er auf das Ziel kommt). Somit lässt sich das auch keine
-sinnvolle Wahl von elite Episoden treffen, da ausschließlich durchgespielte Episoden mit einem total
-reward von +1 oder 0 bestehen und die Episoden mit 0 deutlich häufiger auftreten.
+Anders als das Cart-Pole Environment erhält der Agent bei dem Frozen Lake Environment 
+ausschließlich einen +1 Reward, sobald der gesteuerte Avatar das Ziel erreicht. Daraus folgt,
+dass anhand des \textit{total reward} einer Episode nicht darauf geschlossen werden kann,
+wie gut eine Episode gespielt wurde (Avatar kann lange umherwandern bevor er auf das Ziel kommt).
+Somit lässt sich das auch keine sinnvolle Wahl von elite Episoden treffen, da ausschließlich
+durchgespielte Episoden mit einem total reward von +1 oder 0 bestehen und die Episoden mit 0
+deutlich häufiger auftreten.
 
-Aufgrund dieser Probleme werden folgende Einschränkungen der Cross-Entropy-Method veranschaulicht
-\cite[~S.92 f.]{L2018}:
+Aufgrund dieser Probleme werden folgende Einschränkungen der Cross-Entropy-Method 
+aufgeführt \cite[~S.92 f.]{L2018}:
 \begin{itemize}
 \itemsep0pt
 \item endliche und kurze Episoden
@@ -764,16 +769,17 @@ Aufgrund dieser Probleme werden folgende Einschränkungen der Cross-Entropy-Meth
 \item Reward für die Erfüllung von Zwischenschritten
 \end{itemize}
 
-Diese Einschränkungen können jedoch addressiert werden, indem mehr Episoden gespielt werden, um somit
-die Wahrscheinlichkeit zu erhöhen erfolgreiche Episoden zu erhalten. Des Weiteren muss der discount
-factor $\gamma$ auf die Berechnung des total reward angewandt werden, damit kürzere Episoden einen
-höheren total reward erzielen, als lange Episoden. Abschließend ist es sinnvoll elite Episoden für
-mehrere Iterationen zu behalten damit auf diesen trainiert werden kann \cite[~S.93]{L2018}.  
+Diese Einschränkungen können jedoch addressiert werden, indem mehr Episoden gespielt werden, 
+um somit die Wahrscheinlichkeit zu erhöhen erfolgreiche Episoden zu erhalten. Des Weiteren
+muss der discount factor $\gamma$ auf die Berechnung des total reward angewandt werden, damit
+kürzere Episoden einen höheren total reward erzielen, als lange Episoden. Abschließend ist es
+sinnvoll elite Episoden für mehrere Iterationen zu behalten damit auf diesen trainiert werden
+kann \cite[~S.93]{L2018}.  
 
-Die nachfolgenden Graphen veranschaulichen die Anwendung der Cross-Entropy-Method ohne (grün) und mit
-Anpassungen (grau) zur Erzielung besserer Resultate. Durch die Erweiterung des Verfahrens kann eine
-Verbesserung erzielt werden, sodass der Trainingsprozess bei einer etwa 50\% erfolgreichen Lösung der
-Problemstellung stagniert.
+Die nachfolgenden Graphen veranschaulichen die Anwendung der Cross-Entropy-Method ohne (grün)
+und mit Anpassungen (grau) zur Erzielung besserer Resultate. Durch die Erweiterung des
+Verfahrens kann eine Verbesserung erzielt werden, sodass der Trainingsprozess bei einer
+etwa 50\% erfolgreichen Lösung des Environments stagniert.
 
 \begin{figure}[htp]
 \centering
@@ -787,25 +793,25 @@ Problemstellung stagniert.
 \newpage
 % TODO Bruno
 \section{Q-Learning}
-In diesem Abschnitt wird das Q-Learning Verfahren erläutert. Anschließend wird die Methode
-an zwei Praktischen Anwendungen getestet. Einerseits in der Testumgebung \grqq
-frozen-lake\grqq (TODO: cite) und andererseits in einer selbstständig entwickelten
-Tic-Tac-Toe Anwendung, in der das Verfahren gegen einen zufällig spielenden Gegner
-ausprobiert wird.
+In diesem Abschnitt wird das Verfahren Q-Learning erläutert. Anschließend wird die Methode
+an zwei praktischen Anwendungen getestet. Einerseits in der Testumgebung frozen-lake 
+(siehe \autoref{sec:frozen-lake}) und andererseits in einer selbstständig entwickelten
+Tic-Tac-Toe Anwendung, in der das Verfahren anhand eines zufällig spielenden Gegner
+validiert wird.
 
 \subsection{Categorisation}
-Das Q-Learning Verfahren gehört zur Familie der value learning Verfahren, die
-unterschiedlichen Actions unterschiedliche Values zuordnen, um dann diejenigen Actions
+Q-Learning Verfahren gehören zur Familie der value learning Verfahren, die
+unterschiedlichen Actions unterschiedliche Values zuordnen, um daraufhin diejenigen Actions
 wählen zu können, die den höchsten Value aufweisen. Der Value einer Action ist dabei der
-zu erwartende Reward, den man erhält, führt man die gewählte Action im wahrgenommenen
-State aus.\\
+zu erwartende Reward, welcher vom Environment zurückgegeben wird, wenn man die gewählte
+Action im wahrgenommenen State ausführt.\\
 Weiterhin gehören Q-Learning Verfahren zu den off-policy Verfahren, da auch alte
-Erfahrungen zum Training benutzt werden können. Die Q-Learning Methoden, die von uns
-behandelt werden sind model-free, was bedeutet, dass nicht versucht wird die nächsten
+Erfahrungen zum Training benutzt werden können. Die Q-Learning Methoden, die nachfolgend
+beschrieben werden sind model-free, was bedeutet, dass nicht versucht wird die nächsten
 States oder die folgenden Rewards vorherzusagen.\\
-Wie oben schon angesprochen, basieren Q-Learning Verfahren auf einer Abschätzung des
+Wie oben bereits beschrieben, basieren Q-Learning Verfahren auf einer Abschätzung des
 Values eines States oder einer Action. Die Abschätzung des Values einer Action $a$ in
-einem State $s$ wird bezeichnet mit $Q(s, a)$. Dieses Value kann auf unterschiedliche
+einem State $s$ wird als $Q(s, a)$ bezeichnet. Diese Value kann auf unterschiedliche
 Weise ermittelt werden.\\
 Eine erste Variante von Q-Learning benutzt Tabellen, in denen die Abschätzungen
 für unterschiedliche States oder Actions gespeichert werden. Dieses Verfahren wird daher
@@ -820,10 +826,10 @@ Environments veranschaulicht.
 
 \subsubsection{Das Value-Iteration Verfahren}
 Da sich das Spielfeld nicht ändert, beschränken sich die Zustände von Frozen Lake auf die
-Positionen des Spielers. Daher lässt sich das Problem mit Tabular Q-Learning versuchen, da
-es möglich ist alle erreichbaren Zustände in einer Tabelle zu speichern. Die Tabelle
-enthält für jeden State eine Abschätzung der unterschiedlichen Actions. Tabelle
-\ref{tab:q_table} zeigt eine beispielhafte Q-Table mit zwei Actions und zwei States.
+Positionen des Spielers. Aus diesem Grund besteht die Möglichkeit zur Lösung der Problemstellung
+mittels des Tabular Q-Learning Verfahrens, da es möglich ist alle erreichbaren Zustände in einer
+Tabelle zu speichern. Diese Tabelle enthält für jeden State eine Abschätzung der unterschiedlichen
+Actions. Tabelle \ref{tab:q_table} zeigt eine beispielhafte Q-Table mit zwei Actions und zwei States.
 
 \begin{table}[h]
   \begin{center}
@@ -848,13 +854,13 @@ enthält für jeden State eine Abschätzung der unterschiedlichen Actions. Tabel
 
 \noindent
 Das Ziel des Verfahren ist es die Q-Values der Tabelle zu ermitteln. Dazu werden die
-Q-Values mit Null initialisiert, um sie dann iterativ zu bestimmen. Das Verfahren sieht
-vor, dass zufällige Actionen ausgewählt und in einem Environment ausprobiert werden.\\
+Q-Values mit Null initialisiert, um diese anschließend iterativ zu bestimmen. Das Verfahren 
+sieht vor, dass zufällige Actionen ausgewählt und in einem Environment ausprobiert werden.\\
 Daraus resultieren ein State, eine Action, ein Reward und ein Folgestate, auch SARS-Tupel
 genannt. Der erste State $s$ ist der Ausgangszustand, in dem man die zufällig gewählte
 Action $a$ getätigt hat. Als Folge auf das Ausführen dieser Action erhält man einen
 unmittelbaren Reward $r$, der vom Environment bestimmt wird, sowie den Folgestate $s'$,
-also dem State, den das Environment nach Ausführung von $a$ erreicht hat.\\
+also den State, den das Environment nach Ausführung von $a$ erreicht hat.\\
 Ist das SARS-Tupel gefunden, werden die Q-Values der Tabelle angepasst, wobei der folgende
 Zusammenhang verwendet wird.
 \begin{align}
@@ -867,18 +873,18 @@ $Q(s, a)$ ist das Value der Action $a$ im wahrgenommenen State $s$, also der lon
 Reward, der erwartet wird, führt man in State $s$ die Action $a$ aus. Das Ziel ist es
 $Q(s, a)$ so anzupassen, dass es sich dem tatsächlich zu erwartenden long-term reward
 annähert. Der unmittelbare Reward $r_{s,a}$ wird aus dem SARS-Tupel erhalten, ebenso wie
-der State $s'$.\\
-Befindet sich der Agent im State $s'$, so ist der maximal zu erwartende Reward, der
+der State $s'$.\\ % TODO verstehe nicht ganz die Aussage des Satzes
+Befindet sich der Agent im State $s'$, so ist der maximal zu erwartende Reward, der 
 maximal zu erwartende Reward der besten Action im State $s'$. Das bedeutet, dass
 der Term $\max_{a'\in A} Q(s', a')$ der erwartete long-term Reward der besten Action des
 Folgezustandes, also auch der bestmögliche long-term Reward, den man in State $s'$
 erwarten kann, ist. Nach (\ref{aln:QValues}) gleicht $Q(s, a)$ dem unmittelbaren Reward
 $r_{s,a}$ addiert mit dem besten zu erwartenden long-term Reward des Folgezustandes. Der
-Wert des Folgezustandes wird dabei mit dem Hyperparameter $\gamma$ multipliziert, wobei
+Wert des Folgezustandes wird dabei mit dem Hyperparameter $\gamma$ multipliziert, wobei % discount factor statt hyperparam
 $\gamma$ standardmäßig zwischen $0.9$ und $0.99$ gewählt wird.\\
 Mit Formel (\ref{aln:QValues}) erhalten wir einen neuen Wert für $Q(s, a)$, also einen
 neuen Wert in unserer Q-Table. Da die Wirkung einer Action in Frozen Lake nicht immer die
-selbe ist und wir daher auch nicht im Allgemeinen davon ausgehen dürfen, wäre es nicht gut
+selbe ist und wir daher auch nicht im Allgemeinen davon ausgehen dürfen, wäre es nicht gut % bitte nicht wir schreiben
 den Wert der Q-Table gleich dem ermittelten Wert zu setzen. Stattdessen wird der Wert der
 Tabelle in Richtung des ermittelten Wertes angepasst. Dies geschieht durch die in
 (\ref{aln:QValueAdapt}) dargestellte Zuweisung.
@@ -892,12 +898,12 @@ Tabelle in Richtung des ermittelten Wertes angepasst. Dies geschieht durch die i
 Wobei der Hyperparameter $\alpha$ zwischen 0 und 1 gesetzt wird, um den Wert $Q(s, a)$ bei
 jeder Iteration schrittweise zu überblenden. Dadurch nähern sich die Q-Values der Tabelle
 den tatsächlichen Q-Values an, wodurch sich das Environment erfolgreich spielen lässt.\\
-Um zu testen, wie gut unsere gefundenen Q-Values funktionieren, wird wie folgt
-vorgegangen. Man initialisiert ein Environment und lässt den Agenten in jedem erfahrenen
+Um zu testen, wie gut unsere gefundenen Q-Values funktionieren, wird wie folgt % bitte nicht unsere
+vorgegangen. Man initialisiert ein Environment und lässt den Agenten in jedem erfahrenen % bitte nicht Man initialisert 
 State die Action wählen, die das höchste Q-Value besitzt.
 
 \subsection{Ergebnisse}
-In unserem Experiment wird als gelöst angesehen, wenn 80\% von 20 Spielen erfolgreich
+In unserem Experiment wird als gelöst angesehen, wenn 80\% von 20 Spielen erfolgreich % bitte nicht unserem
 beendet wurden. Dieser Aufbau benötigt für 4x4 Frozen Lake zwischen 6000 und 42000
 Iterationen, was zwischen einer und sechs Sekunden benötigt. Abbildung
 \ref{fig:frozen-lake_q_learning} visualisiert den typischen Trainingsablauf, wobei der
@@ -997,7 +1003,8 @@ Environments, wobei folgende Themen kategorisiert werden:
 \end{itemize}
 
 \newpage
-\bibliographystyle{plain}
+%\bibliographystyle{plain}
+\bibliographystyle{alpha}
 \bibliography{references}
 \newpage
 \listoffigures 
