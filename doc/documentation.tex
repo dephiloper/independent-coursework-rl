@@ -98,7 +98,7 @@
 \newpage
 \section{Introduction}
 
-\subsection{Problem Case}
+\subsection{Problemstellung}
 Machine Learning Methoden werden zunehmend benutzt, um Probleme in der realen Welt zu
 lösen und erhalten daher in der Zukunft einen immer höheren Stellenwert. Spiele im
 speziellen stellen meist Problemstellungen dar, welche zum Teil auch schon durch Machine
@@ -109,7 +109,8 @@ ergibt sich folgende Problemstellung: Welche Machine Learning Verfahren können 
 absolvieren eines Computerspieles verwendet werden und wie integriert man diese in die
 virtuelle Umgebung?
 
-\subsection{Objectives}
+
+\subsection{Zielsetzung}
 Es soll innerhalb eines Supervised Research Independent Courseworks untersucht werden, wie
 sich ein Agent in einer virtuellen Spielumgebung mit Hilfe von Machine Learning Methoden,
 speziell Reinforcement Learning Verfahren, steuern lässt. Dafür werden initial
@@ -123,13 +124,13 @@ dieses Wissen anschließend in einem Prototyp umgesetzt werden, bei dem ein Agen
 Echtzeitspiel gesteuert wird. In der ausgearbeiteten Dokumentation wird dabei sowohl auf die
 Recherche und Aufarbeitung der theoretischen Teile von Reinforcement Learning als auch auf
 die abschließende Implementierung der prototypischen Umsetzung eines Agenten eingegangen.
-
-
 \newpage
-\section{Fundamentals}
+
+\section{Grundlagen}
 In diesem Abschnitt werden die Grundlagen des Machine Learning Bereichs Reinforcement Learning 
 erläutert. Damit soll eine Grundlage für Themenbereiche in nachfolgenden Kapiteln geschaffen
 werden, welche sich auf die Terminologie dieses Abschnittes beziehen.
+
 
 \subsection{Reinforcement Learning}
 Reinforcement Learning beschreibt eine Ansammlung von Machine Learning Verfahren, in denen die 
@@ -139,6 +140,7 @@ einer Belohnung oder Bestrafung. Diese Art des Feedbacks wird auch als Verstärk
 Somit muss vom Lernenden selbstständig eine Strategie entwickelt werden, um das gegebene
 Problem zu lösen, indem versucht wird den erhaltenen Belohnungswert zu maximieren. Die nachfolgenden
 Kapitel beschreiben Bestandteile und Hauptakteure von Systemen im Bereich Reinforcement Learning.
+
 
 \subsubsection{Agent}
 Ein Agent nimmt seine Umgebung (\textit{Environment}) über Sensoren wahr und kann mittels Aktuatoren
@@ -163,6 +165,7 @@ sprich wahrnimmt, und durch die Bewertung der getätigten Aktionen, dem \textit{
 Gesetzmäßigkeiten, aber auch die Netzwerkverbindung oder das Medium auf dem das Spiel ausgeführt
 wird kann zum Environment gezählt werden.
 
+
 \subsubsection{Action}
 \label{sec:action}
 Eine Action bietet die Möglichkeit für einen Agenten aktiv Einfluss auf das Geschehen im
@@ -176,6 +179,7 @@ bewegen oder zu springen. Unter kontinuierlichen Actions versteht man hingegen H
 über einen zusätzlichen Wert beeinflusst werden, wie zum Beispiel das Steuern eines Fahrzeuges
 mit einem Lenkrad. Dabei ist nich ausschließlich die Lenkrichtung ausschlaggebend, sondern auch
 der Einschlagswinkel des Lenkrades, welcher die Intensität der Lenkung festlegt.
+
 
 \subsubsection{Observation}
 Unter einer Observation versteht man die Wahrnehmung des Agenten, welche von dem Environment 
@@ -203,20 +207,22 @@ nicht über das bereits insgesamt gesammelte Ergebnis aller Erfolge und Misserfo
 bedeutet ein hoher lokaler Reward nicht, dass der daraus folgende Zustand global betrachet keine
 noch größeren negativen Auswirkungen auf den Agenten haben wird.
 
+
 \subsection{Markov Processes}
-Der Makrov Prozess und seine Erweiterungen bilden das theoretische Konstrukt für Reinforcement Learning
+Der Makrov Process und seine Erweiterungen bilden das theoretische Konstrukt für Reinforcement Learning
 Verfahren. Durch die Beleuchtung dieser Prozesse werden weitere Terminologien geklärt, welche ebenfalls
 ihren Einsatz im Reinforcement Learning finden.
 
+
 \subsubsection{Markov Process}
-Die einfachste Variante in der Markov Familie ist der Markov Prozess (Markov-Kette). Ein Markov Prozess
+Die einfachste Variante in der Markov Familie ist der Markov Process (Markov-Kette). Ein Markov Process
 beschreibt ein System, welches ausschließlich observiert werden kann, sprich es kann nicht in die Dynamik
-des Systems eingegriffen werden. Jeder Markov Prozess enthält eine Menge von \textit{States}, zwischen
+des Systems eingegriffen werden. Jeder Markov Process enthält eine Menge von \textit{States}, zwischen
 denen das System nach den Gesetzlichkeiten der Systemdynamik hin und her wechseln kann. Die Menge aller
 möglichen States wird dabei als \textit{State Space} bezeichnet. Wird das System observiert ergibt sich
 durch die Wechsel von State zu State eine Folge, welche als \textit{History} bezeichnet wird. 
 
-Damit ein Prozess als Markov Prozess bezeichnet werden kann muss dieser die \textit{Markov Eigenschaft}
+Damit ein Prozess als Markov Process bezeichnet werden kann muss dieser die \textit{Markov Eigenschaft}
 aufweisen, welche definiert, dass die zukünftige Dynamik des Systems von jedem State nur von diesem State abhängen darf. Die Markov Eigenschaft legt somit fest, dass ein State differenziert von jedem anderen State 
 des Systems betrachtet werden kann und deshalb die History für die Vorhersage der Systemdynamik nicht
 notwendig ist.
@@ -225,7 +231,7 @@ Ein Prozess der die Markov Eigenschaft aufweißt muss die Fähigkeit bieten, ein
 die Wahrscheinlichkeit des Eintreffens eines Folgezustandes bereitzustellen. Dafür werden 
 Wahrscheinlichkeiten für die Übergänge zwischen zwei States in einer \textit{Transition Matrix}
 festgehalten. \autoref{fig:markov}: \nameref{fig:markov} veranschaulicht ein Wettermodell in 
-der Repräsentationsform eines Markov Prozesses mit den States \textit{Sunny} und \textit{Rainy}
+der Repräsentationsform eines Markov Process mit den States \textit{Sunny} und \textit{Rainy}
 und deren Übergangswahrscheinlichkeiten in zukünftige Folgezustände.
 
 \begin{figure}[htp]
@@ -236,13 +242,14 @@ und deren Übergangswahrscheinlichkeiten in zukünftige Folgezustände.
 \label{fig:markov}
 \end{figure}
 
+
 \subsubsection{Markov Reward Process}
 \label{sec:markov_reward_process}
 Die erste Erweiterung zum Markov Process ensteht durch die Hinzunahme eines weiteren Wertes zu den 
 Übergängen zwischen zwei States, dem \textit{Reward} $R$. Dieser Wert definiert wie hoch die Belohnung
 oder Bestrafung bei einem Wechsel der States ausfällt. Durch den Reward kann anschließend der
 \textit{value of state} $V(s)$ berechnet werden. Für jeden State $s$ ist der value of state $V(s)$
-der durchschnittliche (oder erwartete) Ertrag, welcher durch das Verfolgen des Markov-Reward-Prozess
+der durchschnittliche (oder erwartete) Ertrag, welcher durch das Verfolgen des Markov Reward Process
 entsteht und somit durch alleiniges Observieren die Bewertung von Zuständen ermöglicht.
 Zusätzlich wird der \textit{discount factor} $\gamma$ eingeführt, welcher den erhaltenen Reward
 für Übergänge die weiter in der Zukunft liegen verringert. Der value of state wird dabei wie
@@ -261,6 +268,7 @@ V(s)_t = R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} ... = \sum_{k=0}^\infty \ga
  \gamma 	&  discount factor für Rewards, die weiter in der Zukunft liegen
 \end{conditions}
 
+
 \subsubsection{Markov Decision Process}
 Der Markov Decision Process erweitert den Markov Reward Process um eine endliche Menge an Actions.
 Diese Menge entspricht dem \textit{Action Space} des Agenten. Dadurch kommt es nun nicht mehr
@@ -273,12 +281,13 @@ Die Verhaltensweise, die der Agent ausübt und welche für die Wahl der Actions 
 wird als \textit{Policy} bezeichnet. Formal wird diese als Wahrscheinlichkeitsverteilung
 über Actions für jeden möglichen Zustand definiert \cite[~S.22 f.]{L2018}. 
 
-\subsection{Further Taxonomy} % TODO Überschrift gefällt mir irgendwie nicht so richtig
+
+\subsection{Weiterführende Taxonomie}
 In diesem Kapitel werden diverse Kategorisierungen für Reinforcement Learning Verfahren beschrieben,
 welche nachfolgend bei der Erläuterung der realisierten Verfahren für deren Einordnung genutzt werden.  
 
 
-\subsubsection{Value learning vs. policy learning}
+\subsubsection{Value learning - policy learning}
 Bei \textit{value learning} Verfahren wird jedem State oder jeder Kombination aus State und Action ein
 Value/Score zugewiesen, welcher diesen bewertet. Durch den Value kann der Agent anschließend eine
 Wahl zur besten Action treffen \cite[~S.NA]{L2018}. \textit{Policy learning} bezeichnet hingegen das
@@ -287,7 +296,7 @@ der zu wählenden Actions erzeugt wird. Der Agent wählt anschließend mithilfe 
 Wahrscheinlichkeiten die möglichen Actions \cite[~S.NA]{L2018}.
 
 
-\subsubsection{On-policy vs. off-policy}
+\subsubsection{On-policy - off-policy}
 Die Kategorisierung \textit{off-policy} beschreibt die Fähigkeit von Reinforcement Learning Verfahren auf
 Grundlage alter, bereits vor längerer Zeit aufgenommener Daten zu trainieren \cite[~S.NA]{L2018}. 
 Im Kontrast dazu definiert \textit{on-policy} die Notwendigkeit von immer neu aufgezeichneten 
@@ -295,7 +304,7 @@ Trainingsdaten, welche nach einem Trainingsdurchlauf wieder verworfen und somit 
 werden müssen.
 
 
-\subsubsection{Model-free vs. model-based}
+\subsubsection{Model-free - model-based}
 Der Term \textit{model-free} bezieht sich auf Verfahren, welche kein Modell der Umgebung oder des Rewards
 während des Trainingsprozesses aufbauen. Es werden ausschließlich durch aktuelle Observations
 zugehörige Actions berechnet. Model-based Methoden versuchen im Gegenzug vorherzusagen, was 
@@ -304,11 +313,13 @@ Vorhersage versucht der Agent die bestmögliche Action zu wählen, wobei in den 
 Fällen die Vorhersage mehrfach und dabei auch mit der Betrachtung zukünftiger Schritte durchgeführt
 wird \cite[~S.NA]{L2018}.
 
+
 \subsection{Exploration und Exploitation}
 In diesem Abschnitt wird der Konflikt zwischen Exploration und Exploitation des
 Reinforcement Learnings erläutert und anhand des k-armed-Bandit Problems veranschaulicht.
 Die dabei realisierten Implementierungen werden beschrieben und deren Ergebnisse
 vorgestellt.
+
 
 \subsubsection{Das k-armed-Bandit Problem}
 % Erklärung des k-armed-Bandit Problems
@@ -338,6 +349,7 @@ Rewards einer Action nicht über die Dauer des Spiels verändert. Dies bedeutet,
 Values der unterschiedlichen Actions am Anfang und Ende des Spiels identisch sind, wodurch
 auch Erfahrungen, die zu Beginn des Spielens gemacht wurden, am Ende benutzt werden
 können.
+
 
 \subsubsection{Exploration-Strategien}
 Im folgenden werden verschiedene Exploration-Strategien beleuchtet. Dazu werden diese erst
@@ -375,7 +387,9 @@ zweite ist der bis jetzt ermittelte $Value$ der Action $a$ bezeichnet mit $Q(a)$
 dritte Parameter ist die Anzahl, wie oft Action $a$ schon ausprobiert wurde. Die nächste
 zu spielende Action wird dann nach folgender Gleichung gewählt:
 
-\[ A = \argmax_a\left( Q(a) + c*\sqrt\frac{\ln(t)}{N(a)} \right) \]
+\begin{align}
+A = \argmax_a\left( Q(a) + c*\sqrt\frac{\ln(t)}{N(a)} \right)
+\end{align}
 
 \noindent
 $A$ ist die gewählte Action. $N(a)$ ist die Anzahl, wie oft die Action $a$ schon gewählt
@@ -388,7 +402,8 @@ Ein Vorteil gegenüber $\epsilon$-greedy Strategien ist, dass durch die Einbezie
 $Q(a)$ Actions häufiger ausprobiert werden, die besser wirken, während Actions, die sehr
 schlecht wirken weniger oft ausprobiert werden.
 
-\subsubsection{Implementation}
+
+\subsubsection{Implementierung}
 % Repo
 % Es wurde implementiert:
 %   - NArmedBandit
@@ -463,6 +478,7 @@ kleinsten Rewards. Deutlich besser funktionierte die erweiterte Version mit deca
 ungefähr genau so viel Reward erreichte, wie das Optimistic Initial Values Verfahren. Am
 besten schneidet die Upper Bound Confidence Action Selection ab.
 
+
 \newpage
 \subsection{Open AI Gym}
 Die Python Bibliothek \textit{gym}, welche von der Firma Open AI umgesetzt wurde umfasst ein
@@ -483,7 +499,8 @@ Nachfolgend soll der Aufbau und die Nutzung eines Environments durch die Bibliot
 erläutert werden und es wird auf eine Referenzimplementierung eines Environments für das
 Spiel Tic-Tac-Toe eingegangen.
 
-\subsubsection{Concept}
+
+\subsubsection{Konzept}
 Ein Environment ist eine von der Klasse gym.Env erbende Unterklasse, welche durch die
 Hauptprogrammierschnittstelle des Toolkits die folgenden Methoden definiert.
 
@@ -576,7 +593,8 @@ Für das Spiel Tic-Tac-Toe wurde ein Einspieler Environment implementiert, welch
 \textit{preparation/05\_v\_learning/} unter \url{github.com/dephiloper/independent-coursework-rl/}
 abgerufen werden kann.
 
-\subsubsection{Usage}
+
+\subsubsection{Verwendung}
 Das nachfolgende Listing \autoref{lst:env-usage} veranschaulicht die Nutzung eines von Open AI
 bereitgestellten Environments mit der Bezeichnung CartPole-v0. Initial wird das Environment
 mit \textit{gym.make('CartPole-v0')} erzeugt und daraufhin mit \textit{reset()} vollständig
@@ -606,13 +624,14 @@ können.
 
 \newpage
 \section{Cross-Entropy-Method}
+\label{sec:cross-entropy-method}
 Das erste zu beleuchtende Reinforcement Learning Verfahren ist die Cross-Entropy-Method. Die
 Cross-Entropy-Method ist eine Monte Carlo Methode für Stichprobenentnahme nach Wichtigkeit
 (importance sampling) und Optimierung (optimization) \cite[~S.29 ff.]{R2004}. Im folgenden
 Kapitel wird das Verfahren erläutert und in die bereits beschriebene Taxonomie eingeordnet.
 Des Weiteren erfolgt die Anwendung des Verfahrens innerhalb von zwei Testumgebungen. 
 
-\subsection{Categorisation}
+\subsection{Einordnung}
 Bei dem Verfahren handelt es sich um eine on-policy Methode, da im Trainingsprozess ausschließlich
 mittels neu aufgezeichneter Trainingsdaten gelernt werden kann. Prinzipiell hat das Verfahren das
 Hauptziel, den maximalen Reward innerhalb einer Episode anzusammeln. Um dieses Ziel zu erreichen
@@ -624,7 +643,7 @@ zu wählende Action in Form einer Wahrscheinlichkeitsverteilung über alle Actio
 wird eine Observation über direktem Wege auf eine zu wählende Action abgebildet. Die
 Methode ist nicht value-based, da der zu erwartende Reward nicht approximiert wird.
 
-\subsection{Procedure} % TODO Überschrift gefällt mir irgendwie nicht so richtig
+\subsection{Verfahren} % TODO Überschrift gefällt mir irgendwie nicht so richtig
 Die zu lernende Policy ist wie bereits erwähnt als Wahrscheinlichkeitsverteilung der
 über die Actions repräsentiert und dadurch sehr ähnlich zu einem Klassifizierungsproblem,
 wobei die Anzahl der Klassen hier der Anzahl von auszuführenden Actions entspricht. Durch
@@ -694,7 +713,7 @@ Paper\cite{BSA1983} von Barto, Sutton und Anderson:
 \label{fig:cart-pole}
 \end{figure}
 
-\paragraph*{Evaluation}
+\paragraph*{Evaluierung}
 \noindent
 \newline
 Das Cross-Entropy-Verfahren wurde im Cart-Pole Environment mittels neuronalen Netz mit
@@ -726,6 +745,7 @@ Die Implementierung der Cross-Entropy-Method zum Cart-Pole Problem ist unter
 \textit{preparation/04\_cross\_entropy} in der Datei
 \href{https://github.com/dephiloper/independent-coursework-rl/blob/master/preparation/04_cross_entropy/cart_pole_torch.py}{\nolinkurl{forzen\_lake\_torch.py}} umgesetzt.
 
+
 \subsubsection{Frozen Lake}
 \label{sec:frozen-lake}
 Bei dem zweiten Environment Frozen Lake handelt es sich um ein Environment mit diskretem action-
@@ -744,7 +764,6 @@ sich der Avatar auf diese bewegt. Das Spielfeld ist in Abbildung \ref{fig:frozen
 \label{fig:frozen_lake}
 \end{figure}
 
-
 \noindent
 Der Agent kann die Actions \grqq left\grqq, \grqq up\grqq, \grqq right\grqq und \grqq
 down\grqq ausführen. Erschwert wird die Steuerung aber dadurch, dass die Oberfläche des
@@ -754,7 +773,8 @@ Wahrscheinlichkeit von jeweils $1/3$ nach unten, rechts oder links. Allgemein ge
 ist die Richtung, in die sich der Avatar nach der Wahl einer Action bewegt, eine zufällige
 Richtung, wobei jedoch nie die entgegengesetzte Action der Wahl vollzogen wird.
 
-\paragraph*{Evaluation}
+
+\paragraph*{Evaluierung}
 \noindent
 \newline
 Anders als das Cart-Pole Environment erhält der Agent bei dem Frozen Lake Environment 
@@ -798,9 +818,9 @@ Die Implementierung der Cross-Entropy-Method zum Frozen Lake Environment ist unt
 \url{github.com/dephiloper/independent-coursework-rl} im Unterverzeichnis 
 \textit{preparation/04\_cross\_entropy} in der Datei 
 \href{https://github.com/dephiloper/independent-coursework-rl/blob/master/preparation/04_cross_entropy/frozen_lake_torch.py}{\nolinkurl{forzen\_lake\_torch.py}} umgesetzt.
-
-
 \newpage
+
+
 % TODO Bruno
 \section{Q-Learning}
 In diesem Abschnitt wird das Verfahren Q-Learning erläutert. Anschließend wird die Methode
@@ -809,7 +829,8 @@ an zwei praktischen Anwendungen getestet. Einerseits in der Testumgebung frozen-
 Tic-Tac-Toe Anwendung, in der das Verfahren anhand eines zufällig spielenden Gegner
 validiert wird.
 
-\subsection{Categorisation}
+
+\subsection{Einordnung}
 Q-Learning Verfahren gehören zur Familie der value learning Verfahren, die
 unterschiedlichen Actions unterschiedliche Values zuordnen, um daraufhin diejenigen Actions
 wählen zu können, die den höchsten Value aufweisen. Der Value einer Action ist dabei der
@@ -827,13 +848,15 @@ Eine erste Variante von Q-Learning benutzt Tabellen, in denen die Abschätzungen
 für unterschiedliche States oder Actions gespeichert werden. Dieses Verfahren wird nach
 \cite[~S.193]{L2018} auch als \grqq Tabular Q-Learing\grqq bezeichnet.
 
+
 % Beschreibung des Verfahrens Tabular Q-Learning u. Unterscheidung zu Deep-Q-Learning
 \subsection{Tabular Q-Learning}
 In diesem Abschnitt wird auf das Tabular Q-Learning eingegangen. Um die
 Ver\-ständ\-lich\-keit zu verbessern wird das Verfahren anhand des Frozen Lake
 Environments veranschaulicht.
 
-\subsubsection{Das Value-Iteration Verfahren}
+
+\subsubsection{Value-Iteration Verfahren}
 Da sich das Spielfeld nicht ändert, beschränken sich die Zustände von Frozen Lake auf die
 Positionen des Spielers. Aus diesem Grund besteht die Möglichkeit zur Lösung der Problemstellung
 mittels des Tabular Q-Learning Verfahrens, da es möglich ist alle erreichbaren Zustände in einer
@@ -872,6 +895,7 @@ unmittelbaren Reward $r$, der vom Environment bestimmt wird, sowie den Folgestat
 also den State, den das Environment nach Ausführung von $a$ erreicht hat.\\
 Ist das SARS-Tupel gefunden, werden die Q-Values der Tabelle angepasst, wobei der folgende
 Zusammenhang verwendet wird.
+
 \begin{align}
 Q(s, a) = r_{s,a} + \gamma \max_{a' \in A}Q(s', a')
 \label{aln:QValues}
@@ -889,7 +913,7 @@ der Term $\max_{a'\in A} Q(s', a')$ der erwartete long-term Reward der besten Ac
 Folgezustandes, also auch der bestmögliche long-term Reward, den man in State $s'$
 erwarten kann, ist. Nach (\ref{aln:QValues}) gleicht $Q(s, a)$ dem unmittelbaren Reward
 $r_{s,a}$ addiert mit dem besten zu erwartenden long-term Reward des Folgezustandes. Der
-Wert des Folgezustandes wird dabei mit dem Discount Factor $\gamma$ multipliziert, wobei 
+Wert des Folgezustandes wird dabei mit dem discount factor $\gamma$ multipliziert, wobei 
 $\gamma$ standardmäßig zwischen $0.9$ und $0.99$ gewählt wird.\\
 Mit Formel (\ref{aln:QValues}) erhalten wir einen neuen Wert für $Q(s, a)$, also einen
 neuen Wert in unserer Q-Table. Da die Wirkung einer Action in Frozen Lake nicht
@@ -911,7 +935,8 @@ Um zu testen, wie gut die gefundenen Q-Values funktionieren, wird wie folgt vorg
 Ein neues Environment wird initialisiert und der Agent wählt in jedem erfahrenen State die
 Action, die das höchste Q-Value besitzt.
 
-\subsubsection{Ergebnisse}
+
+\subsubsection{Evaluierung}
 Das vorgestellte Experiment wird als gelöst angesehen, wenn 80\% von 20 Spielen erfolgreich
 beendet wurden. Dieser Aufbau benötigt für 4x4 Frozen Lake zwischen 6000 und 42000
 Iterationen, was zwischen einer und sechs Sekunden benötigt. Abbildung
@@ -957,7 +982,7 @@ Soll der trainierte Agent nun sein gewonnenes Wissen exploiten, so berechnet er 
 zur Verfügung stehenden Actions die daraus resultierenden States und wählt die Action, die
 zum State mit höchstem Value führt.
 
-\subsubsection{Ergebnisse}
+\subsubsection{Evaluierung}
 Um das Verfahren zu testen wurden Agenten mit unterschiedlicher Anzahl an Trainingsspielen
 trainiert, wobei bei ein Agent entweder immer das Spiel eröffnete oder immer den zweiten
 Zug hatte. Als step\_size wurde initial 0.1 genutzt. Nach jedem Spiel wurde die step\_size
@@ -996,9 +1021,10 @@ beginnende Agent verlieren kann. Dies kann gegen einen zufällig spielenden Gegn
 vernünftig sein, da ein kleines Risiko einzugehen dazu führen kann, dass deutlich häufiger
 gewonnen wird.
 
+
 \subsection{Limitierungen von Tabular-Q-Learning}
 % TODO: diskrete Action
-Nach \cite[~S.192]{L2018} wird die Einsetzbarkeit dieser Verfahren dadurch beschränkt,
+Nach Laplan\cite[~S.192]{L2018} wird die Einsetzbarkeit dieser Verfahren dadurch beschränkt,
 dass es in vielen Environments zu viele unterschiedliche States gibt, sodass dessen Values
 oder die Values der Actions in diesen States nicht mehr ausreichend approximiert werden
 können.\\
@@ -1006,8 +1032,9 @@ Diese Limitierung wird in \grqq Deep-Q-Learning\grqq, dem nächsten vorgestellte
 Verfahren, gelöst indem ein neuronales Netz benutzt wird, um die Values von Actions $Q(s,
 a)$ zu bestimmen. Diese werden dann nicht mehr in einer Tabelle gespeichert und gelesen,
 sondern von einem Modell berechnet, dass zwischen ähnliche States abstrahieren kann.
-
 \newpage
+
+
 % Bruno TODO
 \section{Deep Q-Learning}
 Erweitung des Q-learning Verfahrens um neuronales Netz, was die Nutzung von Spielen und
@@ -1027,25 +1054,27 @@ Funktionsweise sowie folgender Terminologien und Verfahren mit diversen Implemen
 \item limitations
 \item extensions: duelling dqn, categorical dqn, n-step dqn
 \end{itemize}
+\newpage
+
 
 % Philipp TODO
-\newpage
 \section{Policy Gradients}
-Policy Gradients beschreibt eine Unterfamilie von Reinforcement Learning Methoden aus dem
-Bereich der policy learning Verfahren. Anders als die beiden zuvor beschriebenen Verfahren
-Tabular-Q-Learning und Deep Q-Learning fokussieren sich policy Verfahren auf das Erlernen
-einer direkten policy $\pi(s)$. Dies bringt den Vorteil mit sich, dass Policy Gradients auf
-Environments mit kontinuierlichen action space, sprich Actions mit Werterepräsentationen in 
-Gleitkommadarstellung, angewandt werden können (siehe \ref{sec:action} \nameref{sec:action}
-- Einschlagwinkel eines Lenkrads). Q-Learning Verfahren hingegen weisen jedem State oder
-jeder Action immer eine Value zu, was das Optimierungsproblem bei einem kontinuierlichen
-action space deutlich erschwert \cite[~S.242]{L2018}. Ein zusätzlicher Vorteil der Policy
-Gradients ist die stochastische Eigenschaft von Environments. Anders als Q-Learning wird es
-mit Policy Gradients möglich, die zugrundeliegende Wahrscheinlichkeitsverteilung des
-Environments besser aufzugreifen, da das Verfahren, statt mittels Erwartungswerten von aktuellen
-und zukünftigen Rewards zu rechnen, mit einer Wahrscheinlichkeitsverteilung von Actions arbeitet.
-In der nachfolgenden Abbildung wird genau diese Wahrscheinlichkeitsverteilung von diskreten 
-Actions nach Anwendung der Policy Approximation visualisiert.
+Policy Gradients beschreibt eine Unterfamilie und somit Gruppe von Reinforcement Learning 
+Methoden aus dem Bereich der policy learning Verfahren. Anders als die beiden zuvor
+beschriebenen Verfahren Tabular-Q-Learning und Deep Q-Learning fokussieren sich policy
+Verfahren auf das Erlernen einer direkten policy $\pi(s)$. Dies bringt den Vorteil mit sich,
+dass Policy Gradients auf Environments mit kontinuierlichen action space, sprich Actions mit
+Werterepräsentationen in Gleitkommadarstellung, angewandt werden können (siehe
+\ref{sec:action} \nameref{sec:action} - Einschlagwinkel eines Lenkrads). Q-Learning Verfahren
+hingegen weisen jedem State oder jeder Action immer eine Value zu, was das Optimierungsproblem
+bei einem kontinuierlichen action space deutlich erschwert \cite[~S.242]{L2018}. Ein
+zusätzlicher Vorteil der Policy Gradients ist die stochastische Eigenschaft von Environments.
+Anders als Q-Learning wird es mit Policy Gradients möglich, die zugrundeliegende
+Wahrscheinlichkeitsverteilung des Environments besser aufzugreifen, da das Verfahren, statt
+anhand von Erwartungswerten des aktuellen und zukünftigen Rewards zu rechnen, mit einer
+Wahrscheinlichkeitsverteilung von Actions arbeitet. In der nachfolgenden Abbildung wird
+genau diese Wahrscheinlichkeitsverteilung von diskreten Actions nach Anwendung der Policy
+Approximation visualisiert.
 
 \begin{figure}[htp]
 \centering
@@ -1062,10 +1091,101 @@ zu einer komplett anderen Action bei der Vorhersage führen. Aufgrund der
 Wahrscheinlichkeitsverteilung bewirken Änderungen hingegen nur moderate Änderungen in der
 resultierenden Verteilung des Output \cite[~S.243]{L2018}.
 
-\subsection{REINFORCE method}
+
+\subsection{REINFORCE Method}
+Das nachfolgend beschriebene Verfahren REINFORCE oder Monte Carlo Policy Gradient, weist
+deutliche Ähnlichkeiten zur bereits erläuterten \nameref{sec:cross-entropy-method} auf.
+Genau wie das Cross-Entropy Verfahren, erhält das Netz als Input die Observation des
+Environments und liefert eine Wahrscheinlichkeitsverteilung der Actions an den Agent
+zurück. Der Unterschied kommt durch die in Formel \ref{aln:PG} festgehaltene Definition
+des $PG$ (Policy Gradient) zustande.
+
+\begin{align}
+\mathcal{L}=-Q(s,a)\log\pi(a|s)
+\label{aln:PG}
+\end{align}
+
+PG definiert dabei die Richtung, in welche die Gewichte des Netzes verschoben werden müssen,
+um die Policy im Hinblick auf den kumulierten total reward zu verbessern. Die Skalierung des
+Gradienten ist hierbei proportional zur Value der zu wählenden Action $Q(s,a)$
+und der Gradient selbst entspricht in der Formel dem Gradienten der logarithmischen
+Wahrscheinlichkeit der ausgewählten Action \cite[~S.244]{L2018}. Dadurch wird es möglich
+die Wahrscheinlichkeit von Actions mit einem hohen total reward zu erhöhen und im Gegenzug
+die Wahrscheinlichkeit der Action mit einem niedrigen oder negativen total reward zu
+verringern.
+
+Ein weiterer Unterschied zur Cross-Entropy-Method ist, dass diese als PG Methode mit einem
+$Q(s,a)=1$ für Episoden mit hohem total reward und $Q(s,a)=0$ für schlechte Episoden
+definiert werden kann, wohingegen REINFORCE wirkliche Berechnungen für $Q(s,a)$ durchführt
+und somit eine detaillierte Unterteilung der Episoden ermöglicht.
+
+\subsubsection{Einordnung}
+Wie bereits erwähnt ist die REINFORCE Method ein policy learning Verfahren. Das Verfahren ist
+on-policy, da ausschließlich anhand neu aufgezeichneter Trainingsdaten gelernt werden kann.
+Demzufolge kommt das Verfahren ohne die Verwendung eines Replay Buffers (TODO ref) %TODO ref
+aus. Des Weiteren erfolgt die Einordnung als model-free Methode, da nicht versucht wird
+Annahmen zu zukünftigen States oder Rewards zu treffen. Prinzipiell basieren alle Policy
+Gradient Verfahren auf der in Formel \ref{aln:PG} festgelegten Definition, wobei
+ausschließlich Anpassungen am Kernkonzept des Verfahrens vorgenommen werden
+\cite[~S.244 f.]{L2018}. Anders als die bereits behandelten value-learning Verfahren ist
+kein explizites Explorieren notwendig, da REINFORCE und Policy Gradient Verfahren im generellen
+durch die Nutzung einer Wahrscheinlichkeitsverteilung über alle Actions ein automatisches
+\grqq Erforschen\grqq des Environments und der zu tätigenden Actions vollzieht. Bei einer
+Initialisierung mit zufälligen Gewichten gibt das Netz eine uniforme
+Wahrscheinlichkeitsverteilung zurück und somit die Verhaltensweise eines random Agents.
+
+
+\subsubsection{Verfahren}
+Zu Beginn des Verfahrens werden die Parameter des Netzes $\theta$ als zufällige Gewichte
+initialisiert. Nachfolgend werden, genau wie bei der value-based Methode Q-Learning,
+multiple Episoden im Environment gespielt wobei ein Batch an SARS-Tupeln produziert wird.
+Anschließend erfolgt die Berechnung des discounted total reward für die Folgeschritte eines
+jeden steps, wobei ein step einem SARS-Tupel in einer Episode entspricht. Diese Berechnung
+wird durch die nachfolgend aufgeführte Formel \ref{aln:reinforce-total-reward} beschrieben,
+in welcher $t$ für den aktuellen step und $k$ die darin befindliche Episode des steps
+definiert. 
+
+\begin{align}
+Q_{k,t}=\sum_{i=0} \gamma^{i}r_{i}
+\label{aln:reinforce-total-reward}
+\end{align}
+
+Da im REINFORCE Verfahren die Berechnung des discounted total reward $Q_{k,t}$ direkt durch
+Aufsummierung des aktuellen Rewards und der in zukünftigen Zuständen erhaltenen Rewards
+ermittelt werden kann, ist eine Approximation von $Q$ wie in Deep-Q-Learning nicht notwendig,
+was zusätzlich die Verwendung des Target Net überflüssig macht (TODO ref). %TODO ref
+Mittels $Q_{k,t}$ kann daraufhin die Berechnung des Loss anhand der in Formel
+\ref{aln:reinforce-loss} festgehaltenen Gleichung ermittelt werden.
+
+\begin{align}
+\mathcal{L}=-\sum_{k,t}Q_{k,t}\log(\pi(s_{k,t},a_{k,t}))
+\label{aln:reinforce-loss}
+\end{align}
+
+Auf Grundlage dieser Berechnung wird ein Update der Gewichte mittels Stochastic
+Gradient Descent durchgeführt und somit das Minimieren des Loss erzielt. Das Verfahren
+wird daraufhin solange ausgeübt bis es konvergiert.
+
+\subsubsection{Limitierungen von REINFORCE}
+Zu den Limitierungen des REINFORCE Verfahrens zählen laut Laplan\cite[~S.252]{L2018}, dass für den
+Trainingsprozess jede Episode immer bis zum Schluss gespielt werden muss. Andernfalls kann der
+discounted total reward nicht vollständig berechnet werden. Des Weiteren können bessere Resultate
+erzielt werden, umso länger trainiert wird. Dies kann bei Environments mit lang andauernden Episoden
+zeitaufwendig werden, da nach jedem Trainingsschritt immer neue Trainingsdaten vom Environment
+generiert werden müssen. Um diesen Problem entgegen zu wirken existiert ein weiteres Verfahren, die
+\textit{Actor-Critic Method}, welche im nächsten Kapitel erläutert wird. 
+
+Zusätzlich weist die REINFORCE Method eine hohe Varianz bei der Berechnung des Gradienten auf.
+Dies kommt aufgrund der Skalierung des Gradienten mittels des discounted total rewards zustande.
+Hauptgrund dafür ist, dass der Wertebereich des zu erhaltenden Rewards von Environment zu Environment
+stark variiert und in diversen Environments zu Beginn der Anteil an Punishment (negativer Reward) den
+erhalt des positiven Reward deutlich dominiert. Durch die Einführung einer Baseline, einem Wert, der
+von dem total reward $Q$ subtrahiert wird, kommt es zu einer Stabilisierung des Verfahrens. Neben
+diesen Erweiterungen existieren weitere, welche im nachfolgenden Kapitel analysiert werden. 
+\newpage
+
 
 % Philipp TODO
-\newpage
 \section{Actor Critic}
 Beschreibung einer state-of-the-art RL Methode Actor Critic. Kombination aus policy learning und value learning. Ansatz mit mehreren Environments parallel zur Beschleunigung und Stabilisierung des Lernprozesses.
 \begin{itemize}
