@@ -223,9 +223,10 @@ möglichen States wird dabei als \textit{State Space} bezeichnet. Wird das Syste
 durch die Wechsel von State zu State eine Folge, welche als \textit{History} bezeichnet wird. 
 
 Damit ein Prozess als Markov Process bezeichnet werden kann muss dieser die \textit{Markov Eigenschaft}
-aufweisen, welche definiert, dass die zukünftige Dynamik des Systems von jedem State nur von diesem State abhängen darf. Die Markov Eigenschaft legt somit fest, dass ein State differenziert von jedem anderen State 
-des Systems betrachtet werden kann und deshalb die History für die Vorhersage der Systemdynamik nicht
-notwendig ist.
+aufweisen, welche definiert, dass die zukünftige Dynamik des Systems von jedem State nur
+von diesem State abhängen darf. Die Markov Eigenschaft legt somit fest, dass ein State
+differenziert von jedem anderen State des Systems betrachtet werden kann und deshalb die
+History für die Vorhersage der Systemdynamik nicht notwendig ist.
 
 Ein Prozess der die Markov Eigenschaft aufweißt muss die Fähigkeit bieten, eine Vorhersage über
 die Wahrscheinlichkeit des Eintreffens eines Folgezustandes bereitzustellen. Dafür werden 
@@ -323,14 +324,15 @@ vorgestellt.
 
 \subsubsection{Das k-armed-Bandit Problem}
 % Erklärung des k-armed-Bandit Problems
-Das k-armed-Bandit Problem besteht darin aus $k$ verschiedenen Actions zu wählen.
-Nachdem eine Action gewählt wurde, erhält der Agent einen Reward, der aus einer
-Wahrscheinlichkeitsverteilung gezogen wird. Der Erwartungswert der
-Wahrscheinlichkeitsverteilung hängt von der gewählten Action ab. Das Ziel besteht darin
-mit der Ausführung von $n$ Actions die höchstmögliche Summe von Rewards zu erhalten.
+Nach R. Sutton \cite[~S. 26]{SB1998} besteht das k-armed-Bandit Problem darin, aus $k$
+verschiedenen Actions zu wählen, wobei nachdem eine Action gewählt wurde, der Agent einen
+Reward erhält, der aus einer Wahrscheinlichkeitsverteilung gezogen wird. Der
+Erwartungswert der Wahrscheinlichkeitsverteilung hängt von der gewählten Action ab. Das
+Ziel besteht darin mit der Ausführung von $n$ Actions die höchstmögliche Summe von Rewards
+zu erhalten.
 
 Der Erwartungswert der hinter der Verteilung einer Action steht als $Value$ der Action
-bezeichnet. Würden die Values der einzelnen Actions den Agenten zur Verfügung stehen, wäre die 
+bezeichnet. Würden die Values der einzelnen Actions dem Agenten zur Verfügung stehen, wäre die 
 Wahl der Action einfach, indem die Action mit dem höchsten Erwartungswert gewählt werden 
 könnte. Allgemein ist in Reinforcement Learning Problemen der Value einer Action nicht bekannt.
 Stattdessen gibt es ausschließlich Abschätzungen bezüglich des Values einer Action, die aus den
@@ -364,13 +366,14 @@ der sie sich den höchsten Reward versprechen und andernfalls eine zufällige Ac
 In der Praxis werden häufig decaying-$\epsilon$-greedy-Strategien verwendet, bei denen der
 $\epsilon$-Wert über den Trainingsprozess hinweg verringert wird. Dadurch werden zu Beginn
 des Trainings viele neue Actions ausprobiert, während gegen Ende das Anwenden des
-Gelernten stärker in den Vordergrund rückt.
+Gelernten stärker in den Vordergrund tritt.
 
 \paragraph{Optimistic Initial Values}
 Ein Agent, der ein k-armed-Bandit Problem lösen soll, besitzt eine interne Abschätzung der
 Values, um Actions wählen zu können, die einen besseren Reward versprechen. Die
 Bewertung der Actions wird beeinflusst durch die erfahrenen Rewards nach dem Wählen einer
-Action.\\
+Action. Beispielsweise können die erfahrenen Rewards einer Action gemittelt werden, um
+folgende Rewards dieser Action abschätzen zu können.\\
 Neben $\epsilon$-greedy Verfahren ist es eine weitere Möglichkeit Exploration umzusetzen,
 die initiale Bewertung der Values sehr optimistisch vorzunehmen. Dadurch wird der Agent
 bei der Wahl einer Action vom erhaltenen Reward \grqq enttäuscht\grqq, sodass sich die
@@ -399,16 +402,11 @@ $c*\sqrt\frac{\ln(t)}{N(a)}$ wird sichergestellt, dass selten benutzte Actions e
 Bewertung erhalten und damit wahrscheinlicher ausprobiert werden. Über den Hyperparameter
 $c$ lässt sich bestimmen, wie stark selten benutzte Actions ausprobiert werden sollen.\\
 Ein Vorteil gegenüber $\epsilon$-greedy Strategien ist, dass durch die Einbeziehung von
-$Q(a)$ Actions häufiger ausprobiert werden, die besser wirken, während Actions, die sehr
-schlecht wirken weniger oft ausprobiert werden.
+$Q(a)$ Actions häufiger ausprobiert werden, die besser erscheinen, während Actions, die
+sehr schlecht wirkende Actions weniger oft ausprobiert werden.
 
 
 \subsubsection{Implementierung}
-% Repo
-% Es wurde implementiert:
-%   - NArmedBandit
-%   - Solver
-%   - main
 Das k-armed-Bandit Problem sowie verschiedene Varianten der Action-Selection wurden
 implementiert und sind unter \url{https://github.com/Bluemi/rl_testbed} abrufbar.\\
 In der Klasse \lstinline!NArmedBandit! wird das k-armed-Bandit Problem umgesetzt. Es
@@ -445,8 +443,8 @@ gefundenen guten Actions zu exploiten.\\
 Um die Vorteile beider Möglichkeiten zu nutzen, verwendet das dritte Experiment einen
 decay, um $\epsilon$ auf $0$ zu senken. Dadurch werden zu Beginn viele zufällige Actions
 ausgewählt, um die Values der einzelnen Actions besser einzuschätzen. Wenn durch den decay
-$\epsilon$ gegen Ende des Experiments $\epsilon$ sinkt, werden die gefundenen Actions
-benutzt und ein vergleichsweise hoher Reward entsteht.\\
+$\epsilon$ gegen Ende des Experiments sinkt, werden die gefundenen Actions benutzt und ein
+vergleichsweise hoher Reward entsteht.\\
 In der rechten Abbildung sind das Verfahren Optimistic Initial Values und Upper Confidence
 Bound Action Selection zu sehen. Zusätzlich ist der $\epsilon$-greedy Solver mit
 $\epsilon=0.01$ aus der ersten Abbildung zum Vergleich eingezeichnet. Die obere schwarz
@@ -475,8 +473,8 @@ der unterschiedlichen Verfahren.
 \noindent
 Im gezeigten Experiment erhielten die einfachen Versionen der $\epsilon$-greedy Solver die
 kleinsten Rewards. Deutlich besser funktionierte die erweiterte Version mit decay, die
-ungefähr genau so viel Reward erreichte, wie das Optimistic Initial Values Verfahren. Am
-besten schneidet die Upper Bound Confidence Action Selection ab.
+vergleichbar mit dem Verfahren Optimistic Initial Values ist. Am besten schneidet die
+Upper Bound Confidence Action Selection ab.\\
 
 
 \newpage
@@ -821,7 +819,6 @@ Die Implementierung der Cross-Entropy-Method zum Frozen Lake Environment ist unt
 \newpage
 
 
-% TODO Bruno
 \section{Q-Learning}
 In diesem Abschnitt wird das Verfahren Q-Learning erläutert. Anschließend wird die Methode
 an zwei praktischen Anwendungen getestet. Einerseits in der Testumgebung frozen-lake 
@@ -846,7 +843,7 @@ einem State $s$ wird als $Q(s, a)$ bezeichnet. Diese Value kann auf unterschiedl
 Weise ermittelt werden.\\
 Eine erste Variante von Q-Learning benutzt Tabellen, in denen die Abschätzungen
 für unterschiedliche States oder Actions gespeichert werden. Dieses Verfahren wird nach
-\cite[~S.193]{L2018} auch als \grqq Tabular Q-Learing\grqq bezeichnet.
+\cite[~S.193]{L2018} auch mit \grqq Tabular Q-Learing\grqq bezeichnet.
 
 
 % Beschreibung des Verfahrens Tabular Q-Learning u. Unterscheidung zu Deep-Q-Learning
@@ -858,10 +855,11 @@ Environments veranschaulicht.
 
 \subsubsection{Value-Iteration Verfahren}
 Da sich das Spielfeld nicht ändert, beschränken sich die Zustände von Frozen Lake auf die
-Positionen des Spielers. Aus diesem Grund besteht die Möglichkeit zur Lösung der Problemstellung
-mittels des Tabular Q-Learning Verfahrens, da es möglich ist alle erreichbaren Zustände in einer
-Tabelle zu speichern. Diese Tabelle enthält für jeden State eine Abschätzung der unterschiedlichen
-Actions. Tabelle \ref{tab:q_table} zeigt eine beispielhafte Q-Table mit zwei Actions und zwei States.
+Positionen des Spielers. Durch die geringe Anzahl an Spielsituationen bietet sich das
+Tabular Q-Learning Verfahrens an, da es möglich ist alle erreichbaren Zustände in einer
+Tabelle zu speichern und deren Values zu bestimmen. Diese Tabelle enthält für jeden State
+eine Abschätzung der unterschiedlichen Actions. Tabelle \ref{tab:q_table} zeigt eine
+sehr kleine beispielhafte Q-Table mit zwei Actions und zwei States.
 
 \begin{table}[h]
   \begin{center}
@@ -877,12 +875,6 @@ Actions. Tabelle \ref{tab:q_table} zeigt eine beispielhafte Q-Table mit zwei Act
     \label{tab:q_table}
   \end{center}
 \end{table}
-
-% Beschreibung des Verfahrens an Frozen Lake
-%  - Es werden random Actions getätigt
-%  - Daraus wird eine SARS Tupel geholt
-%  - Value Update
-%  - Testen, ob Ziel erreicht ist
 
 \noindent
 Das Ziel des Verfahren ist es die Q-Values der Tabelle zu ermitteln. Dazu werden die
@@ -931,12 +923,11 @@ Wert der Tabelle in Richtung des ermittelten Wertes angepasst. Dies geschieht du
 Wobei der Hyperparameter $\alpha$ zwischen 0 und 1 gesetzt wird, um den Wert $Q(s, a)$ bei
 jeder Iteration schrittweise zu überblenden. Dadurch nähern sich die Q-Values der Tabelle
 den tatsächlichen Q-Values an, wodurch sich das Environment erfolgreich spielen lässt.\\
-Um zu testen, wie gut die gefundenen Q-Values funktionieren, wird wie folgt vorgegangen.
-Ein neues Environment wird initialisiert und der Agent wählt in jedem erfahrenen State die
-Action, die das höchste Q-Value besitzt.
-
 
 \subsubsection{Evaluierung}
+Um zu testen, wie gut die gefundenen Q-Values funktionieren, wird wie folgt vorgegangen.
+Ein neues Environment wird initialisiert und der Agent wählt in jedem erfahrenen State die
+Action, die das höchste Q-Value besitzt.\\
 Das vorgestellte Experiment wird als gelöst angesehen, wenn 80\% von 20 Spielen erfolgreich
 beendet wurden. Dieser Aufbau benötigt für 4x4 Frozen Lake zwischen 6000 und 42000
 Iterationen, was zwischen einer und sechs Sekunden benötigt. Abbildung
@@ -952,12 +943,17 @@ durchschnittliche Reward aus 20 Spielen gezeigt wird.
 
 
 \subsection{Tic Tac Toe}
-Neben der Umsetzung von Frozen Lake wurde ebenfalls ein Tic Tac Toe Environment
+Neben der Umsetzung von Frozen Lake wurde ebenfalls eine Tic Tac Toe Implementation
 entwickelt, in dem ein Agent gegen einen zufällig spielenden Gegner trainiert und getestet
-wurde. Das benutzte Verfahren ist eine Form der value based Verfahren unterscheidet sich
-aber von Q-Learning.\\
-Wie auch in Q-Learning werden in diesem Verfahren Values ermittelt. Im Gegensatz zu der im
-letzten Kapitel gezeigten Q-Learning Methode werden hier allerdings die Values
+wurde. Unter \url{https://github.com/Bluemi/tictactoe_rl} ist diese Implementation
+einsehbar. Das umgesetzte Verfahren ist eine Form der value based Verfahren unterscheidet
+sich aber von Q-Learning.\\
+Ebenfalls wurde ein Tic Tac Toe Environment entwickelt, das das Interface eines OpenAI
+Gyms implementiert. Dieses kann unter
+\url{https://github.com/dephiloper/independent-coursework-rl} in
+\lstinline!preparation/05_v_learning/gym_tictactoe.py! aufgerufen werden.\\
+Beim Training des Agent werden wie auch in Q-Learning Values ermittelt. Im Gegensatz zu
+der im letzten Kapitel gezeigten Q-Learning Methode werden hier allerdings die Values
 unterschiedlicher States und nicht die Values der Actions ermittelt. Die zu ermittelnde
 Funktion ist nicht mehr $Q(s, a)$, sondern $V(s)$. Das Verfahren setzt dafür allerdings
 voraus, dass aus einem gegebenen State und einer gegebenen Action der Folgezustand
@@ -968,7 +964,8 @@ Gegner gespielt, wobei alle erreichten States zwischengespeichert werden. Am End
 Spieles wird ein Reward vergeben, der davon abhängt, ob gewonnen oder verloren wurde.\\
 Nun werden alle $V(s)$ Werte der zwischengespeicherten States in Richtung des erhaltenen
 Rewards verändert. Um zu bestimmen wie stark sich der erhaltene Reward auf $V(s)$ auswirkt
-wird ein $step\_size$ Parameter verwendet, der wie in Zuweisung \ref{aln:ValueUpdate} benutzt wird.
+wird ein $step\_size$ Parameter verwendet, der wie in Zuweisung \ref{aln:ValueUpdate}
+benutzt wird.
 
 \begin{align}
   V(s) \leftarrow V(s) + step\_size * (reward - V(s))
@@ -984,13 +981,13 @@ zum State mit höchstem Value führt.
 
 \subsubsection{Evaluierung}
 Um das Verfahren zu testen wurden Agenten mit unterschiedlicher Anzahl an Trainingsspielen
-trainiert, wobei bei ein Agent entweder immer das Spiel eröffnete oder immer den zweiten
-Zug hatte. Als step\_size wurde initial 0.1 genutzt. Nach jedem Spiel wurde die step\_size
+trainiert, wobei ein Agent entweder immer das Spiel eröffnete oder immer den zweiten Zug
+hatte. Als step\_size wurde initial 0.1 genutzt. Nach jedem Spiel wurde die step\_size
 dann mit einem decay multipliziert, um die Konvergenz der State Values zu garantieren.\\
 Tabelle \ref{tab:win_probability_tictactoe_begin} zeigt die Gewinnwahrscheinlichkeiten eines
 trainierten Agenten, der gegen einen zufällig spielenden Gegner getestet wird. Jede Zelle
 enthält zwei Gewinnwahrscheinlichkeiten. Die erste gibt die Gewinnwahrscheinlichkeit für
-den Fall an, das der Agent das Spiel eröffnet hat, die zweite die
+den Fall an, dass der Agent das Spiel eröffnet hat, die zweite die
 Gewinnwahrscheinlichkeit, falls der Gegner das Spiel eröffnet hat.
 \begin{table}[h]
   \begin{center}
@@ -1016,6 +1013,12 @@ Eine weitere Steigerung der Trainingsspiele führt nicht mehr zu einer Änderung
 Gewinnwahrscheinlichkeiten. In allen gezeigten Experimenten ist die
 Gewinnwahrscheinlichkeit höher, wenn der Agent beginnt und die Wahrscheinlichkeit zu
 verlieren größer, wenn man nicht beginnt.\\
+Auch ist deutlich erkennbar, dass eine erhöhte Anzahl von Trainingsspielen, die
+Gewinnwahrscheinlichkeit des Agenten steigert. Während die Wahrscheinlichkeit zu gewinnen
+beim beginnenden Spieler nach 100 Trainingsspielen noch bei 68.9\% liegt, liegt sie nach
+100.000 Trainingsspielen bei 98.1\%. Auch sinkt die Wahrscheinlichkeit zu verlieren mit
+zunehmendem Training und nach 100.000 Trainingsspielen ist der beginnende Agent nicht mehr
+zu schlagen.\\
 Interessant ist vor allem, dass auch bei einer Millionen Trainingsspielen der nicht
 beginnende Agent verlieren kann. Dies kann gegen einen zufällig spielenden Gegner
 vernünftig sein, da ein kleines Risiko einzugehen dazu führen kann, dass deutlich häufiger
@@ -1023,19 +1026,16 @@ gewonnen wird.
 
 
 \subsection{Limitierungen von Tabular-Q-Learning}
-% TODO: diskrete Action
-Nach Laplan\cite[~S.192]{L2018} wird die Einsetzbarkeit dieser Verfahren dadurch beschränkt,
+Nach Lapan\cite[~S.192]{L2018} wird die Einsetzbarkeit dieser Verfahren dadurch beschränkt,
 dass es in vielen Environments zu viele unterschiedliche States gibt, sodass dessen Values
 oder die Values der Actions in diesen States nicht mehr ausreichend approximiert werden
 können.\\
 Diese Limitierung wird in \grqq Deep-Q-Learning\grqq, dem nächsten vorgestellten
 Verfahren, gelöst indem ein neuronales Netz benutzt wird, um die Values von Actions $Q(s,
 a)$ zu bestimmen. Diese werden dann nicht mehr in einer Tabelle gespeichert und gelesen,
-sondern von einem Modell berechnet, dass zwischen ähnliche States abstrahieren kann.
-\newpage
+sondern von einem Modell berechnet, dass zwischen ähnliche States abstrahieren kann.\\
 
 
-% Bruno TODO
 \section{Deep Q-Learning}
 Erweitung des Q-learning Verfahrens um neuronales Netz, was die Nutzung von Spielen und
 Simulationen mit kontinuierlichem Spielbereich (Observation-Space) ermöglicht. Umsetzung
@@ -1167,7 +1167,7 @@ Gradient Descent durchgeführt und somit das Minimieren des Loss erzielt. Das Ve
 wird daraufhin solange ausgeübt bis es konvergiert.
 
 \subsubsection{Limitierungen von REINFORCE}
-Zu den Limitierungen des REINFORCE Verfahrens zählen laut Laplan\cite[~S.252]{L2018}, dass für den
+Zu den Limitierungen des REINFORCE Verfahrens zählen laut Lapan\cite[~S.252]{L2018}, dass für den
 Trainingsprozess jede Episode immer bis zum Schluss gespielt werden muss. Andernfalls kann der
 discounted total reward nicht vollständig berechnet werden. Des Weiteren können bessere Resultate
 erzielt werden, umso länger trainiert wird. Dies kann bei Environments mit lang andauernden Episoden
