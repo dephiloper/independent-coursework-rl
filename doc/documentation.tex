@@ -452,7 +452,7 @@ gestrichelte Linie deutet das Value der optimalen Action an.\\
 Tabelle \ref{tab:explorationstrategies} zeigt die erreichten durchschnittlichen Rewards
 der unterschiedlichen Verfahren.
 
-\begin{table}[h]
+\begin{table}[ht]
   \begin{center}
     \begin{tabular}{l | l}
       \textbf{Verfahren} & \textbf{Mean Reward} \\
@@ -474,7 +474,7 @@ der unterschiedlichen Verfahren.
 Im gezeigten Experiment erhielten die einfachen Versionen der $\epsilon$-greedy Solver die
 kleinsten Rewards. Deutlich besser funktionierte die erweiterte Version mit decay, die
 vergleichbar mit dem Verfahren Optimistic Initial Values ist. Am besten schneidet die
-Upper Bound Confidence Action Selection ab.\\
+Upper Bound Confidence Action Selection ab.
 
 
 \newpage
@@ -543,14 +543,12 @@ def step(self, action):
 	return observation, reward, is_done or not valid, {}
 \end{lstlisting}
 
-Die Funktionen \textit{\_take\_action(action)}, \textit{\_get\_reward()} und 
+\noindent
+Die Funktionen \textit{\_take\_action(action)}, \textit{\_get\_reward()} und
 \textit{\_check\_if\_done(reward)} setzen die Kommunikation mit dem Environment um. In
 diesem Bespiel besteht die Observation ausschließlich aus den Zuständen der beiden Spieler.
 Nach der Änderung der Systemdynamik und dem Erfassen der Observation wird das bereits
-beschriebene Tupel an Umgebungsinformationen zurückgeliefert.
-\newline
-
-\noindent
+beschriebene Tupel an Umgebungsinformationen zurückgeliefert.\\
 Die Methode \textbf{reset()} dient zum vollständigen Zurücksetzen des Environments und aller
 darin gespeicherten Zustände. Anschließend gibt die Methode den Ausgangszustand als Observation
 an den Aufrufenden zurück. Reset kommt zum Einsatz, sobald eine Episode abgeschlossen wurde
@@ -861,7 +859,7 @@ Tabelle zu speichern und deren Values zu bestimmen. Diese Tabelle enthält für 
 eine Abschätzung der unterschiedlichen Actions. Tabelle \ref{tab:q_table} zeigt eine
 sehr kleine beispielhafte Q-Table mit zwei Actions und zwei States.
 
-\begin{table}[h]
+\begin{table}[ht]
   \begin{center}
     \begin{tabular}{c | c | c}
        & $a_0$ & $a_1$ \\
@@ -920,6 +918,7 @@ Wert der Tabelle in Richtung des ermittelten Wertes angepasst. Dies geschieht du
 \label{aln:QValueAdapt}
 \end{align}
 
+\noindent
 Wobei der Hyperparameter $\alpha$ zwischen 0 und 1 gesetzt wird, um den Wert $Q(s, a)$ bei
 jeder Iteration schrittweise zu überblenden. Dadurch nähern sich die Q-Values der Tabelle
 den tatsächlichen Q-Values an, wodurch sich das Environment erfolgreich spielen lässt.\\
@@ -989,7 +988,7 @@ trainierten Agenten, der gegen einen zufällig spielenden Gegner getestet wird. 
 enthält zwei Gewinnwahrscheinlichkeiten. Die erste gibt die Gewinnwahrscheinlichkeit für
 den Fall an, dass der Agent das Spiel eröffnet hat, die zweite die
 Gewinnwahrscheinlichkeit, falls der Gegner das Spiel eröffnet hat.
-\begin{table}[h]
+\begin{table}[ht]
   \begin{center}
     \begin{tabular}{l | c | c | c}
       Anzahl Trainingsspiele & Gewonnen & Verloren & Unentschieden \\
@@ -1057,14 +1056,29 @@ Values der unterschiedlichen Actions zu approximieren, wodurch Deep-Q-Learning z
 off-policy Learning Verfahren zählt.
 
 \subsection{Verfahren}
+Im Grunde läuft der Trainingsprozess ähnlich ab, wie bei Tabular-Q-Learning. Zuerst wird
+das neuronale Netz initialisiert, um anschließend zufällige Actions im Environment
+auszuprobieren um ein Tupel aus wahrgenommenem State, gespielter Action, erhaltenem Reward
+und neu erreichten Folgestate zu erhalten.\\
+Nun wird abermals der schon bei Tabular-Q-Learning genutzte Zusammenhang
+(\ref{aln:QValues}) ausgenutzt, um die Berechnungen des neuronalen Netzes anzupassen.
+\begin{align}
+  Q(s, a) = r_{s,a} + \gamma \max_{a' \in A}Q(s', a') \\
+  L = \left(Q(s, a) - (r + \gamma \max_{a'} Q(s', a'))\right)^2 \\
+  L = \left(Q(s, a) - r\right)^2
+  \label{aln:DeepQLoss}
+\end{align}
+
 % ähnlich wie tabular q learning
-% replay buffer
-% target network
+%  - Das Netz bildet (s, a) auf Value ab Q(s, a)
+%  - Exploration nicht random, sondern epsilon greedy
+%  - Zusammenhang Q(s, a) = r_{s, a} + y * max_{a'} Q(s', a'), über loss Berechnung:
+%    L = (Q(s, a) - (r + y*max_{a'} Q(s', a')))^2      L = (Q(s, a) - r)^2
+
+%  - replay buffer
+%  - target network
 
 \subsection{Implementierung}
-
-
-
 % \url{https://github.com/dephiloper/independent-coursework-rl/tree/master/preparation/07_deep_q_learning}
 
 \begin{itemize}
