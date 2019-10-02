@@ -1026,21 +1026,45 @@ gewonnen wird.
 
 
 \subsection{Limitierungen von Tabular-Q-Learning}
-Nach Lapan\cite[~S.192]{L2018} wird die Einsetzbarkeit dieser Verfahren dadurch beschränkt,
-dass es in vielen Environments zu viele unterschiedliche States gibt, sodass dessen Values
-oder die Values der Actions in diesen States nicht mehr ausreichend approximiert werden
-können.\\
-Diese Limitierung wird in \grqq Deep-Q-Learning\grqq, dem nächsten vorgestellten
-Verfahren, gelöst indem ein neuronales Netz benutzt wird, um die Values von Actions $Q(s,
-a)$ zu bestimmen. Diese werden dann nicht mehr in einer Tabelle gespeichert und gelesen,
-sondern von einem Modell berechnet, dass zwischen ähnliche States abstrahieren kann.\\
+Nach Lapan\cite[~S.192]{L2018} wird die Einsetzbarkeit dieser Verfahren dadurch
+beschränkt, dass es in vielen Environments zu viele unterschiedliche States gibt, sodass
+dessen Values oder die Values der Actions in diesen States nicht mehr ausreichend
+approximiert werden können.\\
+Dies kann durch die Betrachtung komplizierterer Environments verdeutlicht werden. Lapan
+\cite[~S.192]{L2018} zeigt, dass ein Videospiel mit einer Auflösung von 210x160 Pixeln
+mehr als $10^{70802}$ mögliche States besitzten kann. Daraus ergibt sich für
+kompliziertere Environments, dass das Tabular-Q-Learning nicht praktikabel ist.
 
 
 \section{Deep Q-Learning}
-Erweitung des Q-learning Verfahrens um neuronales Netz, was die Nutzung von Spielen und
-Simulationen mit kontinuierlichem Spielbereich (Observation-Space) ermöglicht. Umsetzung
-mehrerer Environements (Atari Pong, Roboschool Environments) und Beschreibung deren
-Funktionsweise sowie folgender Terminologien und Verfahren mit diversen Implementierungen:
+Die Limitierung von Tabular-Q-Learning wird in dem nächsten vorgestellten Verfahren \grqq
+Deep-Q-Learning\grqq überwunden indem ein neuronales Netz eingeführt wird, um die Values
+von Actions $Q(s, a)$ zu bestimmen. Diese werden nicht mehr in einer Tabelle gespeichert
+und gelesen, sondern von einem Modell berechnet, dass zwischen ähnliche States
+abstrahieren kann.\\
+In diesem Kapitel wird zuerst eine Einordnung des Verfahrens vorgenommen, um anschließend
+das Verfahren aufbauend auf Tabular-Q-Learning zu beschreiben. Am Ende werden die
+Implementierung eines Agenten für das Pong Environment und die damit erzielten Ergebnisse
+vorgestellt.
+
+\subsection{Einordnung}
+Deep Q-Learning funktioniert ähnlich, wie das schon vorgestellte Tabular-Q-Learning. Auch
+hier werden wahrgenommene Observations abgebildet auf Values unterschiedlicher Actions, um
+Actions, welche einen hohen Reward versprechen, wählen zu können. Damit ist
+Deep-Q-Learning value-based.\\
+Wie auch für Tabular-Q-Learning können vergangene Trainingsdaten verwendet werden, um die
+Values der unterschiedlichen Actions zu approximieren, wodurch Deep-Q-Learning zu den
+off-policy Learning Verfahren zählt.
+
+\subsection{Verfahren}
+% ähnlich wie tabular q learning
+% replay buffer
+% target network
+
+\subsection{Implementierung}
+
+
+
 % \url{https://github.com/dephiloper/independent-coursework-rl/tree/master/preparation/07_deep_q_learning}
 
 \begin{itemize}
