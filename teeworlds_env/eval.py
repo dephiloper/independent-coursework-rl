@@ -11,11 +11,11 @@ path_to_teeworlds = str(config['path_to_teeworlds'])
 set_priority = bool(config.get('set_priority', False))
 
 
-MODEL_NAME = 'four_maps_12.0'
+MODEL_NAME = 'v13_1038_12.5'
 MODEL_PATH = f'models/{MODEL_NAME}.dat'
-# MAP_NAMES = ['newlevel_4', 'newlevel_1', 'newlevel_2', 'newlevel_3']
-MAP_NAMES = ['newlevel_4']
-DEVICE = 'cpu'
+MAP_NAMES = ['level_1']
+# MAP_NAMES = ['newlevel_4']
+DEVICE = 'cuda'
 
 
 def main():
@@ -23,9 +23,9 @@ def main():
     env = TeeworldsEnv(
         monitor=monitor,
         path_to_teeworlds=path_to_teeworlds,
-        server_tick_speed=100,
-        step_interval=0.1,
-        episode_duration=20.0,
+        server_tick_speed=50,
+        step_interval=0.2,
+        episode_duration=30.0,
         map_names=MAP_NAMES,
     )
 
@@ -58,7 +58,7 @@ def main():
         state, reward, is_done, _ = env.step(Action.from_list(action))
 
         if is_done:
-            state = env.reset()
+            state = env.reset(rotate_map=True)
 
 
 if __name__ == '__main__':
