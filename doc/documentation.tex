@@ -542,7 +542,6 @@ def step(self, action):
     
 	return observation, reward, is_done or not valid, {}
 \end{lstlisting}
-
 \noindent
 Die Funktionen \textit{\_take\_action(action)}, \textit{\_get\_reward()} und
 \textit{\_check\_if\_done(reward)} setzen die Kommunikation mit dem Environment um. In
@@ -554,7 +553,6 @@ darin gespeicherten Zustände. Anschließend gibt die Methode den Ausgangszustan
 an den Aufrufenden zurück. Reset kommt zum Einsatz, sobald eine Episode abgeschlossen wurde
 (done Flag) damit erneut Actions darin ausgeführt werden können.
 \newline
-
 \noindent
 Mit \textbf{render(mode='human')} kann der zwischenzeitliche Zustand des Environments
 visualisiert werden. Dabei legt die gym Bibliothek keine explizit zu nutzenden Renderverfahren
@@ -567,24 +565,17 @@ fest, per Konvention sind aber folgende Verfahren definiert:
 Video zu visualisieren und 
 \item \textit{ansi} - als terminal-style Textrepräsentation.
 \end{itemize}
-
 \noindent
 Abschließend kann durch \textbf{close()} das Environment und somit gegebenenfalls die 
-dahinterliegende Anwendung geschlossen werden und durch den Aufruf von 
+dahinterliegende Anwendung geschlossen werden. Durch den Aufruf von 
 \textbf{seed(seed)} kann ein Seed für den \textit{random number generator}
-des Environments festgelegt werden.
-\newline
+des Environments festgelegt werden.\\
 %TODO explanation rng
-
-\noindent
 Neben den beschriebenen Methoden exisiteren die Properties \textit{action\_space}, welcher die
 Art und Anzahl der zu wählenden Actions vorgibt (z.B. \textit{Discrete(9)} für 9 verschiedene
 diskrete Actions), \textit{observation\_space}, welcher gleiches für die Observation des
 Environments angibt und \textit{reward\_range}, welcher einen Wertebereich für den zu erhaltenen
-lokalen Reward definiert.
-\newline
-
-\noindent
+lokalen Reward definiert.\\
 Für das Spiel Tic-Tac-Toe wurde ein Einspieler Environment implementiert, welches im Unterverzeichnis
 \textit{preparation/05\_v\_learning/} unter \url{github.com/dephiloper/independent-coursework-rl/}
 abgerufen werden kann.
@@ -921,7 +912,7 @@ Wert der Tabelle in Richtung des ermittelten Wertes angepasst. Dies geschieht du
 \noindent
 Wobei der Hyperparameter $\alpha$ zwischen 0 und 1 gesetzt wird, um den Wert $Q(s, a)$ bei
 jeder Iteration schrittweise zu überblenden. Dadurch nähern sich die Q-Values der Tabelle
-den tatsächlichen Q-Values an, wodurch sich das Environment erfolgreich spielen lässt.\\
+den tatsächlichen Q-Values an, wodurch sich das Environment erfolgreich spielen lässt.
 
 \subsubsection{Evaluierung}
 Um zu testen, wie gut die gefundenen Q-Values funktionieren, wird wie folgt vorgegangen.
