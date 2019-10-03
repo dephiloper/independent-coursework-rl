@@ -1017,15 +1017,16 @@ Dies kann durch die Betrachtung komplizierterer Environments verdeutlicht werden
 mehr als $10^{70802}$ mögliche States besitzten kann. Daraus ergibt sich für
 kompliziertere Environments, dass das Tabular-Q-Learning nicht praktikabel ist.
 
-
+\newpage
 \section{Deep Q-Learning}
+\label{sec:dqn}
 Die Limitierung von Tabular-Q-Learning wird in dem nächsten vorgestellten Verfahren \grqq
 Deep-Q-Learning\grqq überwunden indem ein neuronales Netz eingeführt wird, um die Values
 von Actions $Q(s, a)$ zu bestimmen. Diese werden nicht mehr in einer Tabelle gespeichert
 und gelesen, sondern von einem Modell berechnet, dass zwischen ähnliche States
 abstrahieren kann.\\
 In diesem Kapitel wird zuerst eine Einordnung des Verfahrens vorgenommen, um anschließend
-das Verfahren aufbauend auf Tabular-Q-Learning zu beschreiben. Am Ende werden die
+das Verfahren aufbauend auf Tabular-Q-Learning zu beschreiben. Am Ende werden die	
 Implementierung eines Agenten für das Pong Environment und die damit erzielten Ergebnisse
 vorgestellt.
 
@@ -1257,16 +1258,14 @@ Das letzte zu erläuternde Verfahren reiht sich als Erweiterung in die Policy Gr
 Bei der \textit{Actor Critic Method} handelt es sich um ein state-of-the-art Reinforcement Learning
 Verfahren mit der Bestrebung die Stabilität und den Prozess des Konvergierens im Trainingsablauf
 zu verbessern. Wie bereits in \autoref{sec:limit-reinforce}: \nameref{sec:limit-reinforce} beschrieben
-kann durch die Einführung einer Baseline, sprich einem Wert, welcher von dem discounted total Reward $Q$
-abgezogen wird, die Varianz des Gradienten reduziert werden, wodurch der Trainingsprozess robuster wird.
-Die Baseline kann dabei eine Konstante sein, die dem Mittelwert der discounted total Rewards
-entspricht oder als gleitender Mittelwert (moving average), welcher während des Trainingsverlauf stetig
-angepasst wird. Eine weitere Option ist den Baseline Wert zustandsabhängig zu realisieren, sprich in
-jedem Zustand wird der Wert $V(s)$ ermittelt, der Auskunft darüber gibt, wie gut dieser Zustand
-einzuschätzen ist. Somit kann ein \textit{advantage} Wert $A(s,a)$ ermittelt werden, indem von dem 
-berechneten discounted total Reward $Q(s,a)$ die \textit{Value} des States abgezogen wird. Hierbei ist
-zu erwähnen das die Berechnung von $Q(s,a)$ genau wie im REINFORCE Verfahren (siehe 
-\autoref{aln:reinforce-total-reward}) umgesetzt wird. Die nachfolgende Formel 
+kann durch die Einführung einer Baseline, sprich einem Wert, welcher in der Berechnung des Loss von dem discounted total Reward $Q$ abgezogen wird, die Varianz des Gradienten reduziert werden, wodurch der Trainingsprozess robuster wird. Die Baseline kann dabei eine Konstante sein, die dem Mittelwert aller
+discounted total Rewards entspricht oder als gleitender Mittelwert (moving average) realisiert werden,
+welcher während des Trainingsverlauf stetig angepasst wird. Eine weitere Option ist den Baseline Wert
+zustandsabhängig zu realisieren, sprich in jedem Zustand wird der Wert $V(s)$ ermittelt, der Auskunft
+darüber gibt, wie gut dieser Zustand einzuschätzen ist. Anschließend kann ein \textit{advantage} Wert
+$A(s,a)$ ermittelt werden, indem von dem berechneten discounted total Reward $Q(s,a)$ die \textit{Value}
+des States $V(s)$ abgezogen wird. Hierbei ist zu erwähnen das die Berechnung von $Q(s,a)$ genau wie im
+REINFORCE Verfahren (siehe \autoref{aln:reinforce-total-reward}) umgesetzt wird. Die nachfolgende Formel 
 \ref{aln:actor-critic-advantage} veranschaulicht den Zusammenhang zwischen der Value des States $V(s)$
 und dem discounted total Reward $Q(s,a)$.
 
@@ -1275,14 +1274,47 @@ Q(s,a)=V(s)+A(s,a)
 \label{aln:actor-critic-advantage}
 \end{align}
 
+Der advantage Wert $A(s,a)$ wird anschließend für die Skalierung des Gradienten verwendet und gibt Auskunft
+darüber, wie viel besser oder schlechter eine gewählte Action im Kontrast zum durchschnittlichen Value des
+States ausfällt. Um $A(s,a)$ zu berechnen muss initial $V(s)$ ermittelt werden. Dafür wird neben dem bereits
+bestehenden ein weiteres neuronales Netz eingeführt, welches den Wert von $V(s)$ approximiert und sich damit
+an der Verfahrensweise von \nameref{sec:dqn} orientiert.
+
+In der Realisierung des Actor-Critic Verfahrens kann dieses mittels einer Zusammenführung beider Netze als
+\textit{shared net} umgesetzt werden. Im Hinblick darauf wird die erhaltene Observation als Input in ein
+\textit{Common net} gegeben, welches im Falle von Bildern als Input aus multiplen Convolutional Layern
+bestehen könnte. Anschließend werden die ermittelten Features sowohl an ein \textit{Policy net} $\pi(a|s)$
+als auch an ein \textit{Value net} $V(s)$ zur Verarbeitung weitergegeben. Die beschriebene Architektur
+des Verfahrens ist in \autoref{fig:actor-critic} visualisiert.
+
+\begin{figure}[htp]
+\centering
+\includegraphics[scale=0.5]{res/actor-critic.png}
+\caption{Actor Critic - shared net Architektur}
+\source{\cite[~S.268 - Chapter 10 - Figure 5]{L2018}}
+\label{fig:actor-critic}
+\end{figure}
+
+\newpage
+Um den Trainingsprozess umzusetzen, kann die selbe Prozedur wie bei Deep-Q-Learning verwendet werden, wobei
+die Bellman Equation zur Ermittlung des discounted total rewards $Q(s,a)$ angewandt wird. Anschließend wird
+der Mean-Square-Error Loss zwischen berechnetem und vorhergesagtem $Q(s,a)$ minimiert, um die Approximation
+von V(s) zu verbessern.
 
 
-\begin{itemize}
-\itemsep0pt
-\item actor and critic net
-\item reducing variance $\rightarrow$ Advantage
-\item extensions a3c
-\end{itemize}
+\subsection{Einordnung}
+Bei dem Actor-Critic Verfahren handelt es sich um eine policy learning Methode, da final Actions anhand der
+Wahrscheinlichkeitsverteilung des Policy net ausgewählt werden. Aufgrund der parallelen Nutzung des Value
+net kann das Verfahren aber ebenfalls als Mischform betrachtet werden. Genau wie bei der REINFORCE Method
+kann ausschließlich aufgrund neu aufgezeichneter Daten aus dem Environment trainiert werden (on-policy).
+Das Verfahren fällt des Weiteren in den Bereich der model-free Verfahren, da kein Modell zu möglichen
+Folgezuständen und Rewards aufgebaut wird. 
+
+\subsection{Verfahren}
+
+
+\subsection{Erweiterungen}
+
 
 \newpage
 \section{Teeworlds}

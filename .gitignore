@@ -17,3 +17,4 @@ rec/
 /doc/documentation.blg
 run.sh
 clear_saves_logs_runs.py
+*.swp
