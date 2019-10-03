@@ -1052,24 +1052,72 @@ das neuronale Netz initialisiert, um anschließend zufällige Actions im Environ
 auszuprobieren um ein Tupel aus wahrgenommenem State, gespielter Action, erhaltenem Reward
 und neu erreichten Folgestate zu erhalten.\\
 Nun wird abermals der schon bei Tabular-Q-Learning genutzte Zusammenhang
-(\ref{aln:QValues}) ausgenutzt, um die Berechnungen des neuronalen Netzes anzupassen.
+(\ref{aln:DeepQ}) ausgenutzt, um jetzt die Ergebnisse des neuronalen Netzes anzupassen.
+Die Bezeichnungen der Variablen sind identisch zu denen im Tabular-Q-Learning. Der State
+$s$ ist der wahrgenommene State, $a$ ist die gewählte Action, $r$ ist der dadurch
+erhaltene unmittelbare Reward und $s'$ ist der Folgestate, der aus dem Anwenden der
+gewählten Action hervorgeht.
 \begin{align}
-  Q(s, a) = r_{s,a} + \gamma \max_{a' \in A}Q(s', a') \\
-  L = \left(Q(s, a) - (r + \gamma \max_{a'} Q(s', a'))\right)^2 \\
-  L = \left(Q(s, a) - r\right)^2
-  \label{aln:DeepQLoss}
+  Q(s, a) \leftarrow r_{s,a} + \gamma \max_{a' \in A}Q(s', a') \label{aln:DeepQ} \\
 \end{align}
+\noindent
+In Tabular-Q-Learning wurde nun der Wert $Q(s, a)$ der Tabelle angepasst. Da $Q(s, a)$
+nun durch ein neuronales Netz implementiert ist, kann $Q(s, a)$ nicht dem gefundenen Wert
+zugewiesen werden. Anstelle dessen wird ein Loss formuliert, auf dem anschließend das Netz
+mit Stochastic Gradient Descent trainiert wird. Die Formel für diesen Loss unterscheidet
+sich abhängig davon, ob es sich bei $s'$ um einen Endzustand handelt oder nicht. Ist $s'$
+ein Endzustand, so wird der Loss (\ref{aln:DeepQLoss1}) verwendet. Andernfalls wird der
+Loss aus (\ref{aln:DeepQLoss2}) eingesetzt.
+\begin{align}
+  L & = \left(Q(s, a) - r\right)^2 \label{aln:DeepQLoss1} \\
+  L & = \left(Q(s, a) - (r + \gamma \max_{a'} Q(s', a'))\right)^2 \label{aln:DeepQLoss2}
+\end{align}
+\noindent
+Der Wert $Q(s, a)$ ist die Vorhersage des Netzes über den long-term Reward. Ist $s$ ein
+Endzustand, so ist der long-term Reward gleich dem unmittelbaren Reward $r$, da nach einem
+Endzustand kein Reward mehr erreicht werden kann. Daraus leitet sich der in
+(\ref{aln:DeepQLoss1}) gezeigte Loss für einen Endzustand ab. Hier wird der Mean Squared
+Error zwischen der Vorhersage des Netzes und dem tatsächlich zu erwartenden Reward
+eingesetzt.\\
+Handelt es sich bei $s$ nicht um einen Endzustand, so muss der long-term Reward des
+Folgezustandes $s'$ hinzuaddiert werden, um den long-term Reward in $s$ zu berechnen. Aus
+diesem Grund wird der Value der besten Action des Folgezustandes, skaliert mit dem
+discount factor $\gamma$, auf den unmittelbaren Reward addiert. Dabei wird das Netz selbst
+verwendet, um die Action Values des Folgestates zu berechnen.\\
+Diesen Vorgang wiederholt man, bis die vom Netz vorhergesagten Q-Values den tatsächlichen
+Values der Actions entsprechen.\\
+Dies ist die grundlegende Funktionsweise von Deep-Q-Learning, allerdings muss nach
+\cite[~S.202]{L2018} der Algorithmus, um in der Praxis zu funktionieren, noch weiter
+verbessert werden. Wählt man bei der Exploration ausschließlich zufällige Actions, so
+werden interessante Situationen nur sehr selten erreicht und es werden sehr viele Samples
+benötigt, um zu einem zufriedenstellenden Ergebnis zu kommen. Aus diesem Grund wird eine
+decaying-$\epsilon$-greedy Exploration Strategie benutzt, um gegen Ende des
+Trainingsprozesses die schon gelernten Actions des Netzes zu nutzen, um neue Erkenntnisse
+zu gewinnen.\\
+Eine weitere Optimierung, die den Trainingsprozess verbessert, ist die Verwendung eines
+Replay Buffers, in dem Erfahrungen gespeichert werden, um eine breitere Menge an
+Trainingsdaten zu erhalten. Nach Lapan \cite{L2018} tritt ohne diesen Replay Buffer das
+Problem auf, dass sich die gesammelten Daten aus ein Episode zu stark ähneln, sodass das
+Training des Netzes suboptimal funktioniert.\\
+Die letzte Änderung, die vollzogen werden muss, bezieht sich auf die Berechnung des Loss
+Wertes aus (\ref{aln:DeepQLoss2}). Für die Berechnung des Losses, mit dem das Netz $Q$
+trainiert wird, wird die Approximation des Folgestates von $Q$ selbst verwendet. Durch
+diese Selbstreferenzierung kann es passieren, dass das Training instabil wird und nicht
+konvergiert. Um dieses Problem zu lösen wird ein neues Netz $Q'$ eingeführt, das als
+Target Netz bezeichnet wird. Dieses Netz wird für die Loss Berechnung verwendet, wie in
+\ref{aln:DeepQTarget} gezeigt.
 
-% ähnlich wie tabular q learning
-%  - Das Netz bildet (s, a) auf Value ab Q(s, a)
-%  - Exploration nicht random, sondern epsilon greedy
-%  - Zusammenhang Q(s, a) = r_{s, a} + y * max_{a'} Q(s', a'), über loss Berechnung:
-%    L = (Q(s, a) - (r + y*max_{a'} Q(s', a')))^2      L = (Q(s, a) - r)^2
-
-%  - replay buffer
-%  - target network
+\begin{align}
+  L & = \left(Q(s, a) - (r + \gamma \max_{a'} \textbf{Q'(s', a')})\right)^2
+  \label{aln:DeepQTarget}
+\end{align}
+\noindent
+Nach einer gewissen Anzahl an Trainings werden die Gewichte des Target Netzes mit den
+Gewichten des trainierten Netzes überschrieben, sodass sich die Netze synchronisieren.
 
 \subsection{Implementierung}
+Mit den ebend beschriebenen Änderungen wurde ein Deep-Q-Learning Algorithmus für ein Pong
+Environment implementiert und getestet.
 % \url{https://github.com/dephiloper/independent-coursework-rl/tree/master/preparation/07_deep_q_learning}
 
 \begin{itemize}
