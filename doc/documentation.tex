@@ -1057,7 +1057,6 @@ Funktionsweise sowie folgender Terminologien und Verfahren mit diversen Implemen
 \newpage
 
 
-% Philipp TODO
 \section{Policy Gradients}
 Policy Gradients beschreibt eine Unterfamilie und somit Gruppe von Reinforcement Learning 
 Methoden aus dem Bereich der policy learning Verfahren. Anders als die beiden zuvor
@@ -1072,16 +1071,16 @@ zusätzlicher Vorteil der Policy Gradients ist die stochastische Eigenschaft von
 Anders als Q-Learning wird es mit Policy Gradients möglich, die zugrundeliegende
 Wahrscheinlichkeitsverteilung des Environments besser aufzugreifen, da das Verfahren, statt
 anhand von Erwartungswerten des aktuellen und zukünftigen Rewards zu rechnen, mit einer
-Wahrscheinlichkeitsverteilung von Actions arbeitet. In der nachfolgenden Abbildung wird
-genau diese Wahrscheinlichkeitsverteilung von diskreten Actions nach Anwendung der Policy
-Approximation visualisiert.
+Wahrscheinlichkeitsverteilung von Actions arbeitet. In der nachfolgenden Abbildung 
+(\ref{fig:prob-dist-pg}) wird genau diese Wahrscheinlichkeitsverteilung von diskreten Actions
+nach Anwendung der Policy Approximation visualisiert.
 
 \begin{figure}[htp]
 \centering
 \includegraphics[scale=0.4]{res/policy_approxim.png}
 \caption{Wahrscheinlichkeitsverteilung von Actions mittels Policy Approximation}
 \source{\cite[~S.243 - Chapter 9 - Figure 1]{L2018}}
-\label{fig:markov}  % TODO: fig:markov zweimal definiert
+\label{fig:prob-dist-pg}
 \end{figure}
 
 Zusätzlich kommt, durch die Repräsentation der Actions als Wahrscheinlichkeit, der Vorteil einer
@@ -1128,11 +1127,11 @@ Annahmen zu zukünftigen States oder Rewards zu treffen. Prinzipiell basieren al
 Gradient Verfahren auf der in Formel \ref{aln:PG} festgelegten Definition, wobei
 ausschließlich Anpassungen am Kernkonzept des Verfahrens vorgenommen werden
 \cite[~S.244 f.]{L2018}. Anders als die bereits behandelten value-learning Verfahren ist
-kein explizites Explorieren notwendig, da REINFORCE und Policy Gradient Verfahren im generellen
-durch die Nutzung einer Wahrscheinlichkeitsverteilung über alle Actions ein automatisches
-\grqq Erforschen\grqq des Environments und der zu tätigenden Actions vollzieht. Bei einer
-Initialisierung mit zufälligen Gewichten gibt das Netz eine uniforme
-Wahrscheinlichkeitsverteilung zurück und somit die Verhaltensweise eines random Agents.
+kein explizites Explorieren notwendig, da das REINFORCE Verfahren durch die Nutzung einer
+Wahrscheinlichkeitsverteilung über alle Actions ein automatisches \grqq Erforschen\grqq 
+des Environments und der zu tätigenden Actions vollzieht. Bei einer Initialisierung mit
+zufälligen Gewichten gibt das Netz eine uniforme Wahrscheinlichkeitsverteilung zurück und
+somit die Verhaltensweise eines random Agents.
 
 
 \subsubsection{Verfahren}
@@ -1167,6 +1166,7 @@ Gradient Descent durchgeführt und somit das Minimieren des Loss erzielt. Das Ve
 wird daraufhin solange ausgeübt bis es konvergiert.
 
 \subsubsection{Limitierungen von REINFORCE}
+\label{sec:limit-reinforce}
 Zu den Limitierungen des REINFORCE Verfahrens zählen laut Laplan\cite[~S.252]{L2018}, dass für den
 Trainingsprozess jede Episode immer bis zum Schluss gespielt werden muss. Andernfalls kann der
 discounted total reward nicht vollständig berechnet werden. Des Weiteren können bessere Resultate
@@ -1179,15 +1179,39 @@ Zusätzlich weist die REINFORCE Method eine hohe Varianz bei der Berechnung des 
 Dies kommt aufgrund der Skalierung des Gradienten mittels des discounted total rewards zustande.
 Hauptgrund dafür ist, dass der Wertebereich des zu erhaltenden Rewards von Environment zu Environment
 stark variiert und in diversen Environments zu Beginn der Anteil an Punishment (negativer Reward) den
-erhalt des positiven Reward deutlich dominiert. Durch die Einführung einer Baseline, einem Wert, der
+Erhalt des positiven Reward deutlich dominiert. Durch die Einführung einer Baseline, einem Wert, der
 von dem total reward $Q$ subtrahiert wird, kommt es zu einer Stabilisierung des Verfahrens. Neben
-diesen Erweiterungen existieren weitere, welche im nachfolgenden Kapitel analysiert werden. 
+diesen Erweiterungen existieren weitere, welche im nachfolgenden Kapitel analysiert werden. Aufgrund
+der Instabilität des Trainingsprozesses findet das REINFORCE Verfahren selten Anwendung in komplexen
+Environments.   
 \newpage
 
 
-% Philipp TODO
 \section{Actor Critic}
-Beschreibung einer state-of-the-art RL Methode Actor Critic. Kombination aus policy learning und value learning. Ansatz mit mehreren Environments parallel zur Beschleunigung und Stabilisierung des Lernprozesses.
+Das letzte zu erläuternde Verfahren reiht sich als Erweiterung in die Policy Gradients Familie ein.
+Bei der \textit{Actor Critic Method} handelt es sich um ein state-of-the-art Reinforcement Learning
+Verfahren mit der Bestrebung die Stabilität und den Prozess des Konvergierens im Trainingsablauf
+zu verbessern. Wie bereits in \autoref{sec:limit-reinforce}: \nameref{sec:limit-reinforce} beschrieben
+kann durch die Einführung einer Baseline, sprich einem Wert, welcher von dem discounted total Reward $Q$
+abgezogen wird, die Varianz des Gradienten reduziert werden, wodurch der Trainingsprozess robuster wird.
+Die Baseline kann dabei eine Konstante sein, die dem Mittelwert der discounted total Rewards
+entspricht oder als gleitender Mittelwert (moving average), welcher während des Trainingsverlauf stetig
+angepasst wird. Eine weitere Option ist den Baseline Wert zustandsabhängig zu realisieren, sprich in
+jedem Zustand wird der Wert $V(s)$ ermittelt, der Auskunft darüber gibt, wie gut dieser Zustand
+einzuschätzen ist. Somit kann ein \textit{advantage} Wert $A(s,a)$ ermittelt werden, indem von dem 
+berechneten discounted total Reward $Q(s,a)$ die \textit{Value} des States abgezogen wird. Hierbei ist
+zu erwähnen das die Berechnung von $Q(s,a)$ genau wie im REINFORCE Verfahren (siehe 
+\autoref{aln:reinforce-total-reward}) umgesetzt wird. Die nachfolgende Formel 
+\ref{aln:actor-critic-advantage} veranschaulicht den Zusammenhang zwischen der Value des States $V(s)$
+und dem discounted total Reward $Q(s,a)$.
+
+\begin{align}
+Q(s,a)=V(s)+A(s,a)
+\label{aln:actor-critic-advantage}
+\end{align}
+
+
+
 \begin{itemize}
 \itemsep0pt
 \item actor and critic net
