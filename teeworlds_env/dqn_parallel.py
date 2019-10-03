@@ -20,7 +20,7 @@ from utils import ExperienceBuffer, ACTIONS, ACTION_LABELS, Experience, load_con
 
 
 # exp collecting
-NUM_WORKERS = 4
+NUM_WORKERS = 6
 COLLECT_EXPERIENCE_SIZE = 2000  # init: 2000 (amount of experiences to collect after each training step)
 GAME_TICK_SPEED = 50  # default: 50 (game speed, when higher more screenshots needs to be captures)
 STEP_INTERVAL = 0.2  # default: 0.2 (interval of calculating actions)
@@ -35,12 +35,12 @@ BETA_FRAMES = 10 ** 5
 PRINT_EXPERIENCE_BUFFER = False
 
 
-DOUBLE_DQN = True
-EXPERIENCE_BUFFER_CLASS = PriorityExperienceBuffer
+DOUBLE_DQN = False
+EXPERIENCE_BUFFER_CLASS = ExperienceBuffer
 
-EXPLORING_STRATEGY = ExploringStrategy.NOISY_NETWORK
+EXPLORING_STRATEGY = ExploringStrategy.EPSILON_GREEDY
 LINEAR_LAYER_CLASS = Linear if EXPLORING_STRATEGY == ExploringStrategy.EPSILON_GREEDY else NoisyLinear
-NET_TYPE = DuelingNet  # use DuelingNet for DuelingDQN and Net for default
+NET_TYPE = Net  # use DuelingNet for DuelingDQN and Net for default
 
 MIN_EPSILON = 0.02  # init: 0.02
 EPSILON_START = 1.0  # init: 1.0
