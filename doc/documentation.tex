@@ -389,11 +389,9 @@ Der erste Parameter ist $t$ die Anzahl der Actions, die bis jetzt gespielt wurde
 zweite ist der bis jetzt ermittelte $Value$ der Action $a$ bezeichnet mit $Q(a)$ und der
 dritte Parameter ist die Anzahl, wie oft Action $a$ schon ausprobiert wurde. Die nächste
 zu spielende Action wird dann nach folgender Gleichung gewählt:
-
 \begin{align}
 A = \argmax_a\left( Q(a) + c*\sqrt\frac{\ln(t)}{N(a)} \right)
 \end{align}
-
 \noindent
 $A$ ist die gewählte Action. $N(a)$ ist die Anzahl, wie oft die Action $a$ schon gewählt
 wurde. Existiert eine Action, die noch nie gespielt wurde, also $N(a)=0$, so wird eine der
@@ -876,12 +874,10 @@ unmittelbaren Reward $r$, der vom Environment bestimmt wird, sowie den Folgestat
 also den State, den das Environment nach Ausführung von $a$ erreicht hat.\\
 Ist das SARS-Tupel gefunden, werden die Q-Values der Tabelle angepasst, wobei der folgende
 Zusammenhang verwendet wird.
-
 \begin{align}
 Q(s, a) = r_{s,a} + \gamma \max_{a' \in A}Q(s', a')
 \label{aln:QValues}
 \end{align}
-
 \noindent
 $Q(s, a)$ ist das Value der Action $a$ im wahrgenommenen State $s$, also der long-term
 Reward, der erwartet wird, führt man in State $s$ die Action $a$ aus. Das Ziel ist es
@@ -902,13 +898,11 @@ deterministisch ist und auch im Allgemeinen nicht davon ausgegangen werden kann,
 nicht gut den Wert der Q-Table gleich dem ermittelten Wert zu setzen. Stattdessen wird der
 Wert der Tabelle in Richtung des ermittelten Wertes angepasst. Dies geschieht durch die in
 (\ref{aln:QValueAdapt}) dargestellte Zuweisung.
-
 \begin{align}
   Q(s, a) \leftarrow (1 - \alpha)Q(s, a) +
   \alpha(r_{s, a} + \gamma \max_{a'\in A}Q(s', a'))
 \label{aln:QValueAdapt}
 \end{align}
-
 \noindent
 Wobei der Hyperparameter $\alpha$ zwischen 0 und 1 gesetzt wird, um den Wert $Q(s, a)$ bei
 jeder Iteration schrittweise zu überblenden. Dadurch nähern sich die Q-Values der Tabelle
@@ -956,12 +950,10 @@ Nun werden alle $V(s)$ Werte der zwischengespeicherten States in Richtung des er
 Rewards verändert. Um zu bestimmen wie stark sich der erhaltene Reward auf $V(s)$ auswirkt
 wird ein $step\_size$ Parameter verwendet, der wie in Zuweisung \ref{aln:ValueUpdate}
 benutzt wird.
-
 \begin{align}
   V(s) \leftarrow V(s) + step\_size * (reward - V(s))
   \label{aln:ValueUpdate}
 \end{align}
-
 \noindent
 Über den Trainingsprozess hinweg wird der step\_size Parameter stufenweise herabgesetzt,
 um das Verfahren konvergieren zu lassen.\\
@@ -1016,7 +1008,7 @@ gewonnen wird.
 
 
 \subsection{Limitierungen von Tabular-Q-Learning}
-Nach Lapan\cite[~S.192]{L2018} wird die Einsetzbarkeit dieser Verfahren dadurch
+Nach Lapan\cite[~S.192]{L2018} ist die Einsetzbarkeit dieser Verfahren dadurch
 beschränkt, dass es in vielen Environments zu viele unterschiedliche States gibt, sodass
 dessen Values oder die Values der Actions in diesen States nicht mehr ausreichend
 approximiert werden können.\\
@@ -1058,7 +1050,7 @@ $s$ ist der wahrgenommene State, $a$ ist die gewählte Action, $r$ ist der dadur
 erhaltene unmittelbare Reward und $s'$ ist der Folgestate, der aus dem Anwenden der
 gewählten Action hervorgeht.
 \begin{align}
-  Q(s, a) \leftarrow r_{s,a} + \gamma \max_{a' \in A}Q(s', a') \label{aln:DeepQ} \\
+  Q(s, a) \leftarrow r_{s,a} + \gamma \max_{a' \in A}Q(s', a') \label{aln:DeepQ}
 \end{align}
 \noindent
 In Tabular-Q-Learning wurde nun der Wert $Q(s, a)$ der Tabelle angepasst. Da $Q(s, a)$
@@ -1070,7 +1062,7 @@ ein Endzustand, so wird der Loss (\ref{aln:DeepQLoss1}) verwendet. Andernfalls w
 Loss aus (\ref{aln:DeepQLoss2}) eingesetzt.
 \begin{align}
   L & = \left(Q(s, a) - r\right)^2 \label{aln:DeepQLoss1} \\
-  L & = \left(Q(s, a) - (r + \gamma \max_{a'} Q(s', a'))\right)^2 \label{aln:DeepQLoss2}
+  L & = \left(Q(s, a) - \left(r + \gamma \max_{a'} Q(s', a')\right)\right)^2 \label{aln:DeepQLoss2}
 \end{align}
 \noindent
 Der Wert $Q(s, a)$ ist die Vorhersage des Netzes über den long-term Reward. Ist $s$ ein
@@ -1084,8 +1076,8 @@ Folgezustandes $s'$ hinzuaddiert werden, um den long-term Reward in $s$ zu berec
 diesem Grund wird der Value der besten Action des Folgezustandes, skaliert mit dem
 discount factor $\gamma$, auf den unmittelbaren Reward addiert. Dabei wird das Netz selbst
 verwendet, um die Action Values des Folgestates zu berechnen.\\
-Diesen Vorgang wiederholt man, bis die vom Netz vorhergesagten Q-Values den tatsächlichen
-Values der Actions entsprechen.\\
+Diesen Vorgang wiederholt man, bis die vom Netz vorhergesagten Q-Values den
+tat\-säch\-lich\-en Values der Actions entsprechen.\\
 Dies ist die grundlegende Funktionsweise von Deep-Q-Learning, allerdings muss nach
 \cite[~S.202]{L2018} der Algorithmus, um in der Praxis zu funktionieren, noch weiter
 verbessert werden. Wählt man bei der Exploration ausschließlich zufällige Actions, so
@@ -1106,9 +1098,8 @@ diese Selbstreferenzierung kann es passieren, dass das Training instabil wird un
 konvergiert. Um dieses Problem zu lösen wird ein neues Netz $Q'$ eingeführt, das als
 Target Netz bezeichnet wird. Dieses Netz wird für die Loss Berechnung verwendet, wie in
 \ref{aln:DeepQTarget} gezeigt.
-
 \begin{align}
-  L & = \left(Q(s, a) - (r + \gamma \max_{a'} \textbf{Q'(s', a')})\right)^2
+  L & = \left(Q(s, a) - \left(r + \gamma \max_{a'} \textbf{Q'(s', a')}\right)\right)^2
   \label{aln:DeepQTarget}
 \end{align}
 \noindent
@@ -1117,15 +1108,12 @@ Gewichten des trainierten Netzes überschrieben, sodass sich die Netze synchroni
 
 \subsection{Implementierung}
 Mit den ebend beschriebenen Änderungen wurde ein Deep-Q-Learning Algorithmus für ein Pong
-Environment implementiert und getestet.
-% \url{https://github.com/dephiloper/independent-coursework-rl/tree/master/preparation/07_deep_q_learning}
+Environment implementiert und getestet. Der Quelltext kann unter
+\url{https://github.com/dephiloper/independent-coursework-rl/tree/master/preparation/07_deep_q_learning}
+gefunden werden.
 
 \begin{itemize}
 \itemsep0pt
-\item off-policy
-\item Erklärung value learning mit Netz
-\item value network
-\item replay buffer, target network
 \item atari pong (\url{https://gym.openai.com/envs/#atari})
 \item roboschool pong environment (\url{https://github.com/openai/roboschool}
 \item limitations
