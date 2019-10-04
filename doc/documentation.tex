@@ -1264,10 +1264,10 @@ welcher während des Trainingsverlauf stetig angepasst wird. Eine weitere Option
 zustandsabhängig zu realisieren, sprich in jedem Zustand wird der Wert $V(s)$ ermittelt, der Auskunft
 darüber gibt, wie gut dieser Zustand einzuschätzen ist. Anschließend kann ein \textit{advantage} Wert
 $A(s,a)$ ermittelt werden, indem von dem berechneten discounted total Reward $Q(s,a)$ die \textit{Value}
-des States $V(s)$ abgezogen wird. Hierbei ist zu erwähnen das die Berechnung von $Q(s,a)$ genau wie im
-REINFORCE Verfahren (siehe \autoref{aln:reinforce-total-reward}) umgesetzt wird. Die nachfolgende Formel 
-\ref{aln:actor-critic-advantage} veranschaulicht den Zusammenhang zwischen der Value des States $V(s)$
-und dem discounted total Reward $Q(s,a)$.
+des States $V(s)$ abgezogen wird \cite[~S.268 ff.]{L2018}. Hierbei ist zu erwähnen das die Berechnung von
+$Q(s,a)$ genau wie im REINFORCE Verfahren (siehe \autoref{aln:reinforce-total-reward}) umgesetzt wird.
+Die nachfolgende Formel \ref{aln:actor-critic-advantage} veranschaulicht den Zusammenhang zwischen der
+Value des States $V(s)$ und dem discounted total Reward $Q(s,a)$.
 
 \begin{align}
 Q(s,a)=V(s)+A(s,a)
@@ -1281,11 +1281,12 @@ bestehenden ein weiteres neuronales Netz eingeführt, welches den Wert von $V(s)
 an der Verfahrensweise von \nameref{sec:dqn} orientiert.
 
 In der Realisierung des Actor-Critic Verfahrens kann dieses mittels einer Zusammenführung beider Netze als
-\textit{shared net} umgesetzt werden. Im Hinblick darauf wird die erhaltene Observation als Input in ein
-\textit{Common net} gegeben, welches im Falle von Bildern als Input aus multiplen Convolutional Layern
-bestehen könnte. Anschließend werden die ermittelten Features sowohl an ein \textit{Policy net} $\pi(a|s)$
-als auch an ein \textit{Value net} $V(s)$ zur Verarbeitung weitergegeben. Die beschriebene Architektur
-des Verfahrens ist in \autoref{fig:actor-critic} visualisiert.
+\textit{shared net} umgesetzt werden  \cite[~S.269]{L2018}. Im Hinblick darauf wird die erhaltene
+Observation als Input in ein \textit{Common net} gegeben, welches im Falle von Bildern als Input aus
+multiplen Convolutional Layern bestehen könnte. Anschließend werden die ermittelten Features sowohl an
+ein \textit{Policy net} $\pi(a|s)$ als auch an ein \textit{Value net} $V(s)$ zur Verarbeitung
+weitergegeben. Die beschriebene Architektur des Verfahrens ist in \autoref{fig:actor-critic}
+visualisiert.
 
 \begin{figure}[htp]
 \centering
@@ -1311,10 +1312,50 @@ Das Verfahren fällt des Weiteren in den Bereich der model-free Verfahren, da ke
 Folgezuständen und Rewards aufgebaut wird. 
 
 \subsection{Verfahren}
+Wie bei dem Großteil aller erläuterten Verfahren werden zu Beginn die Netzwerkparameter $\theta$ mit
+zufälligen Werten initialisiert. Anschließend werden $N$ Schritte im Environment anhand der aktuellen
+Policy $\pi(s|a)$ gespielt, wobei jeweils ein Tupel aus State $st$, Action $at$ und Reward $rt$
+gespeichert werden. Nach dem Abschluss einer Episode werden anschließend die vollzogenen Schritte in
+umgekehrter Reihenfolge verarbeitet. Darauf folgend werden die Gewichte des Netzes aktualisiert, indem
+die akkumulierten Gradienten beider Netze in Richtung des Policy Gradients $\partial\theta_\pi$
+und entgegen der Richtung des Value Gradients $\partial\theta_v$ verschoben werden. Diese Schritte
+anschließend solange wiederholt, bis das System konvergiert.
 
+Das Policy net wird ebenfalls als \textit{actor} bezeichnet, da man von diesem ableiten kann, welche
+Action ausgeführt werden soll. Das Value net wird hingegen als \textit{critic} bezeichnet, da es mit
+diesem möglich wird, zu bewerten wie gut die ausgeführten Actions waren.
 
 \subsection{Erweiterungen}
+Obwohl das Actor Critic Verfahren bereits als Erweiterung zum klassischen Policy Gradient Ansatz
+gezählt wird existieren weitere Maßnahmen zur Verbesserung und Beschleunigung der Methode.
 
+\paragraph*{Entropy Bonus} 
+\noindent
+\newline
+Durch die Einführung des Entropy Bonus wird der explorierende Ansatz des Verfahrens bestärkt.
+Der Bonus wird als Entropy Wert zur bestehenden Loss-Funktion hinzugefügt (siehe
+\ref{aln:actor-critic-entropy-bonus}):
+
+\begin{align}
+\mathcal{L}_H=\beta\sum_i\pi_\theta(s_i)\log_{\pi_\theta}(s_i)
+\label{aln:actor-critic-entropy-bonus}
+\end{align}
+
+Da diese Funktion an ihrem Minimum ankommt, sobald wie Wahrscheinlichkeitsverteilung uniform,
+sprich gleichverteilt ist, kann durch anfügen des Ergebnisses zur Loss-Funktion der Agent davon
+abgehalten werden sich \grqq zu sicher\grqq bei der Berechnung von Actions zu sein. Im
+Umkehrschluss bedeutet dies, dass bei einer Wahrscheinlichkeitsverteilung bei der ausschließlich
+eine Action zu 100 Prozent als wählbare Action identifiziert wurde, der berechnete Loss nicht
+einem Ergebnis von 0 entspricht \cite[~S.269 f.]{L2018}.
+
+\paragraph*{Multiple Environments} 
+\noindent
+\newline
+Eine zusätzliche Erweiterungsmöglichkeit im Bereich der Stabilität des Verfahrens ist die Nutzung
+von mehreren parallelen Environments. Dadurch können simultan mehrere Observations gesammelt werden
+was aufgrund der on-policy Eigenschaft des Verfahrens den Trainingsprozess deutlich beschleunigt.
+Diese Erweiterungsmöglichkeit wird auch als Asynchronous Advantage Actor Critic oder in Kurzform
+A3C bezeichnet.
 
 \newpage
 \section{Teeworlds}
