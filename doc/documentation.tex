@@ -173,18 +173,18 @@ Environment zu nehmen. Zu Actions zählen das Ausführen von Spielzügen, die du
 Regelwerk erlaubt sind sowie die Änderung eines Zustandes in umfangreicheren Systemen. Die
 Komplexität der Actions kann dabei ebenfalls variieren. Des Weiteren unterscheidet man im Bereich
 Reinforcement Learning zwischen zwei Arten von Actions: diskrete und kontinuierliche Actions.
-Diskrete Actions definieren eine endliche Menge an gegenseitig ausschließenden Handlungen die ein
+Diskrete Actions definieren eine endliche Menge an gegenseitig ausschließenden Handlungen die ein  % TODO wirklich gegenseitig ausschließend?
 Agent vollziehen kann \cite[~S.8]{L2018}. Dazu zählen Actions wie sich nach links und rechts zu
 bewegen oder zu springen. Unter kontinuierlichen Actions versteht man hingegen Handlungen, die
 über einen zusätzlichen Wert beeinflusst werden, wie zum Beispiel das Steuern eines Fahrzeuges
-mit einem Lenkrad. Dabei ist nich ausschließlich die Lenkrichtung ausschlaggebend, sondern auch
+mit einem Lenkrad. Dabei ist nicht ausschließlich die Lenkrichtung ausschlaggebend, sondern auch
 der Einschlagswinkel des Lenkrades, welcher die Intensität der Lenkung festlegt.
 
 
 \subsubsection{Observation}
 Unter einer Observation versteht man die Wahrnehmung des Agenten, welche von dem Environment 
 bereitgestellt wird. Dabei enthält eine Observation immer Informationen dazu, was gerade in der
-Umgebung des Agenten passiert. Jedoch geben Observations für den Agenten nicht den Einblick
+Umgebung des Agenten passiert. Jedoch geben Observations für den Agenten nicht den Einblick  % TODO müssen nicht über das gesamte Environment Einblick geben, können aber
 in das gesamte Environment, sondern limitieren dessen Wahrnehmung auf notwendige oder auch
 ausschließlich gewollte Informationen \cite[~S.8 f.]{L2018}. Eine Observation kann aus einzelnen
 Werten bestehen, welche zum Beispiel im Falle von Pong Informationen wie Position und
@@ -280,7 +280,7 @@ sondern auch von der Action, die zu diesem Zustand führt.
 
 Die Verhaltensweise, die der Agent ausübt und welche für die Wahl der Actions verantwortlich ist,
 wird als \textit{Policy} bezeichnet. Formal wird diese als Wahrscheinlichkeitsverteilung
-über Actions für jeden möglichen Zustand definiert \cite[~S.22 f.]{L2018}. 
+über Actions für jeden möglichen Zustand definiert \cite[~S.22 f.]{L2018}.  % TODO nicht cite am Ende von Chapter
 
 
 \subsection{Weiterführende Taxonomie}
@@ -331,12 +331,12 @@ Erwartungswert der Wahrscheinlichkeitsverteilung hängt von der gewählten Actio
 Ziel besteht darin mit der Ausführung von $n$ Actions die höchstmögliche Summe von Rewards
 zu erhalten.
 
-Der Erwartungswert der hinter der Verteilung einer Action steht als $Value$ der Action
+Der Erwartungswert der hinter der Verteilung einer Action steht wird als $Value$ der Action
 bezeichnet. Würden die Values der einzelnen Actions dem Agenten zur Verfügung stehen, wäre die 
 Wahl der Action einfach, indem die Action mit dem höchsten Erwartungswert gewählt werden 
 könnte. Allgemein ist in Reinforcement Learning Problemen der Value einer Action nicht bekannt.
 Stattdessen gibt es ausschließlich Abschätzungen bezüglich des Values einer Action, die aus den
-vorhergehenden Erfahrungen hervorgehen. Um den Value einer Action besser abschätzen zu können,
+gesammelten Erfahrungen hervorgehen. Um den Value einer Action besser abschätzen zu können,
 muss diese Action ausprobiert werden. Umso häufiger die Action ausgeführt wurde, umso besser
 ist auch die Abschätzung des Values dieser Action.
 
@@ -352,14 +352,14 @@ Values der unterschiedlichen Actions am Anfang und Ende des Spiels identisch sin
 auch Erfahrungen, die zu Beginn des Spielens gemacht wurden, am Ende benutzt werden
 können.
 
-
+% TODO mehr cite
 \subsubsection{Exploration-Strategien}
 Im folgenden werden verschiedene Exploration-Strategien beleuchtet. Dazu werden diese erst
 theoretisch erklärt und anschließend praktisch an einem k-armed-Bandit Problem verglichen.
 
 \paragraph{$\epsilon$ greedy / decaying $\epsilon$ greedy}
 Eine Strategie, die zu jedem Zeitpunkt die Action wählt, die nach derzeitigem Wissen den
-höchsten Value hat wird $greedy$ genannt. $\epsilon$-greedy-Strategien sind greedy
+höchsten Value hat, wird $greedy$ genannt. $\epsilon$-greedy-Strategien sind greedy
 Strategien, die mit einer gewissen Wahrscheinlichkeit $\epsilon$ eine zufällige Action
 wählen. Sie wählen also mit einer Wahrscheinlichkeit von $1 - \epsilon$ die Action, von
 der sie sich den höchsten Reward versprechen und andernfalls eine zufällige Action.\\
@@ -373,7 +373,7 @@ Ein Agent, der ein k-armed-Bandit Problem lösen soll, besitzt eine interne Absc
 Values, um Actions wählen zu können, die einen besseren Reward versprechen. Die
 Bewertung der Actions wird beeinflusst durch die erfahrenen Rewards nach dem Wählen einer
 Action. Beispielsweise können die erfahrenen Rewards einer Action gemittelt werden, um
-folgende Rewards dieser Action abschätzen zu können.\\
+zukünftige Rewards dieser Action abschätzen zu können.\\
 Neben $\epsilon$-greedy Verfahren ist es eine weitere Möglichkeit Exploration umzusetzen,
 die initiale Bewertung der Values sehr optimistisch vorzunehmen. Dadurch wird der Agent
 bei der Wahl einer Action vom erhaltenen Reward \grqq enttäuscht\grqq, sodass sich die
@@ -576,7 +576,7 @@ Environments angibt und \textit{reward\_range}, welcher einen Wertebereich für 
 lokalen Reward definiert.\\
 Für das Spiel Tic-Tac-Toe wurde ein Einspieler Environment implementiert, welches im Unterverzeichnis
 \textit{preparation/05\_v\_learning/} unter \url{github.com/dephiloper/independent-coursework-rl/}
-abgerufen werden kann.
+abgerufen werden kann.  % TODO overfull hbox in link
 
 
 \subsubsection{Verwendung}
@@ -629,7 +629,7 @@ wird eine Observation über direktem Wege auf eine zu wählende Action abgebilde
 Methode ist nicht value-based, da der zu erwartende Reward nicht approximiert wird.
 
 \subsection{Verfahren} % TODO Überschrift gefällt mir irgendwie nicht so richtig
-Die zu lernende Policy ist wie bereits erwähnt als Wahrscheinlichkeitsverteilung der
+Die zu lernende Policy ist wie bereits erwähnt als Wahrscheinlichkeitsverteilung
 über die Actions repräsentiert und dadurch sehr ähnlich zu einem Klassifizierungsproblem,
 wobei die Anzahl der Klassen hier der Anzahl von auszuführenden Actions entspricht. Durch
 diese Verfahrensweise ist die Umsetzung des Agenten als eher einfach zu betrachten, da
@@ -637,7 +637,7 @@ diese ausschließlich die Observation des Environments an das Netz weitergeben m
 dem Netz anschließend die Wahrscheinlichkeitsverteilung erhält und anhand dieser dann eine
 Zufallsstichprobe (random sampling) unter Berücksichtigung der Wahrscheinlichkeiten aller
 Actions vollzieht \cite[~S.78]{L2018}. Nachdem der Agent durch das random sampling eine
-Action gewählt hat führt er diese erneut im Environment aus und erhält die nächste
+Action gewählt hat, führt er diese erneut im Environment aus und erhält die nächste
 Observation sowie den Reward für die zuvor ausgeführte Action.
 
 Diese Schritte werden anschließend solange wiederholt, bis eine Ansammlung an Episoden (siehe 
@@ -728,7 +728,8 @@ Werten einer Verteilung die unter oder gleich einem festgelegten Wert sind (z.B.
 Die Implementierung der Cross-Entropy-Method zum Cart-Pole Problem ist unter
 \url{github.com/dephiloper/independent-coursework-rl} im Unterverzeichnis 
 \textit{preparation/04\_cross\_entropy} in der Datei
-\href{https://github.com/dephiloper/independent-coursework-rl/blob/master/preparation/04_cross_entropy/cart_pole_torch.py}{\nolinkurl{forzen\_lake\_torch.py}} umgesetzt.
+\href{https://github.com/dephiloper/independent-coursework-rl/blob/master/preparation/04_cross_entropy/cart_pole_torch.py}{\nolinkurl{forzen\_lake\_torch.py}}
+umgesetzt. % TODO cart pole in frozen_lake_torch.py?
 
 
 \subsubsection{Frozen Lake}
@@ -766,7 +767,7 @@ Anders als das Cart-Pole Environment erhält der Agent bei dem Frozen Lake Envir
 ausschließlich einen +1 Reward, sobald der gesteuerte Avatar das Ziel erreicht. Daraus folgt,
 dass anhand des \textit{total reward} einer Episode nicht darauf geschlossen werden kann,
 wie gut eine Episode gespielt wurde (Avatar kann lange umherwandern bevor er auf das Ziel kommt).
-Somit lässt sich das auch keine sinnvolle Wahl von elite Episoden treffen, da ausschließlich
+Somit lässt sich auch keine sinnvolle Wahl von elite Episoden treffen, da ausschließlich
 durchgespielte Episoden mit einem total reward von +1 oder 0 bestehen und die Episoden mit 0
 deutlich häufiger auftreten.
 
@@ -775,7 +776,7 @@ aufgeführt \cite[~S.92 f.]{L2018}:
 \begin{itemize}
 \itemsep0pt
 \item endliche und kurze Episoden
-\item detailierte Unterscheidung des total reward zwischen guten und schlechten Episoden
+\item detailierte Unterscheidung des total Reward zwischen guten und schlechten Episoden
 \item Reward für die Erfüllung von Zwischenschritten
 \end{itemize}
 
@@ -802,7 +803,7 @@ etwa 50\% erfolgreichen Lösung des Environments stagniert.
 Die Implementierung der Cross-Entropy-Method zum Frozen Lake Environment ist unter
 \url{github.com/dephiloper/independent-coursework-rl} im Unterverzeichnis 
 \textit{preparation/04\_cross\_entropy} in der Datei 
-\href{https://github.com/dephiloper/independent-coursework-rl/blob/master/preparation/04_cross_entropy/frozen_lake_torch.py}{\nolinkurl{forzen\_lake\_torch.py}} umgesetzt.
+\href{https://github.com/dephiloper/independent-coursework-rl/blob/master/preparation/04_cross_entropy/frozen_lake_torch.py}{\nolinkurl{frozen\_lake\_torch.py}} umgesetzt.
 \newpage
 
 
@@ -843,7 +844,7 @@ Environments veranschaulicht.
 \subsubsection{Value-Iteration Verfahren}
 Da sich das Spielfeld nicht ändert, beschränken sich die Zustände von Frozen Lake auf die
 Positionen des Spielers. Durch die geringe Anzahl an Spielsituationen bietet sich das
-Tabular Q-Learning Verfahrens an, da es möglich ist alle erreichbaren Zustände in einer
+Tabular Q-Learning Verfahren an, da es möglich ist alle erreichbaren Zustände in einer
 Tabelle zu speichern und deren Values zu bestimmen. Diese Tabelle enthält für jeden State
 eine Abschätzung der unterschiedlichen Actions. Tabelle \ref{tab:q_table} zeigt eine
 sehr kleine beispielhafte Q-Table mit zwei Actions und zwei States.
@@ -984,8 +985,8 @@ Gewinnwahrscheinlichkeit, falls der Gegner das Spiel eröffnet hat.
       1.000.000 & 99.1\% / 87.7\% & 0.0\% / 0.7\% & 0.9\% / 11.5\% \\
     \end{tabular}
 
-    \caption[Gewinnwahrscheinlichkeiten Tic Tac Toe bei Beginn]{Gewinnwahrscheinlichkeiten
-      Tic Tac Toe bei Beginn}
+    \caption[Gewinnwahrscheinlichkeiten Tic Tac Toe]{Gewinnwahrscheinlichkeiten Tic Tac
+    Toe}
     \label{tab:win_probability_tictactoe_begin}
   \end{center}
 \end{table}
@@ -1113,9 +1114,10 @@ Environment implementiert und getestet. Der Quelltext kann unter
 \url{https://github.com/dephiloper/independent-coursework-rl/tree/master/preparation/07_deep_q_learning}
 gefunden werden.
 
+% Environment
+
 \begin{itemize}
 \itemsep0pt
-\item atari pong (\url{https://gym.openai.com/envs/#atari})
 \item roboschool pong environment (\url{https://github.com/openai/roboschool}
 \item limitations
 \item extensions: duelling dqn, categorical dqn, n-step dqn
