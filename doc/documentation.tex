@@ -103,7 +103,7 @@ Machine Learning Methoden werden zunehmend benutzt, um Probleme in der realen We
 lösen und erhalten daher in der Zukunft einen immer höheren Stellenwert. Spiele im
 speziellen stellen meist Problemstellungen dar, welche zum Teil auch schon durch Machine
 Learning Verfahren absolviert werden konnten. Darunter fallen klassische Brettspiele, wie Go
-oder Schach\cite{DM2018} aber auch echtzeit Spiele, wie Dota 2\cite{OA2019},
+oder Schach\cite{DM2018} aber auch Echtzeitspiele, wie Dota 2\cite{OA2019},
 Quake\cite{DM2019} oder Starcraft\cite{DM2019_2}. Für das Supervised Research Independent Coursework
 ergibt sich folgende Problemstellung: Welche Machine Learning Verfahren können für das
 absolvieren eines Computerspieles verwendet werden und wie integriert man diese in die
@@ -145,8 +145,8 @@ Kapitel beschreiben Bestandteile und Hauptakteure von Systemen im Bereich Reinfo
 \subsubsection{Agent}
 Ein Agent nimmt seine Umgebung (\textit{Environment}) über Sensoren wahr und kann mittels Aktuatoren
 Handlungen (\textit{Actions}) vollziehen um diese Umgebung zu beeinflussen oder zu verändern 
-\cite[~S.60]{RN2009}. Für die ausgeführten Aktionen erhält der Agent einen Leitwert wie positiv oder
-negativ sich diese Aktion auf die Umgebung oder den Agenten ausgewirkt hat. Wie bereits im vorherigen
+\cite[~S.60]{RN2009}. Für die ausgeführten Actions erhält der Agent einen Leitwert wie positiv oder
+negativ sich diese Action auf die Umgebung oder den Agenten ausgewirkt hat. Wie bereits im vorherigen
 Absatz erwähnt, kann der Agent als lernende Entität bezeichnet werden, da dieser seine Verhaltensweise
 im Bereich  Reinforcement Learning selbstständig immer weiter in Richtung bestmöglicher Lösung einer 
 Problemstellung optimiert. In einem Computerspiel kann ein Agent als menschlicher Spieler
@@ -208,7 +208,7 @@ bedeutet ein hoher lokaler Reward nicht, dass der daraus folgende Zustand global
 noch größeren negativen Auswirkungen auf den Agenten haben wird.
 
 
-\subsection{Markov Processes}
+\subsection{Markov Processes} % citations missing
 Der Makrov Process und seine Erweiterungen bilden das theoretische Konstrukt für Reinforcement Learning
 Verfahren. Durch die Beleuchtung dieser Prozesse werden weitere Terminologien geklärt, welche ebenfalls
 ihren Einsatz im Reinforcement Learning finden.
@@ -237,7 +237,7 @@ und deren Übergangswahrscheinlichkeiten in zukünftige Folgezustände.
 
 \begin{figure}[htp]
 \centering
-\includegraphics[scale=0.2]{res/sunny-rainy-weather-model.png}
+\includegraphics[scale=0.19]{res/sunny-rainy-weather-model.png}
 \caption{Sunny/Rainy Wettermodell}
 \source{\cite[~S.13 - Chapter 1 - Figure 4]{L2018}}
 \label{fig:markov}
@@ -306,7 +306,7 @@ werden müssen.
 
 
 \subsubsection{Model-free - model-based}
-Der Term \textit{model-free} bezieht sich auf Verfahren, welche kein Modell der Umgebung oder des Rewards
+Der Term \textit{model-free} bezieht sich auf Verfahren, welche kein Model der Umgebung oder des Rewards
 während des Trainingsprozesses aufbauen. Es werden ausschließlich durch aktuelle Observations
 zugehörige Actions berechnet. Model-based Methoden versuchen im Gegenzug vorherzusagen, was 
 die nächste Observation oder wie hoch der nächste Reward sein wird \cite[~S.NA]{L2018}. Aufgrund dieser
@@ -331,11 +331,11 @@ Erwartungswert der Wahrscheinlichkeitsverteilung hängt von der gewählten Actio
 Ziel besteht darin mit der Ausführung von $n$ Actions die höchstmögliche Summe von Rewards
 zu erhalten.
 
-Der Erwartungswert der hinter der Verteilung einer Action steht wird als $Value$ der Action
+Der Erwartungswert der hinter der Verteilung einer Action steht, wird als $Value$ der Action
 bezeichnet. Würden die Values der einzelnen Actions dem Agenten zur Verfügung stehen, wäre die 
 Wahl der Action einfach, indem die Action mit dem höchsten Erwartungswert gewählt werden 
 könnte. Allgemein ist in Reinforcement Learning Problemen der Value einer Action nicht bekannt.
-Stattdessen gibt es ausschließlich Abschätzungen bezüglich des Values einer Action, die aus den
+Stattdessen gibt es ausschließlich Ab-schätzungen bezüglich des Values einer Action, die aus den
 gesammelten Erfahrungen hervorgehen. Um den Value einer Action besser abschätzen zu können,
 muss diese Action ausprobiert werden. Umso häufiger die Action ausgeführt wurde, umso besser
 ist auch die Abschätzung des Values dieser Action.
@@ -345,8 +345,8 @@ $Exploitation$ bei der die gesammelten Erfahrungen genutzt werden, um die Action
 auszuwählen, die den höchsten Reward verspricht.
 
 Das k-armed-Bandit Problem gilt als Vereinfachung zu allgemeinen Reinforcement Learning
-Problemen, da nicht zwischen unterschiedlichen Ausgangszuständen unterschieden wird. Mit
-anderen Worten wird keine Observation durchgeführt. Weiterhin wird der Erwartungswert des
+Problemen, da nicht zwischen verschiedenen Ausgangszuständen unterschieden wird, sprich
+es wird keine Observation durchgeführt. Weiterhin wird der Erwartungswert des
 Rewards einer Action nicht über die Dauer des Spiels verändert. Dies bedeutet, dass die
 Values der unterschiedlichen Actions am Anfang und Ende des Spiels identisch sind, wodurch
 auch Erfahrungen, die zu Beginn des Spielens gemacht wurden, am Ende benutzt werden
@@ -357,23 +357,27 @@ können.
 Im folgenden werden verschiedene Exploration-Strategien beleuchtet. Dazu werden diese erst
 theoretisch erklärt und anschließend praktisch an einem k-armed-Bandit Problem verglichen.
 
+% citation needed
 \paragraph{$\epsilon$ greedy / decaying $\epsilon$ greedy}
 Eine Strategie, die zu jedem Zeitpunkt die Action wählt, die nach derzeitigem Wissen den
 höchsten Value hat, wird $greedy$ genannt. $\epsilon$-greedy-Strategien sind greedy
 Strategien, die mit einer gewissen Wahrscheinlichkeit $\epsilon$ eine zufällige Action
 wählen. Sie wählen also mit einer Wahrscheinlichkeit von $1 - \epsilon$ die Action, von
-der sie sich den höchsten Reward versprechen und andernfalls eine zufällige Action.\\
+der sie sich den höchsten Reward versprechen und andernfalls eine zufällige Action.
+
 In der Praxis werden häufig decaying-$\epsilon$-greedy-Strategien verwendet, bei denen der
 $\epsilon$-Wert über den Trainingsprozess hinweg verringert wird. Dadurch werden zu Beginn
 des Trainings viele neue Actions ausprobiert, während gegen Ende das Anwenden des
 Gelernten stärker in den Vordergrund tritt.
 
+% citation needed
 \paragraph{Optimistic Initial Values}
 Ein Agent, der ein k-armed-Bandit Problem lösen soll, besitzt eine interne Abschätzung der
 Values, um Actions wählen zu können, die einen besseren Reward versprechen. Die
 Bewertung der Actions wird beeinflusst durch die erfahrenen Rewards nach dem Wählen einer
 Action. Beispielsweise können die erfahrenen Rewards einer Action gemittelt werden, um
-zukünftige Rewards dieser Action abschätzen zu können.\\
+zukünftige Rewards dieser Action abschätzen zu können.
+
 Neben $\epsilon$-greedy Verfahren ist es eine weitere Möglichkeit Exploration umzusetzen,
 die initiale Bewertung der Values sehr optimistisch vorzunehmen. Dadurch wird der Agent
 bei der Wahl einer Action vom erhaltenen Reward \grqq enttäuscht\grqq, sodass sich die
@@ -381,24 +385,27 @@ Einschätzung dieser Action verschlechtert. Wird nun immer die Action gewählt, 
 besten eingeschätzt ist, so werden über die Zeit alle Actions versucht, bis sie sich dem
 tatsächlichen Erwartungswert nähern.
 
+% citation needed
 \paragraph{Upper Confidence Bound Action Selection}
 Während $\epsilon$-greedy-Methoden zufällig zwischen allen nicht greedy Actions
 auswählen, wählt die Upper Confidence Bound Ac\-tion Selection Methode Actions entsprechend
-dreier Parameter aus.\\
+dreier Parameter aus.
 Der erste Parameter ist $t$ die Anzahl der Actions, die bis jetzt gespielt wurden. Der
 zweite ist der bis jetzt ermittelte $Value$ der Action $a$ bezeichnet mit $Q(a)$ und der
 dritte Parameter ist die Anzahl, wie oft Action $a$ schon ausprobiert wurde. Die nächste
 zu spielende Action wird dann nach folgender Gleichung gewählt:
+
 \begin{align}
 A = \argmax_a\left( Q(a) + c*\sqrt\frac{\ln(t)}{N(a)} \right)
 \end{align}
-\noindent
+
 $A$ ist die gewählte Action. $N(a)$ ist die Anzahl, wie oft die Action $a$ schon gewählt
 wurde. Existiert eine Action, die noch nie gespielt wurde, also $N(a)=0$, so wird eine der
 Actions gespielt, die noch nicht gespielt wurden. Durch den Term
 $c*\sqrt\frac{\ln(t)}{N(a)}$ wird sichergestellt, dass selten benutzte Actions eine höhere
 Bewertung erhalten und damit wahrscheinlicher ausprobiert werden. Über den Hyperparameter
-$c$ lässt sich bestimmen, wie stark selten benutzte Actions ausprobiert werden sollen.\\
+$c$ lässt sich bestimmen, wie stark selten benutzte Actions ausprobiert werden sollen.
+
 Ein Vorteil gegenüber $\epsilon$-greedy Strategien ist, dass durch die Einbeziehung von
 $Q(a)$ Actions häufiger ausprobiert werden, die besser erscheinen, während Actions, die
 sehr schlecht wirkende Actions weniger oft ausprobiert werden.
@@ -406,17 +413,19 @@ sehr schlecht wirkende Actions weniger oft ausprobiert werden.
 
 \subsubsection{Implementierung}
 Das k-armed-Bandit Problem sowie verschiedene Varianten der Action-Selection wurden
-implementiert und sind unter \url{https://github.com/Bluemi/rl_testbed} abrufbar.\\
+implementiert und sind unter \url{https://github.com/Bluemi/rl_testbed} abrufbar.
+
 In der Klasse \lstinline!NArmedBandit! wird das k-armed-Bandit Problem umgesetzt. Es
 werden zu Beginn die Values der einzelnen Actions aus einer Standardnormalverteilung
 gezogen und gespeichert. Wird nun eine Action auf dem erstellten Bandit gespielt, so wird
 eine Zufallszahl aus einer Normalverteilung mit dem Erwartungswert der jeweiligen Action
-gezogen und als Reward zurück gegeben.\\
+gezogen und als Reward zurück gegeben.
 Um auf einem Bandit zu spielen wurde ein \lstinline!Solver! umgesetzt, der eine interne
 Abschät\-zung der Action Values ermittelt, indem die erfahrenen Rewards dieser Action
 gemittelt werden. Der Solver wählt Actions wobei unterschiedliche Exploration Strategien
 ausprobiert werden können. Die Unterklasse \lstinline!EpsilonGreedySolver! implementiert
-beispielsweise die $\epsilon$-greedy Strategie.\\
+beispielsweise die $\epsilon$-greedy Strategie.
+
 In \lstinline!src/main.py! werden unterschiedliche Solver anhand des gleichen Bandits
 getestet und die Ergebnisse geplottet. Jeder Solver trainiert 5000 Actions auf einem
 10-armed-Bandit. Die dabei resultierenden Rewards sind in Abbildung
@@ -437,16 +446,19 @@ Vergleicht man die Verfahren ohne decay (blau und orange), so kann man erkennen,
 $\epsilon = 0.1$ zu Beginn besser funktioniert, da mehr Zeit für Exploration verwendet
 wird und so schneller bessere Actions gefunden werden. Dafür funktioniert $\epsilon =
 0.01$ nach circa 1500 Action Selections besser, da mehr Zeit verwendet wird, um die schon
-gefundenen guten Actions zu exploiten.\\
+gefundenen guten Actions zu exploiten.
+
 Um die Vorteile beider Möglichkeiten zu nutzen, verwendet das dritte Experiment einen
 decay, um $\epsilon$ auf $0$ zu senken. Dadurch werden zu Beginn viele zufällige Actions
 ausgewählt, um die Values der einzelnen Actions besser einzuschätzen. Wenn durch den decay
 $\epsilon$ gegen Ende des Experiments sinkt, werden die gefundenen Actions benutzt und ein
-vergleichsweise hoher Reward entsteht.\\
+vergleichsweise hoher Reward entsteht.
+
 In der rechten Abbildung sind das Verfahren Optimistic Initial Values und Upper Confidence
 Bound Action Selection zu sehen. Zusätzlich ist der $\epsilon$-greedy Solver mit
 $\epsilon=0.01$ aus der ersten Abbildung zum Vergleich eingezeichnet. Die obere schwarz
-gestrichelte Linie deutet das Value der optimalen Action an.\\
+gestrichelte Linie deutet das Value der optimalen Action an.
+
 Tabelle \ref{tab:explorationstrategies} zeigt die erreichten durchschnittlichen Rewards
 der unterschiedlichen Verfahren.
 
@@ -482,8 +494,8 @@ Toolkit, welches zur Entwicklung und zum Vergleich von Reinforcement Learning Al
 eingesetzt werden kann. Das Toolkit definiert keine Strukturen für die Umsetzung der Agenten,
 wodurch die Wahl der Machine Learning Bibliothek dem Entwickler frei zur Verfügung steht. In
 der gym Bibliothek wird hingegen eine Sammlung an Testumgebungen (Environments) zur Nutzung
-bereit gestellt, welche alle eine festgelegte Problemstellung definieren \cite{OAI2016}. 
-Diese Environments bieten eine einheitliche Schnittstelle, was das implementieren von
+bereitgestellt, welche alle eine festgelegte Problemstellung definieren \cite{OAI2016}. 
+Diese Environments bieten eine einheitliche Schnittstelle, was das Implementieren von
 generellen Algorithmen für nahezu jede Art von Environment ermöglicht. Da Reinforcement
 Learning Verfahren in komplexen Problemstellungen immer bessere Resultate erzielten, jedoch
 keine standartisierte Umsetzung für die Entwicklung und anschließende Nutzung von Environments
@@ -568,7 +580,7 @@ Abschließend kann durch \textbf{close()} das Environment und somit gegebenenfal
 dahinterliegende Anwendung geschlossen werden. Durch den Aufruf von 
 \textbf{seed(seed)} kann ein Seed für den \textit{random number generator}
 des Environments festgelegt werden.\\
-%TODO explanation rng
+
 Neben den beschriebenen Methoden exisiteren die Properties \textit{action\_space}, welcher die
 Art und Anzahl der zu wählenden Actions vorgibt (z.B. \textit{Discrete(9)} für 9 verschiedene
 diskrete Actions), \textit{observation\_space}, welcher gleiches für die Observation des
@@ -600,7 +612,6 @@ for _ in range(1000):
 env.close()
 \end{lstlisting}
 
-\noindent
 Durch den definierten Aufbau der bereitgestellten API bietet ein Environment in den meisten Fällen
 die Möglichkeit Agenten mit verschiedenen Verfahren zur Ermittelung der zu tätigenden Action zu
 implementieren, sodass diese nach dem Aufsetzen einer Grundstruktur auch gut ausgetauscht werden
@@ -610,11 +621,13 @@ können.
 \newpage
 \section{Cross-Entropy-Method}
 \label{sec:cross-entropy-method}
-Das erste zu beleuchtende Reinforcement Learning Verfahren ist die Cross-Entropy-Method. Die
-Cross-Entropy-Method ist eine Monte Carlo Methode für Stichprobenentnahme nach Wichtigkeit
-(importance sampling) und Optimierung (optimization) \cite[~S.29 ff.]{R2004}. Im folgenden
-Kapitel wird das Verfahren erläutert und in die bereits beschriebene Taxonomie eingeordnet.
-Des Weiteren erfolgt die Anwendung des Verfahrens innerhalb von zwei Testumgebungen. 
+In den nachfolgenden Kapiteln werden diverse Algorithmen in Bereich Reinforcement Learning
+erläutert. Das erste zu beleuchtende Reinforcement Learning Verfahren ist die
+Cross-Entropy-Method. Die Cross-Entropy-Method ist eine Monte Carlo Methode für
+Stichprobenentnahme nach Wichtigkeit (importance sampling) und Optimierung (optimization)
+\cite[~S.29 ff.]{R2004}. Im folgenden Kapitel wird das Verfahren erläutert und in die bereits
+beschriebene Taxonomie eingeordnet. Des Weiteren erfolgt die Anwendung des Verfahrens innerhalb
+von zwei Testumgebungen. 
 
 \subsection{Einordnung}
 Bei dem Verfahren handelt es sich um eine on-policy Methode, da im Trainingsprozess ausschließlich
@@ -628,9 +641,9 @@ zu wählende Action in Form einer Wahrscheinlichkeitsverteilung über alle Actio
 wird eine Observation über direktem Wege auf eine zu wählende Action abgebildet. Die
 Methode ist nicht value-based, da der zu erwartende Reward nicht approximiert wird.
 
-\subsection{Verfahren} % TODO Überschrift gefällt mir irgendwie nicht so richtig
-Die zu lernende Policy ist wie bereits erwähnt als Wahrscheinlichkeitsverteilung
-über die Actions repräsentiert und dadurch sehr ähnlich zu einem Klassifizierungsproblem,
+\subsection{Verfahren}
+Die zu lernende Policy ist wie bereits erwähnt als Wahrscheinlichkeitsverteilung über die 
+zu wählenden Actions repräsentiert und dadurch sehr ähnlich zu einem Klassifizierungsproblem,
 wobei die Anzahl der Klassen hier der Anzahl von auszuführenden Actions entspricht. Durch
 diese Verfahrensweise ist die Umsetzung des Agenten als eher einfach zu betrachten, da
 diese ausschließlich die Observation des Environments an das Netz weitergeben muss, von
@@ -702,7 +715,7 @@ Paper\cite{BSA1983} von Barto, Sutton und Anderson:
 \noindent
 \newline
 Das Cross-Entropy-Verfahren wurde im Cart-Pole Environment mittels neuronalen Netz mit
-einem Hidden Layer mit 128 Nodes und einer Learning Rate von 0.01 trainiert. Als
+einem Hidden Layer von 128 Nodes und einer Learning Rate von 0.01 trainiert. Als
 Optimizer wurde Adam verwendet und als Aktivierungsfunktion zwischen Input Layer und
 Hidden Layer die ReLu Funktion. Zur Berechnung eines Loss zwischen Vorhersage des Netzes
 und den während des Spielens aufgenommenen Actions wird der Cross-Entropy-Loss verwendet.
@@ -728,11 +741,10 @@ Werten einer Verteilung die unter oder gleich einem festgelegten Wert sind (z.B.
 Die Implementierung der Cross-Entropy-Method zum Cart-Pole Problem ist unter
 \url{github.com/dephiloper/independent-coursework-rl} im Unterverzeichnis 
 \textit{preparation/04\_cross\_entropy} in der Datei
-\href{https://github.com/dephiloper/independent-coursework-rl/blob/master/preparation/04_cross_entropy/cart_pole_torch.py}{\nolinkurl{forzen\_lake\_torch.py}}
-umgesetzt. % TODO cart pole in frozen_lake_torch.py?
+\href{https://github.com/dephiloper/independent-coursework-rl/blob/master/preparation/04_cross_entropy/cart_pole_torch.py}{\nolinkurl{cart\_pole\_torch.py}} umgesetzt.
 
 
-\subsubsection{Frozen Lake}
+\subsection{Frozen Lake}
 \label{sec:frozen-lake}
 Bei dem zweiten Environment Frozen Lake handelt es sich um ein Environment mit diskretem action-
 und diskretem observation-space, das heißt, dass sowohl die zu tätigende Action diskret ist,
@@ -752,8 +764,8 @@ sich der Avatar auf diese bewegt. Das Spielfeld ist in Abbildung \ref{fig:frozen
 
 \noindent
 Der Agent kann die Actions \grqq left\grqq, \grqq up\grqq, \grqq right\grqq und \grqq
-down\grqq ausführen. Erschwert wird die Steuerung aber dadurch, dass die Oberfläche des
-Sees rutschig ist, weshalb die Folgeposition des Avatars nicht deterministisch ist.
+down\grqq ausführen. Erschwert wird die Steuerung aber dadurch, dass die Oberfläche
+rutschig ist, weshalb die Folgeposition des Avatars nicht deterministisch ist.
 Wählt man bespielsweise die Action \grqq down\grqq, so bewegt sich der Avatar mit einer
 Wahrscheinlichkeit von jeweils $1/3$ nach unten, rechts oder links. Allgemein gesprochen
 ist die Richtung, in die sich der Avatar nach der Wahl einer Action bewegt, eine zufällige
@@ -775,7 +787,7 @@ Aufgrund dieser Probleme werden folgende Einschränkungen der Cross-Entropy-Meth
 aufgeführt \cite[~S.92 f.]{L2018}:
 \begin{itemize}
 \itemsep0pt
-\item endliche und kurze Episoden
+\item endliche und kurze Episoden notwendig
 \item detailierte Unterscheidung des total Reward zwischen guten und schlechten Episoden
 \item Reward für die Erfüllung von Zwischenschritten
 \end{itemize}
@@ -784,8 +796,8 @@ Diese Einschränkungen können jedoch addressiert werden, indem mehr Episoden ge
 um somit die Wahrscheinlichkeit zu erhöhen erfolgreiche Episoden zu erhalten. Des Weiteren
 muss der discount factor $\gamma$ auf die Berechnung des total reward angewandt werden, damit
 kürzere Episoden einen höheren total reward erzielen, als lange Episoden. Abschließend ist es
-sinnvoll elite Episoden für mehrere Iterationen zu behalten damit auf diesen trainiert werden
-kann \cite[~S.93]{L2018}.  
+sinnvoll elite Episoden für mehrere Iterationen zu behalten damit auf diesen mehrmals
+trainiert werden kann \cite[~S.93]{L2018}.  
 
 Die nachfolgenden Graphen veranschaulichen die Anwendung der Cross-Entropy-Method ohne (grün)
 und mit Anpassungen (grau) zur Erzielung besserer Resultate. Durch die Erweiterung des
@@ -820,18 +832,21 @@ Q-Learning Verfahren gehören zur Familie der value learning Verfahren, die
 unterschiedlichen Actions unterschiedliche Values zuordnen, um daraufhin diejenigen Actions
 wählen zu können, die den höchsten Value aufweisen. Der Value einer Action ist dabei der
 zu erwartende Reward, welcher vom Environment zurückgegeben wird, wenn man die gewählte
-Action im wahrgenommenen State ausführt.\\
+Action im wahrgenommenen State ausführt.
+
 Weiterhin gehören Q-Learning Verfahren zu den off-policy Verfahren, da auch alte
 Erfahrungen zum Training benutzt werden können. Die Q-Learning Methoden, die nachfolgend
 beschrieben werden sind model-free, was bedeutet, dass nicht versucht wird die nächsten
-States oder die folgenden Rewards vorherzusagen.\\
+States oder die folgenden Rewards vorherzusagen.
+
 Wie oben bereits beschrieben, basieren Q-Learning Verfahren auf einer Abschätzung des
 Values eines States oder einer Action. Die Abschätzung des Values einer Action $a$ in
 einem State $s$ wird als $Q(s, a)$ bezeichnet. Diese Value kann auf unterschiedliche
-Weise ermittelt werden.\\
+Weise ermittelt werden.
+
 Eine erste Variante von Q-Learning benutzt Tabellen, in denen die Abschätzungen
 für unterschiedliche States oder Actions gespeichert werden. Dieses Verfahren wird nach
-\cite[~S.193]{L2018} auch mit \grqq Tabular Q-Learing\grqq bezeichnet.
+\cite[~S.193]{L2018} auch als \grqq Tabular Q-Learing\grqq bezeichnet.
 
 
 % Beschreibung des Verfahrens Tabular Q-Learning u. Unterscheidung zu Deep-Q-Learning
@@ -842,8 +857,8 @@ Environments veranschaulicht.
 
 
 \subsubsection{Value-Iteration Verfahren}
-Da sich das Spielfeld nicht ändert, beschränken sich die Zustände von Frozen Lake auf die
-Positionen des Spielers. Durch die geringe Anzahl an Spielsituationen bietet sich das
+Da sich das Spielfeld nicht verändert, beschränken sich die Zustände von Frozen Lake auf
+die Positionen des Spielers. Durch die geringe Anzahl an Spielsituationen bietet sich das
 Tabular Q-Learning Verfahren an, da es möglich ist alle erreichbaren Zustände in einer
 Tabelle zu speichern und deren Values zu bestimmen. Diese Tabelle enthält für jeden State
 eine Abschätzung der unterschiedlichen Actions. Tabelle \ref{tab:q_table} zeigt eine
@@ -867,12 +882,14 @@ sehr kleine beispielhafte Q-Table mit zwei Actions und zwei States.
 \noindent
 Das Ziel des Verfahren ist es die Q-Values der Tabelle zu ermitteln. Dazu werden die
 Q-Values mit Null initialisiert, um diese anschließend iterativ zu bestimmen. Das Verfahren 
-sieht vor, dass zufällige Actionen ausgewählt und in einem Environment ausprobiert werden.\\
+sieht vor, dass zufällige Actionen ausgewählt und in einem Environment ausprobiert werden.
+
 Daraus resultieren ein State, eine Action, ein Reward und ein Folgestate, auch SARS-Tupel
 genannt. Der erste State $s$ ist der Ausgangszustand, in dem man die zufällig gewählte
 Action $a$ getätigt hat. Als Folge auf das Ausführen dieser Action erhält man einen
 unmittelbaren Reward $r$, der vom Environment bestimmt wird, sowie den Folgestate $s'$,
-also den State, den das Environment nach Ausführung von $a$ erreicht hat.\\
+also den State, den das Environment nach Ausführung von $a$ erreicht hat.
+
 Ist das SARS-Tupel gefunden, werden die Q-Values der Tabelle angepasst, wobei der folgende
 Zusammenhang verwendet wird.
 \begin{align}
@@ -884,7 +901,8 @@ $Q(s, a)$ ist das Value der Action $a$ im wahrgenommenen State $s$, also der lon
 Reward, der erwartet wird, führt man in State $s$ die Action $a$ aus. Das Ziel ist es
 $Q(s, a)$ so anzupassen, dass es sich dem tatsächlich zu erwartenden long-term Reward
 annähert. Der unmittelbare Reward $r_{s,a}$ kann dem SARS-Tupel entnommen werden, ebenso
-wie der Folgestate $s'$.\\
+wie der Folgestate $s'$.
+
 Befindet sich der Agent im State $s'$, so ist der maximal zu erwartende Reward, der 
 maximal zu erwartende Reward der besten Action im State $s'$. Das bedeutet, dass
 der Term $\max_{a'\in A} Q(s', a')$ der erwartete long-term Reward der besten Action des
@@ -892,19 +910,22 @@ Folgezustandes, also auch der bestmögliche long-term Reward, den man in State $
 erwarten kann, ist. Nach (\ref{aln:QValues}) gleicht $Q(s, a)$ dem unmittelbaren Reward
 $r_{s,a}$ addiert mit dem besten zu erwartenden long-term Reward des Folgezustandes. Der
 Wert des Folgezustandes wird dabei mit dem discount factor $\gamma$ multipliziert, wobei 
-$\gamma$ standardmäßig zwischen $0.9$ und $0.99$ gewählt wird.\\
+$\gamma$ standardmäßig zwischen $0.9$ und $0.99$ gewählt wird.
+
 Mit Formel (\ref{aln:QValues}) erhalten wir einen neuen Wert für $Q(s, a)$, also einen
 neuen Wert in unserer Q-Table. Da die Wirkung einer Action in Frozen Lake nicht
 deterministisch ist und auch im Allgemeinen nicht davon ausgegangen werden kann, wäre es
 nicht gut den Wert der Q-Table gleich dem ermittelten Wert zu setzen. Stattdessen wird der
 Wert der Tabelle in Richtung des ermittelten Wertes angepasst. Dies geschieht durch die in
 (\ref{aln:QValueAdapt}) dargestellte Zuweisung.
+
 \begin{align}
   Q(s, a) \leftarrow (1 - \alpha)Q(s, a) +
   \alpha(r_{s, a} + \gamma \max_{a'\in A}Q(s', a'))
 \label{aln:QValueAdapt}
 \end{align}
 \noindent
+
 Wobei der Hyperparameter $\alpha$ zwischen 0 und 1 gesetzt wird, um den Wert $Q(s, a)$ bei
 jeder Iteration schrittweise zu überblenden. Dadurch nähern sich die Q-Values der Tabelle
 den tatsächlichen Q-Values an, wodurch sich das Environment erfolgreich spielen lässt.
@@ -912,13 +933,15 @@ den tatsächlichen Q-Values an, wodurch sich das Environment erfolgreich spielen
 \subsubsection{Evaluierung}
 Um zu testen, wie gut die gefundenen Q-Values funktionieren, wird wie folgt vorgegangen.
 Ein neues Environment wird initialisiert und der Agent wählt in jedem erfahrenen State die
-Action, die das höchste Q-Value besitzt.\\
+Action, die das höchste Q-Value besitzt.
+
 Das vorgestellte Experiment wird als gelöst angesehen, wenn 80\% von 20 Spielen erfolgreich
 beendet wurden. Dieser Aufbau benötigt für 4x4 Frozen Lake zwischen 6000 und 42000
 Iterationen, was zwischen einer und sechs Sekunden benötigt. Abbildung
 \ref{fig:frozen-lake_q_learning} visualisiert den typischen Trainingsablauf, wobei der
 durchschnittliche Reward aus 20 Spielen gezeigt wird.
 
+% TODO verschiedene farben erklären
 \begin{figure}[htp]
 \centering
 \includegraphics[scale=0.7]{res/frozen_lake_reward_tabular_q.png}
@@ -932,41 +955,49 @@ Neben der Umsetzung von Frozen Lake wurde ebenfalls eine Tic Tac Toe Implementat
 entwickelt, in dem ein Agent gegen einen zufällig spielenden Gegner trainiert und getestet
 wurde. Unter \url{https://github.com/Bluemi/tictactoe_rl} ist diese Implementation
 einsehbar. Das umgesetzte Verfahren ist eine Form der value based Verfahren unterscheidet
-sich aber von Q-Learning.\\
+sich aber von Q-Learning.
+
 Ebenfalls wurde ein Tic Tac Toe Environment entwickelt, das das Interface eines OpenAI
 Gyms implementiert. Dieses kann unter
 \url{https://github.com/dephiloper/independent-coursework-rl} in
-\lstinline!preparation/05_v_learning/gym_tictactoe.py! aufgerufen werden.\\
+\lstinline!preparation/05_v_learning/gym_tictactoe.py! aufgerufen werden.
+
 Beim Training des Agent werden wie auch in Q-Learning Values ermittelt. Im Gegensatz zu
 der im letzten Kapitel gezeigten Q-Learning Methode werden hier allerdings die Values
 unterschiedlicher States und nicht die Values der Actions ermittelt. Die zu ermittelnde
 Funktion ist nicht mehr $Q(s, a)$, sondern $V(s)$. Das Verfahren setzt dafür allerdings
 voraus, dass aus einem gegebenen State und einer gegebenen Action der Folgezustand
-berechnet werden kann, was durch das deterministische Spiel Tic Tac Toe gegeben ist.\\
+berechnet werden kann, was durch das deterministische Spiel Tic Tac Toe gegeben ist.
+
 Die Approximationen der Values der States werden in einem Dictionary gespeichert und mit
 dem Startwert 0 initialisiert. Anschließend wird ein Spiel gegen einen zufällig spielenden
 Gegner gespielt, wobei alle erreichten States zwischengespeichert werden. Am Ende des
-Spieles wird ein Reward vergeben, der davon abhängt, ob gewonnen oder verloren wurde.\\
-Nun werden alle $V(s)$ Werte der zwischengespeicherten States in Richtung des erhaltenen
-Rewards verändert. Um zu bestimmen wie stark sich der erhaltene Reward auf $V(s)$ auswirkt
-wird ein $step\_size$ Parameter verwendet, der wie in Zuweisung \ref{aln:ValueUpdate}
+Spieles wird ein Reward vergeben, der davon abhängt, ob gewonnen oder verloren wurde.
+
+Daraufhin werden alle $V(s)$ Werte der zwischengespeicherten States in Richtung des
+erhaltenen Rewards verändert. Um zu bestimmen wie stark sich der erhaltene Reward auf $V(s)$
+auswirkt wird ein $step\_size$ Parameter verwendet, der wie in Zuweisung 
+\ref{aln:ValueUpdate} 
 benutzt wird.
 \begin{align}
   V(s) \leftarrow V(s) + step\_size * (reward - V(s))
   \label{aln:ValueUpdate}
 \end{align}
 \noindent
+
 Über den Trainingsprozess hinweg wird der step\_size Parameter stufenweise herabgesetzt,
-um das Verfahren konvergieren zu lassen.\\
-Soll der trainierte Agent nun sein gewonnenes Wissen exploiten, so berechnet er aus den
+um das Verfahren konvergieren zu lassen.
+
+Damit der trainierte Agent sein gewonnenes Wissen exploiten kann, berechnet er aus den
 zur Verfügung stehenden Actions die daraus resultierenden States und wählt die Action, die
 zum State mit höchstem Value führt.
 
 \subsubsection{Evaluierung}
 Um das Verfahren zu testen wurden Agenten mit unterschiedlicher Anzahl an Trainingsspielen
-trainiert, wobei ein Agent entweder immer das Spiel eröffnete oder immer den zweiten Zug
+trainiert, wobei ein Agent entweder immer das Spiel eröffnete oder den zweiten Zug
 hatte. Als step\_size wurde initial 0.1 genutzt. Nach jedem Spiel wurde die step\_size
-dann mit einem decay multipliziert, um die Konvergenz der State Values zu garantieren.\\
+dann mit einem decay multipliziert, um die Konvergenz der State Values zu garantieren.
+
 Tabelle \ref{tab:win_probability_tictactoe_begin} zeigt die Gewinnwahrscheinlichkeiten eines
 trainierten Agenten, der gegen einen zufällig spielenden Gegner getestet wird. Jede Zelle
 enthält zwei Gewinnwahrscheinlichkeiten. Die erste gibt die Gewinnwahrscheinlichkeit für
@@ -995,13 +1026,15 @@ Gewinnwahrscheinlichkeit, falls der Gegner das Spiel eröffnet hat.
 Eine weitere Steigerung der Trainingsspiele führt nicht mehr zu einer Änderung der
 Gewinnwahrscheinlichkeiten. In allen gezeigten Experimenten ist die
 Gewinnwahrscheinlichkeit höher, wenn der Agent beginnt und die Wahrscheinlichkeit zu
-verlieren größer, wenn man nicht beginnt.\\
+verlieren größer, wenn man nicht beginnt.
+
 Auch ist deutlich erkennbar, dass eine erhöhte Anzahl von Trainingsspielen, die
 Gewinnwahrscheinlichkeit des Agenten steigert. Während die Wahrscheinlichkeit zu gewinnen
 beim beginnenden Spieler nach 100 Trainingsspielen noch bei 68.9\% liegt, liegt sie nach
 100.000 Trainingsspielen bei 98.1\%. Auch sinkt die Wahrscheinlichkeit zu verlieren mit
 zunehmendem Training und nach 100.000 Trainingsspielen ist der beginnende Agent nicht mehr
-zu schlagen.\\
+zu schlagen.
+
 Interessant ist vor allem, dass auch bei einer Millionen Trainingsspielen der nicht
 beginnende Agent verlieren kann. Dies kann gegen einen zufällig spielenden Gegner
 vernünftig sein, da ein kleines Risiko einzugehen dazu führen kann, dass deutlich häufiger
@@ -1012,7 +1045,8 @@ gewonnen wird.
 Nach Lapan\cite[~S.192]{L2018} ist die Einsetzbarkeit dieser Verfahren dadurch
 beschränkt, dass es in vielen Environments zu viele unterschiedliche States gibt, sodass
 dessen Values oder die Values der Actions in diesen States nicht mehr ausreichend
-approximiert werden können.\\
+approximiert werden können.
+
 Dies kann durch die Betrachtung komplizierterer Environments verdeutlicht werden. Lapan
 \cite[~S.192]{L2018} zeigt, dass ein Videospiel mit einer Auflösung von 210x160 Pixeln
 mehr als $10^{70802}$ mögliche States besitzten kann. Daraus ergibt sich für
@@ -1024,8 +1058,9 @@ kompliziertere Environments, dass das Tabular-Q-Learning nicht praktikabel ist.
 Die Limitierung von Tabular-Q-Learning wird in dem nächsten vorgestellten Verfahren \grqq
 Deep-Q-Learning\grqq überwunden indem ein neuronales Netz eingeführt wird, um die Values
 von Actions $Q(s, a)$ zu bestimmen. Diese werden nicht mehr in einer Tabelle gespeichert
-und gelesen, sondern von einem Modell berechnet, dass zwischen ähnliche States
-abstrahieren kann.\\
+und gelesen, sondern von einem Model berechnet, das zwischen ähnlichen States
+abstrahieren kann.
+
 In diesem Kapitel wird zuerst eine Einordnung des Verfahrens vorgenommen, um anschließend
 das Verfahren aufbauend auf Tabular-Q-Learning zu beschreiben. Am Ende werden die	
 Implementierung eines Agenten für das Pong Environment und die damit erzielten Ergebnisse
@@ -1035,18 +1070,21 @@ vorgestellt.
 Deep Q-Learning funktioniert ähnlich, wie das schon vorgestellte Tabular-Q-Learning. Auch
 hier werden wahrgenommene Observations abgebildet auf Values unterschiedlicher Actions, um
 Actions, welche einen hohen Reward versprechen, wählen zu können. Damit ist
-Deep-Q-Learning value-based.\\
+Deep-Q-Learning value-based.
+
 Wie auch für Tabular-Q-Learning können vergangene Trainingsdaten verwendet werden, um die
 Values der unterschiedlichen Actions zu approximieren, wodurch Deep-Q-Learning zu den
 off-policy Learning Verfahren zählt.
 
 \subsection{Verfahren}
+\label{sec:deepq-procedure}
 Im Grunde läuft der Trainingsprozess ähnlich ab, wie bei Tabular-Q-Learning. Zuerst wird
 das neuronale Netz initialisiert, um anschließend zufällige Actions im Environment
-auszuprobieren um ein Tupel aus wahrgenommenem State, gespielter Action, erhaltenem Reward
-und neu erreichten Folgestate zu erhalten.\\
-Nun wird abermals der schon bei Tabular-Q-Learning genutzte Zusammenhang
-(\ref{aln:DeepQ}) ausgenutzt, um jetzt die Ergebnisse des neuronalen Netzes anzupassen.
+auszuprobieren und somit ein Tupel aus wahrgenommenem State, gespielter Action, erhaltenem Reward
+und neu erreichten Folgestate zu erhalten.
+
+Daraufhin wird erneut der schon bei Tabular-Q-Learning genutzte Zusammenhang
+(\ref{aln:DeepQ}) ausgenutzt, um die Ergebnisse des neuronalen Netzes anzupassen.
 Die Bezeichnungen der Variablen sind identisch zu denen im Tabular-Q-Learning. Der State
 $s$ ist der wahrgenommene State, $a$ ist die gewählte Action, $r$ ist der dadurch
 erhaltene unmittelbare Reward und $s'$ ist der Folgestate, der aus dem Anwenden der
@@ -1055,13 +1093,13 @@ gewählten Action hervorgeht.
   Q(s, a) \leftarrow r_{s,a} + \gamma \max_{a' \in A}Q(s', a') \label{aln:DeepQ}
 \end{align}
 \noindent
-In Tabular-Q-Learning wurde nun der Wert $Q(s, a)$ der Tabelle angepasst. Da $Q(s, a)$
-nun durch ein neuronales Netz implementiert ist, kann $Q(s, a)$ nicht dem gefundenen Wert
-zugewiesen werden. Anstelle dessen wird ein Loss formuliert, auf dem anschließend das Netz
-mit Stochastic Gradient Descent trainiert wird. Die Formel für diesen Loss unterscheidet
-sich abhängig davon, ob es sich bei $s'$ um einen Endzustand handelt oder nicht. Ist $s'$
-ein Endzustand, so wird der Loss (\ref{aln:DeepQLoss1}) verwendet. Andernfalls wird der
-Loss aus (\ref{aln:DeepQLoss2}) eingesetzt.
+In Tabular-Q-Learning wurde anschließend der Wert $Q(s, a)$ der Tabelle angepasst. Da 
+$Q(s, a)$ nun durch ein neuronales Netz implementiert ist, kann $Q(s, a)$ nicht dem
+gefundenen Wert zugewiesen werden. Anstelle dessen wird ein Loss formuliert, auf dem
+das Netz mit Stochastic Gradient Descent trainiert wird. Die Formel für diesen Loss
+unterscheidet sich abhängig davon, ob es sich bei $s'$ um einen Endzustand handelt oder
+nicht. Ist $s'$ ein Endzustand, so wird der Loss (\ref{aln:DeepQLoss1}) verwendet.
+Andernfalls wird der Loss aus (\ref{aln:DeepQLoss2}) eingesetzt.
 \begin{align}
   L & = \left(Q(s, a) - r\right)^2 \label{aln:DeepQLoss1} \\
   L & = \left(Q(s, a) - \left(r + \gamma \max_{a'} Q(s', a')\right)\right)^2 \label{aln:DeepQLoss2}
@@ -1072,27 +1110,32 @@ Endzustand, so ist der long-term Reward gleich dem unmittelbaren Reward $r$, da 
 Endzustand kein Reward mehr erreicht werden kann. Daraus leitet sich der in
 (\ref{aln:DeepQLoss1}) gezeigte Loss für einen Endzustand ab. Hier wird der Mean Squared
 Error zwischen der Vorhersage des Netzes und dem tatsächlich zu erwartenden Reward
-eingesetzt.\\
+eingesetzt.
+
 Handelt es sich bei $s$ nicht um einen Endzustand, so muss der long-term Reward des
 Folgezustandes $s'$ hinzuaddiert werden, um den long-term Reward in $s$ zu berechnen. Aus
 diesem Grund wird der Value der besten Action des Folgezustandes, skaliert mit dem
 discount factor $\gamma$, auf den unmittelbaren Reward addiert. Dabei wird das Netz selbst
-verwendet, um die Action Values des Folgestates zu berechnen.\\
+verwendet, um die Action Values des Folgestates zu berechnen.
+
 Diesen Vorgang wiederholt man, bis die vom Netz vorhergesagten Q-Values den
-tat\-säch\-lich\-en Values der Actions entsprechen.\\
+tat\-säch\-lich\-en Values der Actions entsprechen.
+
 Dies ist die grundlegende Funktionsweise von Deep-Q-Learning, allerdings muss nach
 \cite[~S.202]{L2018} der Algorithmus, um in der Praxis zu funktionieren, noch weiter
 verbessert werden. Wählt man bei der Exploration ausschließlich zufällige Actions, so
 werden interessante Situationen nur sehr selten erreicht und es werden sehr viele Samples
 benötigt, um zu einem zufriedenstellenden Ergebnis zu kommen. Aus diesem Grund wird eine
 decaying-$\epsilon$-greedy Exploration Strategie benutzt, um gegen Ende des
-Trainingsprozesses die schon gelernten Actions des Netzes zu nutzen, um neue Erkenntnisse
-zu gewinnen.\\
+Trainingsprozesses die schon gelernten Actions des Netzes zu verwenden, damit neue
+Erkenntnisse gewonnen werden können.
+
 Eine weitere Optimierung, die den Trainingsprozess verbessert, ist die Verwendung eines
 Replay Buffers, in dem Erfahrungen gespeichert werden, um eine breitere Menge an
 Trainingsdaten zu erhalten. Nach Lapan \cite{L2018} tritt ohne diesen Replay Buffer das
 Problem auf, dass sich die gesammelten Daten aus ein Episode zu stark ähneln, sodass das
-Training des Netzes suboptimal funktioniert.\\
+Training des Netzes suboptimal funktioniert.
+
 Die letzte Änderung, die vollzogen werden muss, bezieht sich auf die Berechnung des Loss
 Wertes aus (\ref{aln:DeepQLoss2}). Für die Berechnung des Losses, mit dem das Netz $Q$
 trainiert wird, wird die Approximation des Folgestates von $Q$ selbst verwendet. Durch
@@ -1109,7 +1152,7 @@ Nach einer gewissen Anzahl an Trainings werden die Gewichte des Target Netzes mi
 Gewichten des trainierten Netzes überschrieben, sodass sich die Netze synchronisieren.
 
 \subsection{Implementierung}
-Mit den ebend beschriebenen Änderungen wurde ein Deep-Q-Learning Algorithmus für ein Pong
+Mit den eben beschriebenen Änderungen wurde ein Deep-Q-Learning Algorithmus für ein Pong
 Environment implementiert und getestet. Der Quelltext kann unter
 \url{https://github.com/dephiloper/independent-coursework-rl/tree/master/preparation/07_deep_q_learning}
 gefunden werden.
@@ -1155,7 +1198,7 @@ Zusätzlich kommt, durch die Repräsentation der Actions als Wahrscheinlichkeit,
 \textit{smooth representation} des Netzes zum tragen. Das heißt, würde der Output des Netzes über
 diskrete Werte ausgedrückt werden, kann schon eine minimale Änderung an den Gewichten des Netzes 
 zu einer komplett anderen Action bei der Vorhersage führen. Aufgrund der
-Wahrscheinlichkeitsverteilung bewirken Änderungen hingegen nur moderate Änderungen in der
+Wahrscheinlichkeitsverteilung bewirken Anpassungen hingegen nur moderate Änderungen in der
 resultierenden Verteilung des Output \cite[~S.243]{L2018}.
 
 
@@ -1189,8 +1232,7 @@ und somit eine detaillierte Unterteilung der Episoden ermöglicht.
 \subsubsection{Einordnung}
 Wie bereits erwähnt ist die REINFORCE Method ein policy learning Verfahren. Das Verfahren ist
 on-policy, da ausschließlich anhand neu aufgezeichneter Trainingsdaten gelernt werden kann.
-Demzufolge kommt das Verfahren ohne die Verwendung eines Replay Buffers (TODO ref) %TODO ref
-aus. Des Weiteren erfolgt die Einordnung als model-free Methode, da nicht versucht wird
+Demzufolge kommt das Verfahren ohne die Verwendung eines Replay Buffers (siehe \autoref{sec:deepq-procedure}) aus. Des Weiteren erfolgt die Einordnung als model-free Methode, da nicht versucht wird
 Annahmen zu zukünftigen States oder Rewards zu treffen. Prinzipiell basieren alle Policy
 Gradient Verfahren auf der in Formel \ref{aln:PG} festgelegten Definition, wobei
 ausschließlich Anpassungen am Kernkonzept des Verfahrens vorgenommen werden
@@ -1220,9 +1262,9 @@ Q_{k,t}=\sum_{i=0} \gamma^{i}r_{i}
 Da im REINFORCE Verfahren die Berechnung des discounted total reward $Q_{k,t}$ direkt durch
 Aufsummierung des aktuellen Rewards und der in zukünftigen Zuständen erhaltenen Rewards
 ermittelt werden kann, ist eine Approximation von $Q$ wie in Deep-Q-Learning nicht notwendig,
-was zusätzlich die Verwendung des Target Net überflüssig macht (TODO ref). %TODO ref
-Mittels $Q_{k,t}$ kann daraufhin die Berechnung des Loss anhand der in Formel
-\ref{aln:reinforce-loss} festgehaltenen Gleichung ermittelt werden.
+was zusätzlich die Verwendung des Target Netz überflüssig macht (siehe 
+\autoref{sec:deepq-procedure}). Mittels $Q_{k,t}$ kann daraufhin die Berechnung des Loss
+anhand der in Formel \ref{aln:reinforce-loss} festgehaltenen Gleichung ermittelt werden.
 
 \begin{align}
 \mathcal{L}=-\sum_{k,t}Q_{k,t}\log(\pi(s_{k,t},a_{k,t}))
@@ -1244,7 +1286,7 @@ generiert werden müssen. Um diesen Problem entgegen zu wirken existiert ein wei
 \textit{Actor-Critic Method}, welche im nächsten Kapitel erläutert wird. 
 
 Zusätzlich weist die REINFORCE Method eine hohe Varianz bei der Berechnung des Gradienten auf.
-Dies kommt aufgrund der Skalierung des Gradienten mittels des discounted total rewards zustande.
+Dies kommt aufgrund der Skalierung des Gradienten mittels des discounted total rewards $Q(s,a)$ zustande.
 Hauptgrund dafür ist, dass der Wertebereich des zu erhaltenden Rewards von Environment zu Environment
 stark variiert und in diversen Environments zu Beginn der Anteil an Punishment (negativer Reward) den
 Erhalt des positiven Reward deutlich dominiert. Durch die Einführung einer Baseline, einem Wert, der
@@ -1260,10 +1302,12 @@ Das letzte zu erläuternde Verfahren reiht sich als Erweiterung in die Policy Gr
 Bei der \textit{Actor Critic Method} handelt es sich um ein state-of-the-art Reinforcement Learning
 Verfahren mit der Bestrebung die Stabilität und den Prozess des Konvergierens im Trainingsablauf
 zu verbessern. Wie bereits in \autoref{sec:limit-reinforce}: \nameref{sec:limit-reinforce} beschrieben
-kann durch die Einführung einer Baseline, sprich einem Wert, welcher in der Berechnung des Loss von dem discounted total Reward $Q$ abgezogen wird, die Varianz des Gradienten reduziert werden, wodurch der Trainingsprozess robuster wird. Die Baseline kann dabei eine Konstante sein, die dem Mittelwert aller
-discounted total Rewards entspricht oder als gleitender Mittelwert (moving average) realisiert werden,
-welcher während des Trainingsverlauf stetig angepasst wird. Eine weitere Option ist den Baseline Wert
-zustandsabhängig zu realisieren, sprich in jedem Zustand wird der Wert $V(s)$ ermittelt, der Auskunft
+kann durch die Einführung einer Baseline, sprich einem Wert, welcher in der Berechnung des Loss von dem
+discounted total Reward $Q(s,a)$ abgezogen wird, die Varianz des Gradienten reduziert werden, wodurch
+der Trainingsprozess robuster wird. Die Baseline kann dabei eine Konstante sein, die dem Mittelwert 
+aller discounted total Rewards entspricht oder als gleitender Mittelwert (moving average) realisiert
+werden, welcher während des Trainingsverlauf stetig angepasst wird. Eine weitere Option ist den Baseline
+Wert zustandsabhängig zu realisieren, sprich in jedem Zustand wird der Wert $V(s)$ ermittelt, der Auskunft
 darüber gibt, wie gut dieser Zustand einzuschätzen ist. Anschließend kann ein \textit{advantage} Wert
 $A(s,a)$ ermittelt werden, indem von dem berechneten discounted total Reward $Q(s,a)$ die \textit{Value}
 des States $V(s)$ abgezogen wird \cite[~S.268 ff.]{L2018}. Hierbei ist zu erwähnen das die Berechnung von
@@ -1302,7 +1346,7 @@ visualisiert.
 Um den Trainingsprozess umzusetzen, kann die selbe Prozedur wie bei Deep-Q-Learning verwendet werden, wobei
 die Bellman Equation zur Ermittlung des discounted total rewards $Q(s,a)$ angewandt wird. Anschließend wird
 der Mean-Square-Error Loss zwischen berechnetem und vorhergesagtem $Q(s,a)$ minimiert, um die Approximation
-von V(s) zu verbessern.
+von V(s) zu bewirken.
 
 
 \subsection{Einordnung}
@@ -1310,7 +1354,7 @@ Bei dem Actor-Critic Verfahren handelt es sich um eine policy learning Methode, 
 Wahrscheinlichkeitsverteilung des Policy net ausgewählt werden. Aufgrund der parallelen Nutzung des Value
 net kann das Verfahren aber ebenfalls als Mischform betrachtet werden. Genau wie bei der REINFORCE Method
 kann ausschließlich aufgrund neu aufgezeichneter Daten aus dem Environment trainiert werden (on-policy).
-Das Verfahren fällt des Weiteren in den Bereich der model-free Verfahren, da kein Modell zu möglichen
+Das Verfahren fällt des Weiteren in den Bereich der model-free Verfahren, da kein Model zu möglichen
 Folgezuständen und Rewards aufgebaut wird. 
 
 \subsection{Verfahren}
@@ -1321,11 +1365,12 @@ gespeichert werden. Nach dem Abschluss einer Episode werden anschließend die vo
 umgekehrter Reihenfolge verarbeitet. Darauf folgend werden die Gewichte des Netzes aktualisiert, indem
 die akkumulierten Gradienten beider Netze in Richtung des Policy Gradients $\partial\theta_\pi$
 und entgegen der Richtung des Value Gradients $\partial\theta_v$ verschoben werden. Diese Schritte
-anschließend solange wiederholt, bis das System konvergiert.
+werden anschließend solange wiederholt, bis das System konvergiert.
 
-Das Policy net wird ebenfalls als \textit{actor} bezeichnet, da man von diesem ableiten kann, welche
+Das Policy net wird dabei als \textit{actor} bezeichnet, da man von diesem ableiten kann, welche
 Action ausgeführt werden soll. Das Value net wird hingegen als \textit{critic} bezeichnet, da es mit
-diesem möglich wird, zu bewerten wie gut die ausgeführten Actions waren.
+diesem möglich wird, zu bewerten wie gut die ausgeführten Actions waren, um somit bei einem hohen
+advantage Wert die Wahrscheinlichkeiten der gewählten Action mehr in diese Richtung zu bewegen.
 
 \subsection{Erweiterungen}
 Obwohl das Actor Critic Verfahren bereits als Erweiterung zum klassischen Policy Gradient Ansatz
@@ -1343,7 +1388,7 @@ Der Bonus wird als Entropy Wert zur bestehenden Loss-Funktion hinzugefügt (sieh
 \label{aln:actor-critic-entropy-bonus}
 \end{align}
 
-Da diese Funktion an ihrem Minimum ankommt, sobald wie Wahrscheinlichkeitsverteilung uniform,
+Da diese Funktion an ihrem Minimum ankommt, sobald die Wahrscheinlichkeitsverteilung uniform,
 sprich gleichverteilt ist, kann durch anfügen des Ergebnisses zur Loss-Funktion der Agent davon
 abgehalten werden sich \grqq zu sicher\grqq bei der Berechnung von Actions zu sein. Im
 Umkehrschluss bedeutet dies, dass bei einer Wahrscheinlichkeitsverteilung bei der ausschließlich
@@ -1356,8 +1401,9 @@ einem Ergebnis von 0 entspricht \cite[~S.269 f.]{L2018}.
 Eine zusätzliche Erweiterungsmöglichkeit im Bereich der Stabilität des Verfahrens ist die Nutzung
 von mehreren parallelen Environments. Dadurch können simultan mehrere Observations gesammelt werden
 was aufgrund der on-policy Eigenschaft des Verfahrens den Trainingsprozess deutlich beschleunigt.
-Diese Erweiterungsmöglichkeit wird auch als Asynchronous Advantage Actor Critic oder in Kurzform
-A3C bezeichnet.
+Zusätzlich erhalten die aufgezeichneten Daten eine gewisse Unabhängigkeit voneinander, da Observations
+abwechselnd aus den jeweiligen Environments gesampled werden können. Diese Erweiterungsmöglichkeit wird
+auch als Asynchronous Advantage Actor Critic oder in Kurzform A3C bezeichnet.
 
 \newpage
 \section{Teeworlds}
