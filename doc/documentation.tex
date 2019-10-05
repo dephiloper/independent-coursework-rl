@@ -663,7 +663,7 @@ Die Cross-Entropy-Method macht sich dieses Verhalten zu nutze, verwirft schlecht
 trainiert ausschließlichen auf besseren Episoden. Das Kernprinzip des Verfahrens wird wie nachfolgend
 aufgelistet in drei Schritte untergliedert \cite[~S.80 f.]{L2018}:
 
-Initial wird eine definierte Anzahl $N$ an Episoden mit dem aktuellen Model im Enviroment gespielt
+Initial wird eine definierte Anzahl $N$ an Episoden mit dem aktuellen Model im Environment gespielt
 oder auch wahrgenommen. Anschließend erfolgt die Berechnung des total rewards für jede gespielte
 Episode. Zusätzlich wird in diesem Schritt eine Obergrenze für den Reward festgelegt 
 (\textit{reward boundary}). Daraus folgt, dass die besten 30 Prozent der Episoden behalten werden,
@@ -687,7 +687,7 @@ simple Nutzung gerne als Einstiegspunkt für die Entwicklung von Reinforcement L
 dient. Das Environment besteht aus einem Stab (pole), welcher über ein Gelenk an einem Wagen (cart) 
 befestigt ist \cite{OAI2016_2}. Der Agent kann den Wagen durch das Aufbringen einer horizontalen Kraft 
 von -1 oder +1 steuern, wobei sich der Wagen dementsprechend nach links oder rechts bewegt. Nach 
-dem Zurücksetzen des Enviroments startet der Stab in einer vertikalen Ausrichtung, nahezu orthogonal
+dem Zurücksetzen des Environments startet der Stab in einer vertikalen Ausrichtung, nahezu orthogonal
 zentriert auf dem Wagen. Das zu erreichende Ziel für den Agenten ist es den Stab vom Umkippen zu hindern,
 wobei der Stab als umgekippt zählt sobald dessen Ausrichtung mehr als 12 Grad von einem genauen
 senkrechten Winkel abweicht. Des Weiteren zählt eine Episode als beendet, wenn sich der Wagen mehr
@@ -1157,17 +1157,71 @@ Environment implementiert und getestet. Der Quelltext kann unter
 \url{https://github.com/dephiloper/independent-coursework-rl/tree/master/preparation/07_deep_q_learning}
 gefunden werden.
 
-% Environment
+\subsubsection{Das Roboschool Pong Environment}
+Für die Umsetzung des Deep-Q-Learning Verfahrens wurde ein Pong Environment verwendet, das
+unter \url{https://github.com/openai/roboschool} zu finden ist. In diesem Environment wird
+das bekannte Pong Spiel trainiert. Zwei Spieler bewegen jeweils einen Balken mit dem ein
+Ball auf die Seite des Gegners gestoßen wird. Verfehlt einer der Spieler den Ball, sodass
+dieser auf die Seite hinter dem Spieler trifft, so hat der verfehlende Spieler verloren
+und dessen Gegenspieler gewonnen. Abbildung \ref{fig:pong_env} zeigt das gerenderte
+Environment.
 
-\begin{itemize}
-\itemsep0pt
-\item roboschool pong environment (\url{https://github.com/openai/roboschool}
-\item limitations
-\item extensions: duelling dqn, categorical dqn, n-step dqn
-\end{itemize}
+\begin{figure}[htp]
+\centering
+\includegraphics[scale=0.4]{res/pong_env.png}
+\caption{Roboschool Pong Environment}
+\label{fig:pong_env}
+\end{figure}
+\noindent
+In der verwendeten Variante von Pong können die Spieler ihren Balken nicht nur parallel zu
+ihrer Grundlinie bewegen, sondern auch auf ihren Gegenspieler zu oder von ihm weg. Dadurch
+lässt sich der Ball stärker in die gegnerische Richtung spielen. Als Interface bietet das
+Environment dabei die Möglichkeit den Balken in beliebige Richtungen mit beliebiger
+Geschwindigkeit zu bewegen. Damit handelt es sich um kontinuierliche Actions, die sich mit
+dem beschriebenen Verfahren nicht umsetzen lassen. Aus diesem Grund wurde die Menge der
+Actions auf neun diskrete Actions beschränkt, mit denen sich der Balken in acht
+verschiedene Richtungen bewegen lässt oder stehen bleibt.\\
+Um zwischen den unterschiedlichen Actions unterscheiden zu können, erhält der Agent vom
+Environment die Koordinaten und Geschwindigkeiten der Balken sowie des Balles. Zusätzlich
+wird die Nummer des aktuellen Frames als Information geliefert.\\
+Reward erhält der Agent vor allem dann, wenn er den Ball am gegnerischen Spieler vorbei
+auf dessen Grundlinie stößt. Zusätzlich gibt es einen kleineren Reward, wenn der Ball mit
+dem Balken getroffen wird.
+
+\subsubsection{Agent}
+% Struktur des neuronalen Netzes
+Für die Lösung des Pong Environments wurde das Deep-Q-Learning Verfahren implementiert,
+wobei die Q-Values von einem neuronalen Netz berechnet wurden. Es wurden unterschiedliche
+Konfigurationen getestet, wobei die Anzahl der Layer zwischen drei und vier, als auch die
+Anzahl der Knoten pro Layer variiert wurden. Als Aktivierungsfunktion wurde die
+ReLu-Funktion verwendet. Da die Observation nicht als Bild gegeben ist, werden keine
+Convolutional Layer verwendet. Die Learning Rate wurde auf $10^{-4}$ gesetzt.\\
+Als discount factor wurde $\gamma = 0.99$ und eine Replaybuffergröße von 10000
+Samples gewählt. Nach 1000 Frames wird das Target Net durch das trainierte Netz geupdated.
+
+\subsubsection{Ergebnisse}
+Abbildung \ref{fig:pong_results} zeigt eine Auswahl der Testläufe im Pong Environment.
+Eine Abbildung aller Testläufe ist im Anhang in Abbildung \ref{fig:pong_all_results} zu
+sehen.
+
+\begin{figure}[htp]
+\centering
+\includegraphics[scale=0.4]{res/pong_results.png}
+\caption{Ergebnisse Pong}
+\label{fig:pong_results}
+\end{figure}
+\noindent
+Die verschiedenen Versuche unterscheiden sich in der Netzarchitektur. Hellblau zeigt die
+Ergebnisse eines Agenten mit 3 Hidden Layern mit jeweils 64 Knoten. Wie zu erkennen ist,
+stagniert der Prozess bei einem Reward von -7.\\
+Besser funktionieren die folgenden Experimente, bei denen 4 Hidden Layer verwendet wurden.
+Grau zeigt den durchschnittlichen Reward mit 64 Knoten pro Layer und Grün den Reward für
+ein Netz mit 128 Knoten pro Layer.\\
+Damit wurde kurzzeitig ein durchschnittlicher Reward von bis zu 6.9 erreicht. Der
+trainierte Agent kann unter \url{https://www.youtube.com/watch?v=xp4XtrYNKzQ} gesehen
+werden.
+
 \newpage
-
-
 \section{Policy Gradients}
 Policy Gradients beschreibt eine Unterfamilie und somit Gruppe von Reinforcement Learning 
 Methoden aus dem Bereich der policy learning Verfahren. Anders als die beiden zuvor
@@ -1491,4 +1545,15 @@ Beschreibung, Grund des nicht nutzens
 \newpage
 \listoffigures 
 \listoftables 
+
+\newpage
+\section{Anhang}
+
+\begin{figure}[htp]
+\centering
+\includegraphics[scale=0.35]{res/pong_all_results.png}
+\caption{Vollständige Ergebnisse mit Deep-Q-Learning im Pong Environment}
+\label{fig:pong_all_results}
+\end{figure}
+
 \end{document}
