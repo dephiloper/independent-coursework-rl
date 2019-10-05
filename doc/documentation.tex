@@ -1462,15 +1462,59 @@ auch als Asynchronous Advantage Actor Critic oder in Kurzform A3C bezeichnet.
 \newpage
 \section{Projektarbeit}
 Nach der Aufarbeitung der theoretischen Bereiche von Reinforcement Learning sowie der Umsetzung von
-Algorithmen und Erweiterungen besteht der abschließende Teil dieses Independent Coursework darin,
+Algorithmen und Erweiterungen befasst sich der abschließende Teil des Independent Coursework damit,
 ein eigenes Environment zu entwickeln. Anhand dieses Environments soll ein Reinforcement Learning
-Verfahren implementiert werden, mit dem Ziel die Problemstellung dss Environments erfolgreich zu 
+Verfahren implementiert werden, mit dem Ziel die Problemstellung des Environments erfolgreich zu 
 lösen. In diesem Kapitel erfolgt initial die Festlegung auf ein Spiel für die Entwicklung des
 Enviroments. Nachfolgend wird auf die Entwicklung des Environments und die darin enthaltenen
 Funktionalitäten eingegangen. Des Weiteren wird aus den bereits vorgestellten Algorithmen ein
 Verfahren gewählt und dieses in dem entwickelten Environment angewandt. 
 
-\subsection{Festlegung auf ein Spiel} % TODO Philipp
+\subsection{Festlegung auf ein Spiel}
+Wie in der Zielsetzung dieser Ausarbeitung beschrieben, soll nachfolgend ein Spiel ausgewählt werden,
+für welches mittels der Open AI Bibliothek ein Environment umgesetzt wird. Für die Wahl eines Spieles
+wurden zu Beginn zu den folgenden Spielen recherchiert:
+
+\subsubsection{Doom}
+Doom (id Software, 1993) ist ein First-Person Shooter, welcher im Dezember 1993 auf dem Betriebssystem
+MS-DOS veröffentlicht wurde. Im Spiel steuert man einen Space-Marine, welcher als ''Doomguy'' bezeichnet
+wird und dessen Aufgabe es ist, sich durch eindringende Dämonenhorden aus der Hölle zu kämpfen
+\cite{D1993}. Es existieren bereits Realisierungen in denen Agenten mittels Reinforcement Learning
+Verfahren das Spiel lernen zu spielen. Diese verwenden meist alle eine, explizit für die Entwicklung
+von künstlicher Intelligenz, bereitgestellte Modifikation des Hauptspiels ''ViZDoom'' \cite{ViZDoom}. 
+Diese ermöglicht es das Spiel in beschleunigter Form (7000 Bilder pro Sekunde) auszuführen. Des
+Weiteren enthält die Modifikation die Implementierung einer eigens angefertigten API sowie weitere
+durch die Community bereitgestellte Anpassungen.
+
+Die Steuerung der Kernmechaniken im Spiel umfassen das nach links und rechts Drehen des Spielers,
+das Bewegen in die vier Haupthimmelsrichtungen sowie das Abfeuern einer Waffe (sieben diskrete
+Actions).
+Die Modifikation des Hauptspiels ist unter \url{https://github.com/mwydmuch/ViZDoom} aufrufbar.
+
+\subsubsection{Teeworlds}
+Bei dem Spiel Teeworlds handelt es sich um ein kostenloses online Mehrspieler Spiel, welches seine
+Erstveröffentlichung am 27. Mai 2007 hatte. Das Spiel wurde am Anfang ausschließlich von dem
+Entwickler Magnus Auvinen programmiert, 2010 als Open Source Projekt unter der BSD-Lizenz
+veröffentlicht und seitdem von mehreren Entwicklern verwaltet. In Teeworlds nimmt man die Form
+eines ''Tee'' an, manövriert diesen durch die Spielwelt, weicht gegnerischen Projektilen aus und
+umgeht Stacheln. Neben dem Schusswechsel mit anderen Spielern definiert eine Greifhakenmechanik den
+Hauptaugenmerk des Spiels. Zusätzlich erlaubt das Spiel das Aufsammeln von spielrelevanten Objekten
+wie Herzen zum Auffüllen der Lebensenergie.
+
+Die Hauptmechaniken zur Steuerung des Avatars bestehen aus der horizontalen Bewegung, einem Befehl
+zum Springen sowie einer 360 Grad Ausrichtung des Greifhaken oder der ausgerüsteten Waffe.
+Das Spiel ist unter \url{https://github.com/teeworlds/teeworlds} zu finden.
+
+\subsubsection{Starcraft II}
+Im Github Repository \url{https://github.com/Blizzard/s2client-proto} wurde eine API für das Spiel
+Starcraft II der Firma Blizzard umgesetzt, welche eine vollständige Kontrolle des Spiels durch
+externe Enitäten ermöglicht. Starcraft II (2010) ist ein Science Fiction Echtzeit-Strategiespiel,
+in dem Einheiten von jeweils drei verschiedenen Spezies gegeneinander antreten. Neben dem
+Management von Militärtruppen müssen Basen gebaut und Rohstoffe verwaltet werden. Die Steuerung
+des Spiels ist deutlich komplexer als die der zuvor beschriebenen Spiele. Es existiert jedoch
+bereits die Umsetzung eines mit Reinforcement Learning Verfahren nutzbaren Environments der Firma
+DeepMind (\url{https://github.com/deepmind/pysc2}). 
+
 \begin{itemize}
 \itemsep0pt	
 \item Warum wir uns dafür entschieden haben
@@ -1521,7 +1565,7 @@ Beschreibung, Implementierungen, Graphen
 \subsubsection{N-step DQN} % TODO Philipp
 Beschreibung, Grund des nicht nutzens
 
-\subsection{Ergebnisse} % TODO Philipp
+\subsection{Ergebnisse} % TODO Philipp	
 \begin{itemize}
 \itemsep0pt	
 \item evtl. noch mehr Graphen mit Erläuterungen
