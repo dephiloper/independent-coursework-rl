@@ -1406,25 +1406,82 @@ abwechselnd aus den jeweiligen Environments gesampled werden können. Diese Erwe
 auch als Asynchronous Advantage Actor Critic oder in Kurzform A3C bezeichnet.
 
 \newpage
-\section{Teeworlds}
-Wie in der Einleitung erwähnt Erfolg die Umsetzung eines eigenen Environments mittels des
-Spiels Teeworlds (\url{https://teeworlds.com/}). Initial wird das Spiel erläutert und
-dessen grundlegende Struktur. Anschließend erfolgt eine Beschreibung zur Umsetzung des
-Environments, wobei folgende Themen kategorisiert werden:
+\section{Projektarbeit}
+Nach der Aufarbeitung der theoretischen Bereiche von Reinforcement Learning sowie der Umsetzung von
+Algorithmen und Erweiterungen besteht der abschließende Teil dieses Independent Coursework darin,
+ein eigenes Environment zu entwickeln. Anhand dieses Environments soll ein Reinforcement Learning
+Verfahren implementiert werden, mit dem Ziel die Problemstellung dss Environments erfolgreich zu 
+lösen. In diesem Kapitel erfolgt initial die Festlegung auf ein Spiel für die Entwicklung des
+Enviroments. Nachfolgend wird auf die Entwicklung des Environments und die darin enthaltenen
+Funktionalitäten eingegangen. Des Weiteren wird aus den bereits vorgestellten Algorithmen ein
+Verfahren gewählt und dieses in dem entwickelten Environment angewandt. 
+
+\subsection{Festlegung auf ein Spiel} % TODO Philipp
 \begin{itemize}
 \itemsep0pt	
 \item Warum wir uns dafür entschieden haben
-\item Wahl des Verfahrens
 \item FOSS, teeworlds client, teeworlds server
+\item andere Spiele
+\item Echtzeitspiel - Herausforderung
+\item Möglichkeit für andere Environment zu nutzen
+\end{itemize}
+
+\subsection{Umsetzung des Environments} % TODO Philipp
+\begin{itemize}
+\itemsep0pt	
 \item custom environment (gym)
-\item Bilder als Input $\rightarrow$ stack of images
-\item Umsetzung einer vereinfachten Version des Spiels
+\item vereinfachte Version des Spiels $>$ was ist das Ziel?
 \item die Aufgabe besteht darin, Schilde und Herzen einzusammeln und Level zu bestreiten
-\item Implementierung erläutert mittels Listings
-\item Herausforderungen bei der Implementierung und wie diese bewältigt wurden
-\item Erklärung Hyperparameter, Lernprozess, Lernstats
-\item Vergleich, Trainingsdauer, Auswertung, Erweiterungen
+\item spikes bei denen man stirbt
+\item Umsetung Multienv/Worker
+\item Bilder aufzeichnen $>$ 4 Bilder = Observation
+\item erläuterung Actions, Reward, Observation
+\item Bilder veranschaulichen mehrere Environments offen
+\item Synchronisierung Bild $>$ Reward (Problem mit falscher Synchronisierung)
+\item evtl. wichtigste Methoden erläutern (Herausforderungen bei der Implementierung)
+\item Umsetzung der Level
 \item Beschreibung System Setup
+\end{itemize}
+
+\subsection{Wahl des Verfahrens} % TODO Bruno
+\begin{itemize}
+\itemsep0pt	
+\item Wahl des Verfahrens, alle behandelten Verfahren Vergleichen
+\item aufgrund des Spieles Vergleich der Verfahren
+\item Festlegung auf Deep-Q-Learning
+\item Bilder als Input $\rightarrow$ stack of images
+\item evtl. wichtigste Methoden erläutern (Herausforderungen bei der Implementierung)
+\item lisitings der Umsetzung
+\item Erklärung Hyperparameter, Lernprozess, Lernstats
+\item Umsetzung Erweiterungen zu Deep-Q-Learning
+\item Vergleich, Trainingsdauer, Auswertung
+\end{itemize}
+\subsubsection{Double DQN} % TODO Philipp
+Beschreibung, Implementierungen, Graphen
+\subsubsection{Noisy Network} % TODO Philipp
+Beschreibung, Implementierungen, Graphen
+\subsubsection{Prioritized Replay Buffer} % TODO Bruno
+Beschreibung, Implementierungen, Graphen
+\subsubsection{Dueling DQN} % TODO Bruno
+Beschreibung, Implementierungen, Graphen
+\subsubsection{N-step DQN} % TODO Philipp
+Beschreibung, Grund des nicht nutzens
+
+\subsection{Ergebnisse} % TODO Bruno
+\begin{itemize}
+\itemsep0pt	
+\item evtl. noch mehr Graphen mit Erläuterungen
+\item Auswertung der Ergebnisse, Annahmen: lernt nur auswendig? spielt besser durch.. kann mehrere maps spielen
+\item IC erfolgreich durchgeführt.. lol guck mal ein ^^
+\end{itemize}
+
+\subsection{Ausblick} % TODO Bruno
+\begin{itemize}
+\itemsep0pt	
+\item andere Verfahren Umsetzen A2C, PPO, TRPO
+\item continuous actions
+\item schießen, grabling hook
+\item alternative Ansätze Genetic Algorithms
 \end{itemize}
 
 \newpage
