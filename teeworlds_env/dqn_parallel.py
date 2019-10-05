@@ -35,12 +35,12 @@ BETA_FRAMES = 10 ** 5
 PRINT_EXPERIENCE_BUFFER = False
 
 
-DOUBLE_DQN = True
-EXPERIENCE_BUFFER_CLASS = PriorityExperienceBuffer
+DOUBLE_DQN = False
+EXPERIENCE_BUFFER_CLASS = ExperienceBuffer
 
 EXPLORING_STRATEGY = ExploringStrategy.NOISY_NETWORK
 LINEAR_LAYER_CLASS = Linear if EXPLORING_STRATEGY == ExploringStrategy.EPSILON_GREEDY else NoisyLinear
-NET_TYPE = DuelingNet  # use DuelingNet for DuelingDQN and Net for default
+NET_TYPE = Net  # use DuelingNet for DuelingDQN and Net for default
 
 MIN_EPSILON = 0.02  # init: 0.02
 EPSILON_START = 1.0  # init: 1.0
