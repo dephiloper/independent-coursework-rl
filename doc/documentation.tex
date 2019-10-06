@@ -324,7 +324,7 @@ vorgestellt.
 
 \subsubsection{Das k-armed-Bandit Problem}
 % Erklärung des k-armed-Bandit Problems
-Nach R. Sutton \cite[~S. 26]{SB1998} besteht das k-armed-Bandit Problem darin, aus $k$
+Nach R. Sutton \cite[~S.26]{SB1998} besteht das k-armed-Bandit Problem darin, aus $k$
 verschiedenen Actions zu wählen, wobei nachdem eine Action gewählt wurde, der Agent einen
 Reward erhält, der aus einer Wahrscheinlichkeitsverteilung gezogen wird. Der
 Erwartungswert der Wahrscheinlichkeitsverteilung hängt von der gewählten Action ab. Das
@@ -1470,10 +1470,10 @@ Enviroments. Nachfolgend wird auf die Entwicklung des Environments und die darin
 Funktionalitäten eingegangen. Des Weiteren wird aus den bereits vorgestellten Algorithmen ein
 Verfahren gewählt und dieses in dem entwickelten Environment angewandt. 
 
-\subsection{Festlegung auf ein Spiel}
+\subsection{Mögliche Spiele}
 Wie in der Zielsetzung dieser Ausarbeitung beschrieben, soll nachfolgend ein Spiel ausgewählt werden,
-für welches mittels der Open AI Bibliothek ein Environment umgesetzt wird. Für die Wahl eines Spieles
-wurden zu Beginn zu den folgenden Spielen recherchiert:
+für welches mittels der Open AI Bibliothek ein Environment umgesetzt wird. Für die Wahl des Spieles
+wurden zu Beginn folgende Spiele in Betracht gezogen:
 
 \subsubsection{Doom}
 Doom (id Software, 1993) ist ein First-Person Shooter, welcher im Dezember 1993 auf dem Betriebssystem
@@ -1481,15 +1481,17 @@ MS-DOS veröffentlicht wurde. Im Spiel steuert man einen Space-Marine, welcher a
 wird und dessen Aufgabe es ist, sich durch eindringende Dämonenhorden aus der Hölle zu kämpfen
 \cite{D1993}. Es existieren bereits Realisierungen in denen Agenten mittels Reinforcement Learning
 Verfahren das Spiel lernen zu spielen. Diese verwenden meist alle eine, explizit für die Entwicklung
-von künstlicher Intelligenz, bereitgestellte Modifikation des Hauptspiels ''ViZDoom'' \cite{ViZDoom}. 
+von künstlicher Intelligenz, bereitgestellte Modifikation des Hauptspiels - ''ViZDoom'' \cite{ViZDoom}. 
 Diese ermöglicht es das Spiel in beschleunigter Form (7000 Bilder pro Sekunde) auszuführen. Des
 Weiteren enthält die Modifikation die Implementierung einer eigens angefertigten API sowie weitere
 durch die Community bereitgestellte Anpassungen.
 
 Die Steuerung der Kernmechaniken im Spiel umfassen das nach links und rechts Drehen des Spielers,
 das Bewegen in die vier Haupthimmelsrichtungen sowie das Abfeuern einer Waffe (sieben diskrete
-Actions).
-Die Modifikation des Hauptspiels ist unter \url{https://github.com/mwydmuch/ViZDoom} aufrufbar.
+Actions). Die Modifikation des Hauptspiels ist unter \url{https://github.com/mwydmuch/ViZDoom}
+aufrufbar. Zusätzlich wäre auch die Anfertigung eines eigenen Environments in Doom möglich. Dafür
+stehen weitere Portierungen zur Verfügung wie zum Beispiel \url{https://zdoom.org/index}, welches
+das Spiel auf modernen Geräten ausführbar macht. 
 
 \subsubsection{Teeworlds}
 Bei dem Spiel Teeworlds handelt es sich um ein kostenloses online Mehrspieler Spiel, welches seine
@@ -1515,20 +1517,26 @@ des Spiels ist deutlich komplexer als die der zuvor beschriebenen Spiele. Es exi
 bereits die Umsetzung eines mit Reinforcement Learning Verfahren nutzbaren Environments der Firma
 DeepMind (\url{https://github.com/deepmind/pysc2}). 
 
-\begin{itemize}
-\itemsep0pt	
-\item Warum wir uns dafür entschieden haben
-\item FOSS, teeworlds client, teeworlds server
-\item andere Spiele
-\item Echtzeitspiel - Herausforderung
-\item Möglichkeit für andere Environment zu nutzen
-\end{itemize}
+\subsection{Festlegung auf ein Spiel}
+Aufgrund der hohen Komplexität und der Vielschichtigkeit der Steuerung wurde sich gegen die Umsetzung
+eines Environments für das Spiel Starcraft II entschieden. Die Spiele Teeworlds und Doom bieten
+deutlich einfachere Verfahren zur Steuerung durch einen Agenten. Da bereits Realisierungen für Doom
+existieren und das Spiel Teeworlds durch den öffentlich verfügbaren Source Code vollständig modifizierbar
+ist, wurde Teeworlds abschließend für die Realisierung eines Environments ausgewählt. Zudem erfüllt
+Teeworlds die zu Beginn festgelegte Anforderung eines Spieles in Echtzeit.
+
+Nahezu die gesamte Codebase von Teeworlds ist in C++ entwickelt worden, wobei durch das Kompilieren
+des Spiels zwei ausführbare Dateien entstehen, ein Teeworlds Client und ein Teeworlds Server. Der
+Client kann ausschließlich in Kombination mit einem Server genutzt werden. Über eine UDP Verbindung
+werden zwischen Client und Server Informationen zur Veränderung des Game State, der Spielerpositionen
+oder über eingesammelte Objekte ausgetauscht.
 
 \subsection{Umsetzung des Environments} % TODO Bruno
 \begin{itemize}
 \itemsep0pt	
 \item custom environment (gym)
 \item vereinfachte Version des Spiels $>$ was ist das Ziel?
+\item Möglichkeit für andere Environment zu nutzen
 \item die Aufgabe besteht darin, Schilde und Herzen einzusammeln und Level zu bestreiten
 \item spikes bei denen man stirbt
 \item Umsetung Multienv/Worker
@@ -1554,9 +1562,103 @@ DeepMind (\url{https://github.com/deepmind/pysc2}).
 \item Umsetzung Erweiterungen zu Deep-Q-Learning
 \item Vergleich, Trainingsdauer, Auswertung
 \end{itemize}
-\subsubsection{Double DQN} % TODO Philipp
-Beschreibung, Implementierungen, Graphen
+
 \subsubsection{Noisy Network} % TODO Philipp
+Als erste Erweiterung wurde eine Maßnahme zur Verbesserung der Exploration des Environments implementiert.
+In dem Paper ''Noisy Networks für Exploration'' beschreiben Fortunato et al.\cite[~S.1 f.]{FAPMOGM2017}
+ein Verfahren zum Erlernen der Explorationsmerkmale während des Trainings, statt auf die Verwendung von
+Explorationsstrategien zurückzugreifen, wie $\epsilon$-greedy. Durch die Hinzunahme von Rauschen (noise)
+zu den Gewichten der Fully-Connected Layer und dem anschließenden Anpassen der Gewichtsparameter des
+Rauschens durch Backpropagation wird ein effizientes Explorieren möglich. Das Verfahren ist laut der
+Authoren des Papers verhältnismäßig simpel in dessen Umsetzung und fügt ausschließlich minimal erhöhten
+Overhead zur Vanillaversion des Deep-Q-Learning Verfahrens hinzu. Als wichtigste Erkenntnis wird im Paper
+beschrieben, dass eine einzige Änderung des Gewichtsvektors eine konsistente und potenziell sehr komplexe
+zustandsabhängige Änderung der Policy über mehrere Zeitschritte hinweg induzieren kann, wohingegen bei
+Dithering-Ansätzen\footnote{einfachste und am häufigsten verwendete Ansätze zur Erforschung von greedy
+Actions durch den Einsatz von zufälligem Dithering \cite[~S.2]{R2004}}, dekorreliertes (und im Falle von
+greedy Verfahren, zustandsunabhängiges) Rauschen bei jedem Schritt zur Policy, sprich der Wahl einer
+Action, hinzugefügt wird \cite[~S.2]{FAPMOGM2017}. 
+
+\paragraph*{Implementierung}
+\noindent
+\newline
+Die nachfolgende Implementierung orientiert sich an der Vorlage nach Lapan\cite[~S.179]{L2018}.
+Zur Umsetzung des Noisy Layer wird die Klasse \textit{NoisyLayer} implementiert, die von der
+Superklasse \lstinline!nn.Linear! erbt. Listing \ref{lst:noisy-layer} definiert den Konstruktor
+der Klasse, in dem initial eine trainierbare Gewichtsmatrix $\sigma$ erzeugt wird. Durch den
+Aufruf der \lstinline!self.register_buffer! Methode wird ein Tensor für das Netz erzeugt, welcher
+während des Trainings nicht durch Backpropagation aktualisiert wird. Gleiches gilt für die noisy
+Biases des Netzwerks. Der Startwert von sigma wird wie im Paper empfohlen \cite[~S.6]{FAPMOGM2017}
+auf $\sigma=0.017$ gesetzt.
+
+\begin{lstlisting}[language=Python, caption=Konstruktor Noisy Layer, label=lst:noisy-layer]
+class NoisyLinear(nn.Linear):
+	def __init__(self, in_features, out_features, sigma_init=0.017, 
+	bias=True):
+		
+		super(NoisyLinear, self).__init__(in_features, out_features,
+		bias=bias)
+		
+		self.sigma_weight = nn.Parameter(torch.full((out_features,
+		in_features), sigma_init))
+		
+		self.register_buffer("epsilon_weight", 
+		torch.zeros(out_features, in_features))
+		
+		if bias:
+    		self.sigma_bias = nn.Parameter(torch.full((out_features,)
+    		,sigma_init))
+    		
+    		self.register_buffer("epsilon_bias", 
+    		torch.zeros(out_features))
+    		
+		self.reset_parameters()
+\end{lstlisting}
+
+Durch den Aufruf von \lstinline!self.reset_parameter! (\ref{lst:noisy_reset-params} werden die
+Gewichte und Biases nach der im Paper beschriebenen Vorhergehensweise initialisiert. Dabei wird
+jedem Gewicht ein Wert einer unabhängigen Gleichverteilung
+$\mathcal{U}[-\sqrt{\frac{3}{p}},+\sqrt{\frac{3}{p}}]$ zugewiesen, wobei $p$ der Anzahl der
+Input Nodes des Linear Layers entspricht.
+ 
+\begin{lstlisting}[language=Python, caption=Reinitialisierung der Gewichte und Biases, 
+label=lst:noisy_reset-params]
+	def reset_parameters(self):
+		std = np.math.sqrt(3 / self.in_features)
+		self.weight.data.uniform_(-std, std)
+		self.bias.data.uniform_(-std, std)
+\end{lstlisting}
+
+Die \lstinline!forward(self, input)! Funktion wird jedes mal aufgerufen, wenn mit der Instanz
+des Netzes die Berechnung des Outputs vollzogen wird. Durch den Aufruf von 
+\lstinline!normal_()! der Gewichte und Biases werden für beide Parametermengen 
+\textit{Random Noise} Werte gesampled. Anschließend erfolgt mittels \lstinline!F.linear()!
+die lineare Transformation der Input Daten, wie in der \lstinline!nn.Linear! Klasse 
+\cite[~S.179 ff.]{L2018}.
+
+\begin{lstlisting}[language=Python, caption=\textit{forward()} Funktion Noisy Layer, 
+label=lst:noisy_forward]
+	def forward(self, input):
+	self.epsilon_weight.normal_()
+	bias = self.bias
+	if bias is not None:
+	    self.epsilon_bias.normal_()
+	    bias = bias + self.sigma_bias * self.epsilon_bias.data
+		
+	return F.linear(input, self.weight + self.sigma_weight *
+	self.epsilon_weight.data, bias)
+\end{lstlisting}
+
+Die Verwendung der Layer funktioniert anschließend genau wie bei der Erstellung des Netzes mit
+Linear Layer, wobei diese durch die \textit{NoisyLayer} Klasse ausgetauscht werden (Vergleich
+). %TODO zitiere Erstellung Netz ohne Noisy Layer
+
+\paragraph*{Auswertung}
+\noindent
+\newline
+
+
+\subsubsection{Double DQN} % TODO Philipp
 Beschreibung, Implementierungen, Graphen
 \subsubsection{Prioritized Replay Buffer} % TODO Bruno
 Beschreibung, Implementierungen, Graphen
