@@ -1450,6 +1450,7 @@ eine Action zu 100 Prozent als wählbare Action identifiziert wurde, der berechn
 einem Ergebnis von 0 entspricht \cite[~S.269 f.]{L2018}.
 
 \paragraph*{Multiple Environments} 
+\label{sec:multiple_envs}
 \noindent
 \newline
 Eine zusätzliche Erweiterungsmöglichkeit im Bereich der Stabilität des Verfahrens ist die Nutzung
@@ -1572,9 +1573,9 @@ Server und dem Python Environment umgesetzt wurde. Wie eingangs schon erwähnt f
 Teeworlds indem sich der Teeworldsclient auf einen Teeworldsserver verbindet. Es gibt
 zahlreiche öffentliche Server, die benutzt werden können. Für unseren Anwendungsfall ist
 es allerdings notwendig einen eigenen Server zu erstellen, da so sicher gegangen werden
-kann, dass sich keine fremden Spieler mit dem Server verbinden und weiterhin kann so die
-Map auf der gespielt wird bestimmt werden. Auch ermöglicht es uns den Spielzustand neu zu
-starten und eine Kommunikation zwischen Python Environment und Teeworldsserver zu
+kann, dass sich keine fremden Spieler mit dem Server verbinden und weiterhin kann so das
+Level auf dem gespielt wird bestimmt werden. Auch ermöglicht es uns den Spielzustand neu
+zu starten und eine Kommunikation zwischen Python Environment und Teeworldsserver zu
 implementieren.\\
 Aus diesem Grund startet das Environment zuerst einen Teeworlds Server und nach einer
 kurzen Verzögerung den Client als Subprocess. Der Client verbindet sich daraufhin mit dem
@@ -1608,28 +1609,39 @@ Architektur.
   \caption{Teeworlds Environment Aufbau}
   \label{fig:teeworlds_env}
 \end{figure}
+\noindent
+Weiterhin wurden kleinere Änderungen an Server und Client vorgenommen, wie das entfernen
+unnötiger Statusanzeigen oder die Möglichkeit mehrere Level in einem Environment spielen
+zuu können.\\
+Wie schon in Abschnitt \ref{sec:multiple_envs} beschrieben, können mehrere Environments
+gleichzeitig verwendet werden, um den Trainingsprozess zu beschleunigen. In der Datei
+\lstinline!dqn\_parallel.py!, die im gleichen Verzeichnis zu finden ist, wie das Teeworlds
+Environment, findet sich eine \lstinline!Worker! Klasse, die von \lstinline!Process! erbt
+und ein Environment erstellt. Im Trainingsprozess werden vier Worker erstellt und
+gleichzeitig verwendet, um das Sammeln der Erfahrung zu beschleunigen. Gleichzeitig kann
+das Spiel auch mit einer höheren Geschwindigkeit gespielt werden. Abbildung
+\ref{fig:multi_env} zeigt eine typische Trainingssituation mit vier Workern.
 
-
-% Multi Env / Worker
-% Umsetzung der Level
-
-
-\begin{itemize}
-\itemsep0pt	
-\item custom environment (gym)
-\item vereinfachte Version des Spiels $>$ was ist das Ziel?
-\item Möglichkeit für andere Environment zu nutzen
-\item die Aufgabe besteht darin, Schilde und Herzen einzusammeln und Level zu bestreiten
-\item spikes bei denen man stirbt
-\item Umsetung Multienv/Worker
-\item Bilder aufzeichnen $>$ 4 Bilder = Observation
-\item erläuterung Actions, Reward, Observation
-\item Bilder veranschaulichen mehrere Environments offen
-\item Synchronisierung Bild $>$ Reward (Problem mit falscher Synchronisierung)
-\item evtl. wichtigste Methoden erläutern (Herausforderungen bei der Implementierung)
-\item Umsetzung der Level
-\item Beschreibung System Setup
-\end{itemize}
+\begin{figure}[htp]
+  \centering
+  \includegraphics[scale=1.0]{res/multi_env.png}
+  \caption{Multiple Teeworlds Environments}
+  \label{fig:multi_env}
+\end{figure}
+\noindent
+Weiterhin wurden mehrere Level entworfen, die speziell für das Problem entworfen wurden,
+im Anhang unter \ref{sec:levels} finden sich die vier Level mit denen hauptsächlich
+gearbeitet wurde. Es wurde darauf geachtet unterschiedliche Passagen in die Level
+einzubauen.\\
+Eine große Herausforderung bei der Implementierung des Environments bestand darin, die
+Kommunikation zwischen den einzelnen Entitäten herzustellen, da die Kommunikation den
+sendenden oder empfangenden Prozess niemals blockieren durfte, da ein blockierendes
+Element in Teeworlds das Spiel oder im Environment das regelmäßige Abfragen der
+Observation gestört hätte. ZeroMQ war bei dieser Problemstellung hilfreich.\\
+Eine weitere Herausforderung war es den Agenten in mehreren Environments auszuführen, da
+das Pytorch Multiprocessing eine Schwierigkeit darstellte. Auch die Orientierung im
+Teeworlds Quelltext mit über 70000 Zeilen und deren Modifikation, war eine
+Herausforderung.
 
 \subsection{Wahl des Verfahrens} % TODO Bruno
 \begin{itemize}
@@ -1778,11 +1790,30 @@ Beschreibung, Grund des nicht nutzens
 \newpage
 \section{Anhang}
 
+\subsection{Ergebnisse Pong Environment mit Deep-Q-Learning}
 \begin{figure}[htp]
 \centering
 \includegraphics[scale=0.35]{res/pong_all_results.png}
 \caption{Vollständige Ergebnisse mit Deep-Q-Learning im Pong Environment}
 \label{fig:pong_all_results}
 \end{figure}
+
+\subsection{Die benutzen Level}
+\label{sec:levels}
+\begin{figure}[htp]
+\centering
+\includegraphics[width=160pt]{res/newlevel_1_full.png}
+\includegraphics[width=160pt]{res/newlevel_2_full.png}
+\newline
+\hspace{10pt}\\
+\includegraphics[width=160pt]{res/newlevel_3_full.png}
+\includegraphics[width=160pt]{res/newlevel_4_full.png}
+
+\caption{
+  Die Level \grqq newlevel\_0\grqq, \grqq newlevel\_1\grqq,
+            \grqq newlevel\_2\grqq und\grqq newlevel\_3\grqq
+        }
+\end{figure}
+
 
 \end{document}
