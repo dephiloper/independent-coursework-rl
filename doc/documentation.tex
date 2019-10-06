@@ -1468,7 +1468,7 @@ Algorithmen und Erweiterungen befasst sich der abschließende Teil des Independe
 ein eigenes Environment zu entwickeln. Anhand dieses Environments soll ein Reinforcement Learning
 Verfahren implementiert werden, mit dem Ziel die Problemstellung des Environments erfolgreich zu 
 lösen. In diesem Kapitel erfolgt initial die Festlegung auf ein Spiel für die Entwicklung des
-Enviroments. Nachfolgend wird auf die Entwicklung des Environments und die darin enthaltenen
+Environments. Nachfolgend wird auf die Entwicklung des Environments und die darin enthaltenen
 Funktionalitäten eingegangen. Des Weiteren wird aus den bereits vorgestellten Algorithmen ein
 Verfahren gewählt und dieses in dem entwickelten Environment angewandt. 
 
@@ -1512,7 +1512,7 @@ Das Spiel ist unter \url{https://github.com/teeworlds/teeworlds} zu finden.
 \subsubsection{Starcraft II}
 Im Github Repository \url{https://github.com/Blizzard/s2client-proto} wurde eine API für das Spiel
 Starcraft II der Firma Blizzard umgesetzt, welche eine vollständige Kontrolle des Spiels durch
-externe Enitäten ermöglicht. Starcraft II (2010) ist ein Science Fiction Echtzeit-Strategiespiel,
+externe Entitäten ermöglicht. Starcraft II (2010) ist ein Science Fiction Echtzeit-Strategiespiel,
 in dem Einheiten von jeweils drei verschiedenen Spezies gegeneinander antreten. Neben dem
 Management von Militärtruppen müssen Basen gebaut und Rohstoffe verwaltet werden. Die Steuerung
 des Spiels ist deutlich komplexer als die der zuvor beschriebenen Spiele. Es existiert jedoch
@@ -1534,6 +1534,88 @@ werden zwischen Client und Server Informationen zur Veränderung des Game State,
 oder über eingesammelte Objekte ausgetauscht.
 
 \subsection{Umsetzung des Environments} % TODO Bruno
+Um das Spiel Teeworlds für einen Reinforcement Learning Algorithmus zugänglich zu machen,
+musste das Spiel in ein Python Environment eingebetet werden. Dabei mussten Informationen
+sowohl mit dem Teeworlds Client als auch mit dem Teeworlds Server ausgetauscht werden.
+Beachtet wurde, dass das eigens entwickelte Environment dem Standard eines OpenAI gyms
+entsprach.\\
+In diesem Abschnitt wird beschrieben, wie die Umarbeitung des Teeworlds-Clients und
+Servers umgesetzt wurde. Dazu wurde das Teeworlds github repository geforkt und
+modifiziert und ist unter der url \url{https://github.com/nevs-devs/teeworlds} einsehbar.
+Das Python OpenAI Environment ist unter
+\url{https://github.com/dephiloper/independent-coursework-rl/blob/master/teeworlds_env/gym_teeworlds.py}
+zu finden.\\
+Besonderes Augenmerk wurde auf die standardkonforme API des Environments gelegt, wodurch
+es auch anderen Reinforcement Learning Interessierten möglich ist, das neu entwickelte
+Environment zu nutzen.
+
+\subsubsection{Abwandlung des Spiels}
+Das Spiel Teeworlds verfügt mit dem Greifhaken über komplexe Actions und ist als
+Mehrspieler online Spiel eine komplexe Problemstellung. Um die in den vorhergehenden
+Kapiteln beschriebenen Verfahren einsetzen zu können, wurde für Umsetzung des Environments
+das Teeworlds Spiel stark vereinfacht.\\
+Da das Problem von kontinuierlichen Actions durch keines der vorgestellten Verfahren
+ausreichend gelöst wurde, wurde die Greifhakenmechanik und das Schießen nicht mit in das
+Environment integriert. Anstelle dessen wurden sechs diskrete Actions umgesetzt. Diese
+sechs Actions sind \grqq links\grqq, \grqq stehen bleiben\grqq, \grqq rechts\grqq, \grqq
+nach links springen\grqq, \grqq springen\grqq, \grqq nach rechts springen\grqq.\\
+Das Spielziel wurde dahingehend abgewandelt, dass es das Ziel ist erfolgreich durch ein
+Level zu navigieren und auf dem Weg plazierte Schilder und Herzen einzusammeln. Die
+Schilder resultieren in einem Reward von $1$. Das Einsammeln des Herzens ist das
+schlussendliche Ziel, führt zu einem Reward von $5$ und beendet die Episode. Das spielen
+gegen andere Spieler ist ebenfalls nicht vorgesehen. Es ist möglich das Environment zu
+erweitern, sodass auch die kontinuierlichen Actions des Greifhakens und des Schießens
+unterstützt werden. Darauf wurde aber im Rahmen dieses Independent Courseworks aus
+Zeitgründen verzichtet.
+
+\subsubsection{Architektur des Environments}
+Dieser Abschnitt beschreibt, wie die Kommunikation zwischen dem Teeworlds Client und
+Server und dem Python Environment umgesetzt wurde. Wie eingangs schon erwähnt funktioniert
+Teeworlds indem sich der Teeworldsclient auf einen Teeworldsserver verbindet. Es gibt
+zahlreiche öffentliche Server, die benutzt werden können. Für unseren Anwendungsfall ist
+es allerdings notwendig einen eigenen Server zu erstellen, da so sicher gegangen werden
+kann, dass sich keine fremden Spieler mit dem Server verbinden und weiterhin kann so die
+Map auf der gespielt wird bestimmt werden. Auch ermöglicht es uns den Spielzustand neu zu
+starten und eine Kommunikation zwischen Python Environment und Teeworldsserver zu
+implementieren.\\
+Aus diesem Grund startet das Environment zuerst einen Teeworlds Server und nach einer
+kurzen Verzögerung den Client als Subprocess. Der Client verbindet sich daraufhin mit dem
+neu gestarteten Server und öffnet ein Fenster in dem das Spiel zu sehen ist.\\
+Um den aktuellen Spielstand zu erfahren, führt das Environment mithilfe des Python
+Packages \lstinline!mss! ein Screenshot vom Teeworlds Fenster durch. Dieses Bild wird
+später als Schwarzweißbild als Observation benutzt. Da sich aus einem einzelnen Bild
+keine Bewegungsrichtung ableiten lässt, die aber für ein erfolgreiches Spielen eines
+Echtzeitspiels hilfreich ist, werden die letzten vier Bilder des Spiels, ähnlich wie die
+Farbkanäle eines Bilder, übereinander gelegt.\\
+Damit die vom Agenten getätigten Actions wirken können, müssen diese zum Teeworlds Client
+übertragen werden. Um diese Informationen zu übertragen, wurde die Bibliothek ZeroMQ
+\url{https://zeromq.org/} benutzt, die es ermöglicht Datenpackete zwischen
+unterschiedlichen Prozessen auszutauschen. Die gewählten Actions werden dann in Python
+in einer Bitmaske kodiert und übertragen. Der modifizierte Teeworlds Client empfängt diese
+Informationen und manipuliert den Zustand des Spiels so, als hätte ein Spieler die
+entsprechenden Befehle gegeben. Neben den Actions kann an dieser Stelle ein reset des
+Spielstandes initiiert werden.\\
+Um den Reward, den das Environment an den Spieler zurück gibt, berechnen zu können, muss
+übertragen werden, ob ein Schild oder ein Herz eingesammelt wurden oder ob der Spieler in
+Stacheln gesprungen ist. Es stellte sich heraus, dass der Client diese Informationen nicht
+selbst berechnet, sondern den neuen Spielstand übertragen bekommt. Dadurch ist es nötig,
+ebenfalls eine Verbindung zwischen Environment und Teeworlds Server einzurichten. Der
+modifizierte Teeworlds Server schickt diese Spielinformationen ebenfalls über ZeroMQ an
+das Environment zurück. Abbildung \ref{fig:teeworlds_env} zeigt eine Übersicht der
+Architektur.
+
+\begin{figure}[htp]
+  \centering
+  \includegraphics[scale=0.5]{res/teeworlds_env.png}
+  \caption{Teeworlds Environment Aufbau}
+  \label{fig:teeworlds_env}
+\end{figure}
+
+
+% Multi Env / Worker
+% Umsetzung der Level
+
+
 \begin{itemize}
 \itemsep0pt	
 \item custom environment (gym)
