@@ -851,6 +851,7 @@ für unterschiedliche States oder Actions gespeichert werden. Dieses Verfahren w
 
 % Beschreibung des Verfahrens Tabular Q-Learning u. Unterscheidung zu Deep-Q-Learning
 \subsection{Tabular Q-Learning}
+\label{sec:tab-q-learning}
 In diesem Abschnitt wird auf das Tabular Q-Learning eingegangen. Um die
 Ver\-ständ\-lich\-keit zu verbessern wird das Verfahren anhand des Frozen Lake
 Environments veranschaulicht.
@@ -1286,10 +1287,11 @@ und somit eine detaillierte Unterteilung der Episoden ermöglicht.
 \subsubsection{Einordnung}
 Wie bereits erwähnt ist die REINFORCE Method ein policy learning Verfahren. Das Verfahren ist
 on-policy, da ausschließlich anhand neu aufgezeichneter Trainingsdaten gelernt werden kann.
-Demzufolge kommt das Verfahren ohne die Verwendung eines Replay Buffers (siehe \autoref{sec:deepq-procedure}) aus. Des Weiteren erfolgt die Einordnung als model-free Methode, da nicht versucht wird
-Annahmen zu zukünftigen States oder Rewards zu treffen. Prinzipiell basieren alle Policy
-Gradient Verfahren auf der in Formel \ref{aln:PG} festgelegten Definition, wobei
-ausschließlich Anpassungen am Kernkonzept des Verfahrens vorgenommen werden
+Demzufolge kommt das Verfahren ohne die Verwendung eines Replay Buffers (siehe 
+\autoref{sec:deepq-procedure}) aus. Des Weiteren erfolgt die Einordnung als model-free Methode,
+da nicht versucht wird Annahmen zu zukünftigen States oder Rewards zu treffen. Prinzipiell
+basieren alle Policy Gradient Verfahren auf der in Formel \ref{aln:PG} festgelegten Definition,
+wobei ausschließlich Anpassungen am Kernkonzept des Verfahrens vorgenommen werden
 \cite[~S.244 f.]{L2018}. Anders als die bereits behandelten value-learning Verfahren ist
 kein explizites Explorieren notwendig, da das REINFORCE Verfahren durch die Nutzung einer
 Wahrscheinlichkeitsverteilung über alle Actions ein automatisches \grqq Erforschen\grqq 
@@ -1669,7 +1671,7 @@ Overhead zur Vanillaversion des Deep-Q-Learning Verfahrens hinzu. Als wichtigste
 beschrieben, dass eine einzige Änderung des Gewichtsvektors eine konsistente und potenziell sehr komplexe
 zustandsabhängige Änderung der Policy über mehrere Zeitschritte hinweg induzieren kann, wohingegen bei
 Dithering-Ansätzen\footnote{einfachste und am häufigsten verwendete Ansätze zur Erforschung von greedy
-Actions durch den Einsatz von zufälligem Dithering \cite[~S.2]{R2004}}, dekorreliertes (und im Falle von
+Actions durch den Einsatz von zufälligem Dithering \cite[~S.2]{ORRW2019}}, dekorreliertes (und im Falle von
 greedy Verfahren, zustandsunabhängiges) Rauschen bei jedem Schritt zur Policy, sprich der Wahl einer
 Action, hinzugefügt wird \cite[~S.2]{FAPMOGM2017}. 
 
@@ -1753,13 +1755,40 @@ Linear Layer, wobei diese durch die \textit{NoisyLayer} Klasse ausgetauscht werd
 
 
 \subsubsection{Double DQN} % TODO Philipp
-Beschreibung, Implementierungen, Graphen
+Die nächste Erweiterung zur Vanillaimplementierung von Deep-Q-Learning befasst sich mit der
+Stabilität des Verfahrens. In dem Paper ''Deep Reinforcement Learning with Double Q-learning''
+von DeepMind\cite{HGD2015}) wird das Überwerten von $Q$ values bei dem Eintreten definierter
+Zuständen überprüft. In dem Paper werden genau diese Overestimations bei dem Trainieren auf
+Atari 2600 Spielen mittels Vanilla Deep-Q-Learning festgestellt und es wird eine Lösung mit
+der Bezeichnung \textit{Double Deep-Q-learning} vorgestellt. 
+
+Grund für die Überbewertung ist die Nutzung des $\max$ Operators in der Bellman Equation.
+Wie bereits in \autoref{sec:tab-q-learning}:\nameref{sec:tab-q-learning} und \autoref{sec:dqn}:
+\nameref{sec:dqn} behandelt wird diese zur Berechnung der $Q$ values verwendet. Da beide
+Verfahren die gleichen values sowohl zur Auswahl, als auch zur Evaluierung von Actions nutzen,
+ist es laut Hasselt et al.\cite[~S.2]{HGD2015} wahrscheinlicher, dass überbewertete values
+ausgewählt werden, was wiederum zu einer überoptimistischen Wertschätzung führen kann. Um
+diesem Problem entgegenzuwirken können die values zur Auswahl von Actions von denen zur
+Evaluierung entkoppelt werden. In der Vanilla Ausführung des Deep-Q-learning Verfahrens
+wird die Berechung der Q values wie folgt realisiert:
+
+\begin{align}
+Q(s_t, a_t) = r_t + \gamma\max_{a}Q'(s_{t+1},a_{t+1})
+\label{aln:double-dqn-q-values}
+\end{align}
+
 \subsubsection{Prioritized Replay Buffer} % TODO Bruno
 Beschreibung, Implementierungen, Graphen
 \subsubsection{Dueling DQN} % TODO Bruno
 Beschreibung, Implementierungen, Graphen
 \subsubsection{N-step DQN} % TODO Philipp
 Beschreibung, Grund des nicht nutzens
+\newline
+
+\noindent
+Sämtliche Erweiterungen wurden als optionale Einstellungen im Trainingsprozess implementiert,
+damit diese Schrittweise hinzugefügt werden können, um einen guten Vergleich der daraus
+resultierenden Ergebnisse zu erhalten.
 
 \subsection{Ergebnisse} % TODO Philipp	
 \begin{itemize}
