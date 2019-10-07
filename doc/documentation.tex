@@ -1825,22 +1825,18 @@ ausgewählt werden, was wiederum zu einer überoptimistischen Schätzung zukünf
 kann. Um diesem Problem entgegenzuwirken können die values zur Auswahl von Actions von denen
 zur Evaluierung entkoppelt werden. In der Vanilla Ausführung des Deep-Q-learning Verfahrens
 wird die Berechung der Q values wie folgt realisiert:
-
 \begin{align}
 Q(s_t, a_t) = r_t + \gamma\max_{a}Q'(s_{t+1},a_{t+1})
 \label{aln:double-dqn-q-values}
 \end{align}
-
 Dabei wird $Q'(s_{t+1}, a_{t+1})$ durch den Aufruf des Target Netz (siehe 
 \autoref{sec:deepq-procedure}) berechnet, welches zyklisch bei dem Erreichen einer Anzahl von
 $n$ Schritten des Trainingsvorgangs aktualisiert wird. Als Alternative dazu wird im Paper
 folgende Rechnung vorgestellt:
-
 \begin{align}
 Q(s_t, a_t) = r_t + \gamma\max_{a}Q'(s_{t+1},\argmax_{a}Q(s_{t+1},a))
 \label{aln:double-dqn-q-values-improved}
 \end{align}
-
 Anders als im initialen Ansatz erfolgt hier die Wahl der Action für den nächsten State $s+1$
 durch das trainierte Netz $Q$, die Berechnung der Q values wird hingegen weiterhin durch das
 Target Netz $Q'$ vollzogen.
@@ -1888,15 +1884,46 @@ und anschließend langsam bis 1 wachsen zu lassen.
 Beschreibung, Implementierungen, Graphen
 
 \subsubsection{N-step DQN} % TODO Philipp
-pass
-\newline
+Eine zusätzliche Verbesserung kann im Deep-Q-learning Verfahren erziehlt werden, indem die
+Bellman Equation erneut angepasst wird. Das Verfahren wird im Paper \textit{Learning to
+Predict by the Methods of Temporal Differences} von Richard Sutton\cite{S1988} initial
+vorgestellt und erweitert den herkömmlichen Ansatz zur Berechnung von Q values um die
+Betrachung weiterer zukünftiger Schritte. Da die Ausgangsgleichung zur Berechnung der Q
+values (\ref{aln:double-dqn-q-values}) rekursiv formuliert wurde, kann $Q(s_{t+1},
+a_{t+1})$ ebenfalls wie folgt formuliert werden, wobei der Ausdruck in den eckigen
+Klammern einer Auflösung von $Q'$ entspricht \cite[~S.168]{L2018}:
+\begin{align}
+Q(s_t, a_t) = r_t + \gamma \max_{a}[r_{a,t+1}+\gamma\max_{a'}Q(s_{t+2},a')]
+\label{aln:double-dqn-q-values-improved}
+\end{align}
+Wird davon ausgegangen, dass die Action $a$ im Schritt $t+1$ nahezu optimal ausgeführt wird,
+kann die $\max_{a}$ Operation umgeformt werden, wodurch die folgende Gleichung
+(\ref{aln:double-dqn-q-values-improved}) entsteht \cite[~S.168]{L2018}:
+\begin{align}
+Q(s_t, a_t) = r_t + \gamma r_{t+1}+\gamma^2 \max_{a'}Q(s_{t+2},a')
+\label{aln:double-dqn-q-values-improved}
+\end{align}
+Da diese Gleichung wiederum einen rekursiven Aufruf enthält, wird es möglich weitere
+Auflösungsschritte vorzunehmen. Dadurch können Q values gleich beim Erhalt eines lokalen
+Rewards über die $n$ vergangenen Schritte, die zum Erreichen dieses Rewards geführt haben,
+aktualisiert werden. Dies ist bei der in \autoref{aln:double-dqn-q-values} definierten
+Vorhergehensweise nicht möglich, da ausschließlich \textit{ein} zukünftiger Schritt geschätzt
+wird und die Aktualisierung lediglich auf die Q value des Ausgangszustandes angewandt wird. 
+Der Hauptvorteil dieser Erweiterung liegt in der Beschleunigung des Trainingsprozesses.
 
-\noindent
+In die schlussendliche Realisierung des Agenten wurde diese Erweiterung jedoch nicht
+aufgenommen, da zum Auflösen zukünftiger Schritte Aneinanderreihungen von Actions im
+Environment ausgeführt werden müssen. Dazu hätten des Weiteren Kopien der aktuellen
+Zustände des Environments für die jeweiligen Auflösungsschritte $n$ angelegt werden
+müssen, von welchen das Spiel anschließend weitergelaufen wäre. Aufgrund der
+Echtzeiteigenschaft des Environments wurde abschließend jedoch von einer Implementierung
+abgesehen.
+
+\subsection{Ergebnisse} % TODO Philipp
 Sämtliche Erweiterungen wurden als optionale Einstellungen im Trainingsprozess implementiert,
 damit diese Schrittweise hinzugefügt werden können, um einen guten Vergleich der daraus
 resultierenden Ergebnisse zu erhalten.
-
-\subsection{Ergebnisse} % TODO Philipp	
+	
 \begin{itemize}
 \itemsep0pt	
 \item evtl. noch mehr Graphen mit Erläuterungen
