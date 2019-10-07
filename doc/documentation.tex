@@ -790,6 +790,7 @@ aufgeführt \cite[~S.92 f.]{L2018}:
 \item endliche und kurze Episoden notwendig
 \item detailierte Unterscheidung des total Reward zwischen guten und schlechten Episoden
 \item Reward für die Erfüllung von Zwischenschritten
+  \label{itm:cross_entropy_limits}
 \end{itemize}
 
 Diese Einschränkungen können jedoch addressiert werden, indem mehr Episoden gespielt werden, 
@@ -892,9 +893,9 @@ unmittelbaren Reward $r$, der vom Environment bestimmt wird, sowie den Folgestat
 also den State, den das Environment nach Ausführung von $a$ erreicht hat.
 
 Ist das SARS-Tupel gefunden, werden die Q-Values der Tabelle angepasst, wobei der folgende
-Zusammenhang verwendet wird.
+Zusammenhang, der aus der Bellman Equation hervorgeht, verwendet wird.
 \begin{align}
-Q(s, a) = r_{s,a} + \gamma \max_{a' \in A}Q(s', a')
+Q(s, a) \leftarrow r_{s,a} + \gamma \max_{a' \in A}Q(s', a')
 \label{aln:QValues}
 \end{align}
 \noindent
@@ -1043,6 +1044,7 @@ gewonnen wird.
 
 
 \subsection{Limitierungen von Tabular-Q-Learning}
+\label{sec:tabular_q_learning_limits}
 Nach Lapan\cite[~S.192]{L2018} ist die Einsetzbarkeit dieser Verfahren dadurch
 beschränkt, dass es in vielen Environments zu viele unterschiedliche States gibt, sodass
 dessen Values oder die Values der Actions in diesen States nicht mehr ausreichend
@@ -1081,11 +1083,11 @@ off-policy Learning Verfahren zählt.
 \label{sec:deepq-procedure}
 Im Grunde läuft der Trainingsprozess ähnlich ab, wie bei Tabular-Q-Learning. Zuerst wird
 das neuronale Netz initialisiert, um anschließend zufällige Actions im Environment
-auszuprobieren und somit ein Tupel aus wahrgenommenem State, gespielter Action, erhaltenem Reward
-und neu erreichten Folgestate zu erhalten.
+auszuprobieren und somit ein Tupel aus wahrgenommenem State, gespielter Action, erhaltenem
+Reward und neu erreichten Folgestate zu erhalten.
 
-Daraufhin wird erneut der schon bei Tabular-Q-Learning genutzte Zusammenhang
-(\ref{aln:DeepQ}) ausgenutzt, um die Ergebnisse des neuronalen Netzes anzupassen.
+Daraufhin wird erneut der schon bei Tabular-Q-Learning genutzte Zusammenhang der Bellman
+Equation (\ref{aln:DeepQ}) ausgenutzt, um die Ergebnisse des neuronalen Netzes anzupassen.
 Die Bezeichnungen der Variablen sind identisch zu denen im Tabular-Q-Learning. Der State
 $s$ ist der wahrgenommene State, $a$ ist die gewählte Action, $r$ ist der dadurch
 erhaltene unmittelbare Reward und $s'$ ist der Folgestate, der aus dem Anwenden der
@@ -1587,7 +1589,8 @@ Packages \lstinline!mss! ein Screenshot vom Teeworlds Fenster durch. Dieses Bild
 später als Schwarzweißbild als Observation benutzt. Da sich aus einem einzelnen Bild
 keine Bewegungsrichtung ableiten lässt, die aber für ein erfolgreiches Spielen eines
 Echtzeitspiels hilfreich ist, werden die letzten vier Bilder des Spiels, ähnlich wie die
-Farbkanäle eines Bilder, übereinander gelegt.\\
+Farbkanäle eines Bilder, übereinander gelegt, wie von \cite[~S.206]{L2018}
+vorgeschlagen.\\
 Damit die vom Agenten getätigten Actions wirken können, müssen diese zum Teeworlds Client
 übertragen werden. Um diese Informationen zu übertragen, wurde die Bibliothek ZeroMQ
 \url{https://zeromq.org/} benutzt, die es ermöglicht Datenpackete zwischen
@@ -1645,19 +1648,69 @@ das Pytorch Multiprocessing eine Schwierigkeit darstellte. Auch die Orientierung
 Teeworlds Quelltext mit über 70000 Zeilen und deren Modifikation, war eine
 Herausforderung.
 
-\subsection{Wahl des Verfahrens} % TODO Bruno
-\begin{itemize}
-\itemsep0pt	
-\item Wahl des Verfahrens, alle behandelten Verfahren Vergleichen
-\item aufgrund des Spieles Vergleich der Verfahren
-\item Festlegung auf Deep-Q-Learning
-\item Bilder als Input $\rightarrow$ stack of images
-\item evtl. wichtigste Methoden erläutern (Herausforderungen bei der Implementierung)
-\item lisitings der Umsetzung
-\item Erklärung Hyperparameter, Lernprozess, Lernstats
-\item Umsetzung Erweiterungen zu Deep-Q-Learning
-\item Vergleich, Trainingsdauer, Auswertung
-\end{itemize}
+\subsection{Wahl des Verfahrens}
+In diesem Abschnitt werden die theoretisch behandelten Verfahren verglichen und in Bezug
+auf das Teeworlds Environment abgewägt. Anschließend wird ein Verfahren gewählt, mit dem
+versucht wird das entwickelte Environment erfolgreich zu lösen.\\
+
+\paragraph{Cross Entropy}
+Das erste beschriebene Verfahren ist die Cross Entropy Methode. Wie in
+\ref{itm:cross_entropy_limits} beschrieben, existieren für die Cross Entropy Methode
+Einschränkungen, die dazu führen können, dass das Ziel nicht erreicht wird. Zum einen
+sollte das Environment Zwischenschritte belohnen, damit schneller in diese Richtung
+optimiert werden kann. Dies ist durch die im Level platzierten Schilde gegeben. Damit
+einher geht eine Unterscheidung zwischen eher guten und schlechten Episoden.\\
+Ein Problem mit der Cross-Entropy Methode ist, dass die Episoden im Teeworlds Environment
+länger sind, als eine durchschnittliche eine Cart-Pole Episode. Eine Episode im Teeworlds
+Environment gilt als beendet, wenn in Stacheln gesprungen wurde, wenn das Herz
+eingesammelt wurde oder wenn ein Zeitlimit abläuft. Das Zeitlimit wurde für die im
+weiteren Verlauf beschriebenen Experimente auf 40 Sekunden gesetzt, was bei einer
+Framerate von 0.2 Sekunden eine maximale Episodenlänge von 200 Frames bedeutet.
+
+\paragraph{Tabular Q Learning}
+Tabular-Q-Learning speichert die Values der unterschiedlichen State Action Paare in einer
+Tabelle, was, wie in Kapitel \ref{sec:tabular_q_learning_limits} gezeigt, zu Problemen bei
+komplexeren Environments führt. Die Ermittlung der unterschiedlichen Values für jeden
+möglichen State sind aufgrund der Observation als Bild nicht praktikabel.
+
+\paragraph{Deep Q Learning}
+Mit Deep Q Learning wird das Problem des zu großen Observation Spaces gelöst, da die
+Values der States nicht mehr in einer Tabelle gespeichert werden müssen, sondern über ein
+neuronales Netz berechnet werden. Auch wurden mit Deep Q Learning komplexere Environments
+gelöst, sodass davon auszugehen ist, dass sich dieses Verfahren prinzipiell dazu eignet.
+
+\paragraph{Reinforce Methode}
+Da die Reinforce Methode eine Erweiterung der Cross Entropy Methode ist, weißt sie
+ähnliche Limitierungen wie diese auf. In Abschnitt \ref{sec:limit-reinforce} wurden
+bereits die Limitierungen der Reinforce Methode beschrieben. Dazu zählt, dass lange
+Episoden einen langen Trainingsprozess mit sich bringen, da nach jedem Training neue Daten
+generiert werden müssen.
+
+\paragraph{Actor Critic}
+Die Actor-Critic Methode ist eine Erweiterung der Reinforce Methode, das auch in komplexen
+Environments funktioniert. Unter anderem wurde sie schon im Atari Environment erfolgreich
+getestet. Außerdem erlaubt es die policy-based Actor-Critic Methode nach Lapan,
+kontinuierliche Actions zu verwendet, was \cite[~S.346]{L2018} mit value-based Verfahren
+schwierig umzusetzen ist.
+
+\subsubsection{Auswahl}
+Für die Umsetzung des Prototypen sind vor allem Deep-Q-Learning und Actor-Critic relevant,
+da Tabular-Q-Learning für das gegebene Environment nicht umsetzbar ist und Actor-Critic
+eine Verbesserung zur Cross-Entropy und Reinforce Methode darstellt. Da im Vorfeld mehr
+praktische Experimente mit Deep-Q-Learning durchgeführt wurden, wurde diese Methode für
+die Umsetzung des Prototypen gewählt, auch da keine kontinuierliche Actions im Environment
+benötigt werden.
+
+% Umsetzung Deep Q erläutern
+%   - wichtige Methoden klären (mal in den Quelltext gucken)
+%   - SummaryWriter
+%   - Ablauf des Trainings
+%     - Hyperparameter
+%     - zuerst Referenz Settings finden
+%     - dann Erweiterungen zuschalten
+%   - Trainingsdauer vergleichen mit anderen Experimenten
+
+\subsection{Erweiterungen}
 
 \subsubsection{Noisy Network}
 Als erste Erweiterung wurde eine Maßnahme zur Verbesserung der Exploration des Environments implementiert.
