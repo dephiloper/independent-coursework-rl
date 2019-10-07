@@ -1696,7 +1696,7 @@ schwierig umzusetzen ist.
 \subsubsection{Auswahl}
 Für die Umsetzung des Prototypen sind vor allem Deep-Q-Learning und Actor-Critic relevant,
 da Tabular-Q-Learning für das gegebene Environment nicht umsetzbar ist und Actor-Critic
-eine Verbesserung zur Cross-Entropy und Reinforce Methode darstellt. Da im Vorfeld mehr
+eine Verbesserung zur Cross-Entropy und REINFORCE Methode darstellt. Da im Vorfeld mehr
 praktische Experimente mit Deep-Q-Learning durchgeführt wurden, wurde diese Methode für
 die Umsetzung des Prototypen gewählt, auch da keine kontinuierliche Actions im Environment
 benötigt werden.
@@ -1710,8 +1710,27 @@ benötigt werden.
 %     - dann Erweiterungen zuschalten
 %   - Trainingsdauer vergleichen mit anderen Experimenten
 
-\subsection{Erweiterungen}
+\subsection{Vanilla Deep-Q-learning}
+Initial erfolgte die Implementierung des Deep-Q-learning Verfahrens ohne jede Form einer Erweiterung,
+welche auch als Vanilla Deep-Q-learning bezeichnet wird. Die nachfolgenden Graphen veranschaulichen
+den während des Trainingsprozesses erhaltenen durchschnittlichen Reward sowie der, für den Verlauf des
+Explorationprozesses verwendeten $\epsilon$ Wert (\ref{fig:vanilla-dqn}):
 
+\begin{figure}[htp]
+\centering
+\includegraphics[scale=0.28]{res/vanilla_dqn.png}
+\includegraphics[scale=0.38]{res/epsilon_vanilla_dqn.png}
+\caption{Ergebnisse Vanilla Deep-Q-learning}
+\label{fig:vanilla-dqn}
+\end{figure}
+
+Die Abbildung veranschaulicht, dass nach dem Abfall von Epsilon auf 0.02 der gesammelte Reward deutlich
+ansteigt. Nach 2.2 Millionen gespielten Frames erreicht das Verfahren seinen Bestwert bei einem
+durchschnittlichen Reward von 12.9, wobei der maximal zu erhaltene Reward bei vier Karten bei 14
+liegt. Aufgrund der Anordnung von Schilden in der Karte ist dieses Ergebnis jedoch als ein erfolgreiches
+Lösen der gestellten Problemstellung einzuordnen.
+
+\subsection{Erweiterungen}
 \subsubsection{Noisy Network}
 Als erste Erweiterung wurde eine Maßnahme zur Verbesserung der Exploration des Environments implementiert.
 In dem Paper ''Noisy Networks für Exploration'' beschreiben Fortunato et al.\cite[~S.1 f.]{FAPMOGM2017}
@@ -1805,9 +1824,21 @@ Linear Layer, wobei diese durch die \textit{NoisyLayer} Klasse ausgetauscht werd
 \paragraph*{Auswertung}
 \noindent
 \newline
-$>$ insert graphs here \\
-Erläuterung der Graphen + Betrachtung zwecks Verbesserung
+Durch die Einbindung der Noisy Layer wird der Trainingsprozess deutlich stabiler, was mit der
+alternativen Form der Exploration des Environments erklärt werden kann. Jedoch konnte
+abschließend durch die Nutzung der Erweiterung kein besseres Verhalten erzielt werden, als
+bei der Vanilla Variante. In \autoref{fig:noisy-dqn} wird erneut die Entwicklung des
+durchschnittlichen Rewards des Noisy Deep-Q-learning Verfahrens (blau) im Vergleich zur
+Entwicklung des Vanilla Verfahrens (rot) veranschaulicht:
 
+\begin{figure}[htp]
+\centering
+\includegraphics[scale=0.38]{res/noisy_dqn.png}
+\caption{Avg. Reward: Noisy (blau) im Vergleich zu Vanilla DQN (rot)}
+\label{fig:noisy-dqn}
+\end{figure}
+
+\newpage
 \subsubsection{Double DQN} % TODO Philipp
 Die nächste Erweiterung zur Vanillaimplementierung von Deep-Q-Learning befasst sich mit der
 Stabilität des Verfahrens. In dem Paper ''Deep Reinforcement Learning with Double Q-learning''
