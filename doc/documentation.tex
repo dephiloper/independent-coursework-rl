@@ -1879,7 +1879,38 @@ $>$ insert graphs here \\
 Erläuterung der Graphen + Betrachtung zwecks Verbesserung
 
 \subsubsection{Prioritized Replay Buffer} % TODO Bruno
-Beschreibung, Implementierungen, Graphen
+Die nächste Erweiterung befasst sich mit den Samples auf denen trainiert wird. Während die
+normale Trainingsprozedur zufällig Samples aus dem Replay Buffer auswählt und trainiert,
+wurde von T. Schaul und anderen \cite{schaul2015prioritized} eine Methode vorgeschlagen,
+bei der die zu trainierenden Samples abhängig von dem von ihnen produzierten Loss
+ausgewählt werden. Dadurch werden Samples, die eine neue Information beinhalten häufiger
+in Betracht gezogen, sodass diese schneller genutzt werden können.\\
+Nach Lapan \cite{L2018} speichert der Replay Buffer neben den Samples eine Priorität für
+jeden Sample. Diese Priorität wird nach dem Training proportional zum entstandenen Loss
+geupdated. Wird ein neues Sample hinzugefügt, so bekommt dieses Sample eine maximale
+Priorität, um eingeschätzt werden zu können. Die Wahrscheinlichkeit $P(i)$, dass der i-te
+Sample für das Training verwendet wird, berechnet sich aus Gleichung \ref{aln:bufprio}.
+\begin{align}
+  P(i) = \frac{p_i^\alpha}{\sum_k p_k^i}
+\label{aln:bufprio}
+\end{align}
+\noindent
+Der Hyperparameter $\alpha$ entscheidet dabei darüber, wie stark höher priorisierte
+Samples bevorzugt werden.\\
+Durch dieses Verfahren erhalten manche Samples eine größere Aufmerksamkeit, wodurch es
+nach \cite{schaul2015prioritized} dazu kommen kann, dass das neuronale Netz auf die
+priorisierten Samples overfitted. Um dem entgegenzuwirken, bekommt jedes Sample ein
+weight $w_i$, mit dem der Loss multipliziert wird, sodass der overfitting Effekt nicht
+mehr auftritt. $w_i$ wird nach Formel \ref{aln:weight_bufprio} bestimmt.
+\begin{align}
+  w_i = \left(N * P(i)\right)^{-\beta}
+\label{aln:weight_bufprio}
+\end{align}
+\noindent
+Der neue Hyperparameter $\beta$ bestimmt dabei, wie stark der Einfluss der Samples
+verringert wird. In dem Paper von Schaul wird empfohlen $\beta$ mit 0.6 zu initialisieren
+und anschließend langsam bis 1 wachsen zu lassen.
+
 \subsubsection{Dueling DQN} % TODO Bruno
 Beschreibung, Implementierungen, Graphen
 
