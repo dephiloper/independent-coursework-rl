@@ -175,7 +175,7 @@ Komplexität der Actions kann dabei ebenfalls variieren. Des Weiteren unterschei
 Reinforcement Learning zwischen zwei Arten von Actions: diskrete und kontinuierliche Actions.
 Diskrete Actions definieren eine endliche Menge an gegenseitig ausschließenden Handlungen die ein  % TODO wirklich gegenseitig ausschließend?
 Agent vollziehen kann \cite[~S.8]{L2018}. Dazu zählen Actions wie sich nach links und rechts zu
-bewegen oder zu springen. Unter kontinuierlichen Actions versteht man hingegen Handlungen, die
+bewegen oder zu springen. Kontinuierliche Actions werden hingegen als Handlungen definiert, die
 über einen zusätzlichen Wert beeinflusst werden, wie zum Beispiel das Steuern eines Fahrzeuges
 mit einem Lenkrad. Dabei ist nicht ausschließlich die Lenkrichtung ausschlaggebend, sondern auch
 der Einschlagswinkel des Lenkrades, welcher die Intensität der Lenkung festlegt.
@@ -442,11 +442,11 @@ Experimente gemittelt, um ein anschaulicheres Ergebnis zu erhalten.
 
 \noindent
 Auf der linken Seite werden 3 unterschiedliche $\epsilon$ greedy Verfahren verglichen.
-Vergleicht man die Verfahren ohne decay (blau und orange), so kann man erkennen, dass
-$\epsilon = 0.1$ zu Beginn besser funktioniert, da mehr Zeit für Exploration verwendet
-wird und so schneller bessere Actions gefunden werden. Dafür funktioniert $\epsilon =
-0.01$ nach circa 1500 Action Selections besser, da mehr Zeit verwendet wird, um die schon
-gefundenen guten Actions zu exploiten.
+Erfolgt ein Vergleich zwischen den Verfahren ohne decay (blau und orange), so kann man
+erkennen, dass $\epsilon = 0.1$ zu Beginn besser funktioniert, da mehr Zeit für
+Exploration verwendet wird und so schneller bessere Actions gefunden werden. Dafür
+funktioniert $\epsilon = 0.01$ nach circa 1500 Action Selections besser, da mehr Zeit
+verwendet wird, um die schon gefundenen guten Actions zu exploiten.
 
 Um die Vorteile beider Möglichkeiten zu nutzen, verwendet das dritte Experiment einen
 decay, um $\epsilon$ auf $0$ zu senken. Dadurch werden zu Beginn viele zufällige Actions
@@ -1553,7 +1553,7 @@ es auch anderen Reinforcement Learning Interessierten möglich ist, das neu entw
 Environment zu nutzen.
 
 \subsubsection{Abwandlung des Spiels}
-Das Spiel Teeworlds verfügt mit dem Greifhaken über komplexe Actions und ist als
+Das Spiel Teeworlds verfügt mit dem Greifhaken über kontinuierliche Actions und ist als
 Mehrspieler online Spiel eine komplexe Problemstellung. Um die in den vorhergehenden
 Kapiteln beschriebenen Verfahren einsetzen zu können, wurde für Umsetzung des Environments
 das Teeworlds Spiel stark vereinfacht.\\
@@ -1562,35 +1562,37 @@ ausreichend gelöst wurde, wurde die Greifhakenmechanik und das Schießen nicht 
 Environment integriert. Anstelle dessen wurden sechs diskrete Actions umgesetzt. Diese
 sechs Actions sind \grqq links\grqq, \grqq stehen bleiben\grqq, \grqq rechts\grqq, \grqq
 nach links springen\grqq, \grqq springen\grqq, \grqq nach rechts springen\grqq.\\
-Das Spielziel wurde dahingehend abgewandelt, dass es das Ziel ist erfolgreich durch ein
-Level zu navigieren und auf dem Weg plazierte Schilder und Herzen einzusammeln. Die
-Schilder resultieren in einem Reward von $1$. Das Einsammeln des Herzens ist das
+Die Hauptaufgabe im Spiel wurde dahingehend verändert, dass es das Ziel ist erfolgreich
+durch ein Level zu navigieren und auf dem Weg plazierte Schilder und Herzen einzusammeln.
+Die Schilder resultieren in einem Reward von $1$. Das Einsammeln des Herzens ist das
 schlussendliche Ziel, führt zu einem Reward von $5$ und beendet die Episode. Das spielen
 gegen andere Spieler ist ebenfalls nicht vorgesehen. Es ist möglich das Environment zu
 erweitern, sodass auch die kontinuierlichen Actions des Greifhakens und des Schießens
 unterstützt werden. Darauf wurde aber im Rahmen dieses Independent Courseworks aus
-Zeitgründen verzichtet.
+Zeitgründen verzichtet. % TODO Bruno - das mit den Zeitgründen würde ich rauslassen oder umformulieren
 
-\subsubsection{Architektur des Environments}
+\subsubsection{Architektur des Environments} % TODO Bruno - hier würde ich noch ein paar listings reinpacken
+\label{sec:architecture-env}
 Dieser Abschnitt beschreibt, wie die Kommunikation zwischen dem Teeworlds Client und
 Server und dem Python Environment umgesetzt wurde. Wie eingangs schon erwähnt funktioniert
 Teeworlds indem sich der Teeworldsclient auf einen Teeworldsserver verbindet. Es gibt
-zahlreiche öffentliche Server, die benutzt werden können. Für unseren Anwendungsfall ist
-es allerdings notwendig einen eigenen Server zu erstellen, da so sicher gegangen werden
-kann, dass sich keine fremden Spieler mit dem Server verbinden und weiterhin kann so das
-Level auf dem gespielt wird bestimmt werden. Auch ermöglicht es uns den Spielzustand neu
-zu starten und eine Kommunikation zwischen Python Environment und Teeworldsserver zu
-implementieren.\\
+zahlreiche öffentliche Server, die benutzt werden können. Für den Anwendungsfall dieser
+Arbeit ist es allerdings notwendig einen eigenen Server zu erstellen, da so sichergestellt
+wird, dass keine fremden Spieler eine Verbindung zum Server aufbauen. Des Weiteren wird durch 
+das Bereitstellen des Servers die Administration von diesem möglich, wodurch das festgelegte
+Level auf dem gespielt wird bestimmt werden kann. Zusätzlich wurde es dadurch möglich,
+den Spielzustand neu zu starten und eine Kommunikation zwischen Python Environment und 
+Teeworldsserver zu implementieren.\\
 Aus diesem Grund startet das Environment zuerst einen Teeworlds Server und nach einer
 kurzen Verzögerung den Client als Subprocess. Der Client verbindet sich daraufhin mit dem
 neu gestarteten Server und öffnet ein Fenster in dem das Spiel zu sehen ist.\\
 Um den aktuellen Spielstand zu erfahren, führt das Environment mithilfe des Python
 Packages \lstinline!mss! ein Screenshot vom Teeworlds Fenster durch. Dieses Bild wird
-später als Schwarzweißbild als Observation benutzt. Da sich aus einem einzelnen Bild
-keine Bewegungsrichtung ableiten lässt, die aber für ein erfolgreiches Spielen eines
-Echtzeitspiels hilfreich ist, werden die letzten vier Bilder des Spiels, ähnlich wie die
-Farbkanäle eines Bilder, übereinander gelegt, wie von \cite[~S.206]{L2018}
-vorgeschlagen.\\
+später als Schwarzweißbild für die Observation benutzt. Da sich aus einem einzelnen Bild
+keine Bewegungsrichtung ableiten lässt, diese aber für ein erfolgreiches Spielen von
+Echtzeitspielen notwendig ist, werden die letzten vier Bilder des Spiels, ähnlich wie die
+Farbkanäle eines Bildes, übereinander gelegt, wie von \cite[~S.206]{L2018} % TODO Bruno - hier vllt. ein Lisiting was das zeigt
+vorgeschlagen.\\ % TODO Bruno - das ist die Atari Architektur, da würde ich lieber auf die verweisen, als auf Lapan
 Damit die vom Agenten getätigten Actions wirken können, müssen diese zum Teeworlds Client
 übertragen werden. Um diese Informationen zu übertragen, wurde die Bibliothek ZeroMQ
 \url{https://zeromq.org/} benutzt, die es ermöglicht Datenpackete zwischen
@@ -1598,14 +1600,14 @@ unterschiedlichen Prozessen auszutauschen. Die gewählten Actions werden dann in
 in einer Bitmaske kodiert und übertragen. Der modifizierte Teeworlds Client empfängt diese
 Informationen und manipuliert den Zustand des Spiels so, als hätte ein Spieler die
 entsprechenden Befehle gegeben. Neben den Actions kann an dieser Stelle ein reset des
-Spielstandes initiiert werden.\\
-Um den Reward, den das Environment an den Spieler zurück gibt, berechnen zu können, muss
-übertragen werden, ob ein Schild oder ein Herz eingesammelt wurden oder ob der Spieler in
-Stacheln gesprungen ist. Es stellte sich heraus, dass der Client diese Informationen nicht
-selbst berechnet, sondern den neuen Spielstand übertragen bekommt. Dadurch ist es nötig,
-ebenfalls eine Verbindung zwischen Environment und Teeworlds Server einzurichten. Der
-modifizierte Teeworlds Server schickt diese Spielinformationen ebenfalls über ZeroMQ an
-das Environment zurück. Abbildung \ref{fig:teeworlds_env} zeigt eine Übersicht der
+Spielstandes initiiert werden.\\ % TODO Bruno - hier würde ich ein Listing reinmachen, von dem C++ Code
+Um den Reward zu berechnen, den das Environment an den Spieler zurück gibt, muss
+übertragen werden, ob ein Schild oder ein Herz eingesammelt wurden oder ob der Spieler mit
+Stacheln kollidiert ist. Es stellte sich heraus, dass der Teeworlds Client diese Informationen
+nicht selbst berechnet, sondern den neuen Spielstand durch den Teeworlds Server übertragen bekommt.
+Dadurch wurde es notwendig, ebenfalls eine Verbindung zwischen Environment und Teeworlds Server
+umzusetzen. Der modifizierte Teeworlds Server schickt diese Spielinformationen ebenfalls über
+ZeroMQ an das Environment zurück. Abbildung \ref{fig:teeworlds_env} zeigt eine Übersicht der
 Architektur.
 
 \begin{figure}[htp]
@@ -1615,17 +1617,17 @@ Architektur.
   \label{fig:teeworlds_env}
 \end{figure}
 \noindent
-Weiterhin wurden kleinere Änderungen an Server und Client vorgenommen, wie das entfernen
+Weiterhin wurden kleinere Änderungen an Server und Client vorgenommen, wie das Entfernen
 unnötiger Statusanzeigen oder die Möglichkeit mehrere Level in einem Environment spielen
-zuu können.\\
+zuu können.\\ % TODO Bruno - Erklärung wieso Statusanzeige?
 Wie schon in Abschnitt \ref{sec:multiple_envs} beschrieben, können mehrere Environments
 gleichzeitig verwendet werden, um den Trainingsprozess zu beschleunigen. In der Datei
 \lstinline!dqn\_parallel.py!, die im gleichen Verzeichnis zu finden ist, wie das Teeworlds
 Environment, findet sich eine \lstinline!Worker! Klasse, die von \lstinline!Process! erbt
 und ein Environment erstellt. Im Trainingsprozess werden vier Worker erstellt und
 gleichzeitig verwendet, um das Sammeln der Erfahrung zu beschleunigen. Gleichzeitig kann
-das Spiel auch mit einer höheren Geschwindigkeit gespielt werden. Abbildung
-\ref{fig:multi_env} zeigt eine typische Trainingssituation mit vier Workern.
+das Spiel auch mit einer höheren Geschwindigkeit gespielt werden. \autoref{fig:multi_env}
+zeigt eine typische Trainingssituation mit vier Workern.
 
 \begin{figure}[htp]
   \centering
@@ -1634,38 +1636,41 @@ das Spiel auch mit einer höheren Geschwindigkeit gespielt werden. Abbildung
   \label{fig:multi_env}
 \end{figure}
 \noindent
-Weiterhin wurden mehrere Level entworfen, die speziell für das Problem entworfen wurden,
-im Anhang unter \ref{sec:levels} finden sich die vier Level mit denen hauptsächlich
-gearbeitet wurde. Es wurde darauf geachtet unterschiedliche Passagen in die Level
-einzubauen.\\
+Weiterhin wurden mehrere Level entworfen, welche speziell für die Problemstellung
+ausschließlich die drei Spielobjekte Schilde, Herzen und Stacheln beinhalten. Diese
+wurden im Anhang unter \ref{sec:levels} angefügt. Es wurde darauf geachtet
+unterschiedliche Passagen in die Level einzubauen.\\
 Eine große Herausforderung bei der Implementierung des Environments bestand darin, die
 Kommunikation zwischen den einzelnen Entitäten herzustellen, da die Kommunikation den
-sendenden oder empfangenden Prozess niemals blockieren durfte, da ein blockierendes
-Element in Teeworlds das Spiel oder im Environment das regelmäßige Abfragen der
-Observation gestört hätte. ZeroMQ war bei dieser Problemstellung hilfreich.\\
+sendenden oder empfangenden Prozess niemals blockieren durfte. Grund dafür ist, dass
+ein blockierendes Element in Teeworlds das Spiel oder im Environment das regelmäßige
+Abfragen der Observation stören würde. Die Nutzung von ZeroMQ war bei dieser
+Problemstellung hilfreich.\\ % TODO Bruno - warum war es hilfreich?
 Eine weitere Herausforderung war es den Agenten in mehreren Environments auszuführen, da
 das Pytorch Multiprocessing eine Schwierigkeit darstellte. Auch die Orientierung im
-Teeworlds Quelltext mit über 70000 Zeilen und deren Modifikation, war eine
+Teeworlds Quelltext mit über 70000 Zeilen und deren Modifikation, war eine % TODO Bruno - idk das würde ich anders schreiben
 Herausforderung.
 
 \subsection{Wahl des Verfahrens}
-In diesem Abschnitt werden die theoretisch behandelten Verfahren verglichen und in Bezug
-auf das Teeworlds Environment abgewägt. Anschließend wird ein Verfahren gewählt, mit dem
-versucht wird das entwickelte Environment erfolgreich zu lösen.\\
+In diesem Abschnitt werden die zuvor behandelten Reinforcment Learning Verfahren verglichen
+und in Bezug auf die Anwendung im Teeworlds Environment abgewägt. Anschließend wird ein
+Verfahren gewählt, welches zur Lösung des entwickelte Environment eingesetzt wird.\\
 
 \paragraph{Cross Entropy}
 Das erste beschriebene Verfahren ist die Cross Entropy Methode. Wie in
-\ref{itm:cross_entropy_limits} beschrieben, existieren für die Cross Entropy Methode
-Einschränkungen, die dazu führen können, dass das Ziel nicht erreicht wird. Zum einen
+\autoref{itm:cross_entropy_limits} beschrieben, existieren für die Cross Entropy Methode
+Einschränkungen, die dazu führen können, dass das System nicht konvergiert oder anderweitig
+ohne Erfolg verläuft. Zum einen
 sollte das Environment Zwischenschritte belohnen, damit schneller in diese Richtung
 optimiert werden kann. Dies ist durch die im Level platzierten Schilde gegeben. Damit
 einher geht eine Unterscheidung zwischen eher guten und schlechten Episoden.\\
 Ein Problem mit der Cross-Entropy Methode ist, dass die Episoden im Teeworlds Environment
-länger sind, als eine durchschnittliche eine Cart-Pole Episode. Eine Episode im Teeworlds
+länger sind, als eine durchschnittliche Cart-Pole Episode. Eine Episode im Teeworlds
 Environment gilt als beendet, wenn in Stacheln gesprungen wurde, wenn das Herz
 eingesammelt wurde oder wenn ein Zeitlimit abläuft. Das Zeitlimit wurde für die im
 weiteren Verlauf beschriebenen Experimente auf 40 Sekunden gesetzt, was bei einer
 Framerate von 0.2 Sekunden eine maximale Episodenlänge von 200 Frames bedeutet.
+% TODO Bruno ich glaube das Zeitlimit bei Cart Pole ist auch 200 Frames
 
 \paragraph{Tabular Q Learning}
 Tabular-Q-Learning speichert die Values der unterschiedlichen State Action Paare in einer
@@ -1679,15 +1684,15 @@ Values der States nicht mehr in einer Tabelle gespeichert werden müssen, sonder
 neuronales Netz berechnet werden. Auch wurden mit Deep Q Learning komplexere Environments
 gelöst, sodass davon auszugehen ist, dass sich dieses Verfahren prinzipiell dazu eignet.
 
-\paragraph{Reinforce Methode}
-Da die Reinforce Methode eine Erweiterung der Cross Entropy Methode ist, weißt sie
+\paragraph{REINFORCE Methode}
+Da die REINFORCE Methode eine Erweiterung der Cross Entropy Methode ist, weißt sie
 ähnliche Limitierungen wie diese auf. In Abschnitt \ref{sec:limit-reinforce} wurden
-bereits die Limitierungen der Reinforce Methode beschrieben. Dazu zählt, dass lange
+bereits die Limitierungen der REINFORCE Methode beschrieben. Dazu zählt, dass lange
 Episoden einen langen Trainingsprozess mit sich bringen, da nach jedem Training neue Daten
 generiert werden müssen.
 
 \paragraph{Actor Critic}
-Die Actor-Critic Methode ist eine Erweiterung der Reinforce Methode, das auch in komplexen
+Die Actor-Critic Methode ist eine Erweiterung der REINFORCE Methode, das auch in komplexen
 Environments funktioniert. Unter anderem wurde sie schon im Atari Environment erfolgreich
 getestet. Außerdem erlaubt es die policy-based Actor-Critic Methode nach Lapan,
 kontinuierliche Actions zu verwendet, was \cite[~S.346]{L2018} mit value-based Verfahren
@@ -1712,25 +1717,44 @@ benötigt werden.
 
 \subsection{Vanilla Deep-Q-learning}
 Initial erfolgte die Implementierung des Deep-Q-learning Verfahrens ohne jede Form einer Erweiterung,
-welche auch als Vanilla Deep-Q-learning bezeichnet wird. Die nachfolgenden Graphen veranschaulichen
-den während des Trainingsprozesses erhaltenen durchschnittlichen Reward sowie der, für den Verlauf des
-Explorationprozesses verwendeten $\epsilon$ Wert (\ref{fig:vanilla-dqn}):
+welche auch als Vanilla Deep-Q-learning bezeichnet wird. Das Environment wurde dafür auf eine Auswahl
+von vier Level beschränkt (siehe \autoref{sec:levels}), wobei diese sich in Ausrichtung und Aufbau
+unterscheiden. Jedes Level besitzt neun einsammelbare Schilde (+1 Reward) und ein einsammelbares
+Herz (+5 Reward), wodurch ein maximal zu erhaltender Reward von 14 entsteht. Hierzu ist jedoch zu
+erwähnen, dass diverse Schilder nicht in der, zumindest zeitlich betrachteten, optimalen Laufbahn
+des Agenten liegen, wodurch das Environment bereits bei Werten unter dem maximal Reward als
+erfolgreich absolviert anerkannt werden kann. Aus dieser Feststellung ergibt sich folgende
+Lösungsdefinition:
+
+\textit{Sobald das Teeworlds Environment einen durchschnittlichen Gesamtreward von über 12 in allen
+vier Level erzielt und der Agent abschließend das Herz einsammelt, gilt die Problemstellung als 
+gelöst.}
+
+Das Environment wurde aus Gründer der Performance ohne zusätzliche Beschleunigung des Spiels
+ausgeführt, wobei jeweils 4 Worker (siehe \nameref{sec:architecture-env}) simultan den
+explorierenden Anteil im Environment durchführen. Das entwickelte Gesamtsystem wurde auf einem
+PC (Spezifikation siehe) %TODO add spec to appendix
+mit CUDA Unterstützung für durchschnittlich 32 Stunden ausgeführt. Die nachfolgenden Graphen % TODO 32 Stunden stimmt nicht
+veranschaulichen den während des Trainingsprozesses erhaltenen durchschnittlichen Reward sowie
+der, für den Verlauf des Explorationprozesses verwendeten $\epsilon$ Wert (\ref{fig:vanilla-dqn}):
 
 \begin{figure}[htp]
 \centering
-\includegraphics[scale=0.28]{res/vanilla_dqn.png}
-\includegraphics[scale=0.38]{res/epsilon_vanilla_dqn.png}
+\includegraphics[scale=0.25]{res/vanilla_dqn.png}
+\includegraphics[scale=0.35]{res/epsilon_vanilla_dqn.png}
 \caption{Ergebnisse Vanilla Deep-Q-learning}
 \label{fig:vanilla-dqn}
 \end{figure}
 
+\newpage
 Die Abbildung veranschaulicht, dass nach dem Abfall von Epsilon auf 0.02 der gesammelte Reward deutlich
 ansteigt. Nach 2.2 Millionen gespielten Frames erreicht das Verfahren seinen Bestwert bei einem
-durchschnittlichen Reward von 12.9, wobei der maximal zu erhaltene Reward bei vier Karten bei 14
-liegt. Aufgrund der Anordnung von Schilden in der Karte ist dieses Ergebnis jedoch als ein erfolgreiches
-Lösen der gestellten Problemstellung einzuordnen.
+durchschnittlichen Reward von 12.9. Aufgrund der zuvor festgelegten Lösungsdefinition ist dieses
+Ergebnis als ein erfolgreiches Lösen der definierten Problemstellung einzuordnen.
 
 \subsection{Erweiterungen}
+In den anschließenden Unterabschnitten erfolgt die Erläuterung und Auswertung zu den Erweiterungen der Standardimplementation des Deep-Q-learning Verfahrens. Die Erweiterungen wurden dabei ebenfalls auf den
+zuvor festgelegten Level für eine annähernd gleiche Anzahl an gesammelten Frames trainiert.
 \subsubsection{Noisy Network}
 Als erste Erweiterung wurde eine Maßnahme zur Verbesserung der Exploration des Environments implementiert.
 In dem Paper ''Noisy Networks für Exploration'' beschreiben Fortunato et al.\cite[~S.1 f.]{FAPMOGM2017}
