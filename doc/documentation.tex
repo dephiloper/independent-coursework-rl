@@ -1862,7 +1862,6 @@ Entwicklung des Vanilla Verfahrens (rot) veranschaulicht:
 \label{fig:noisy-dqn}
 \end{figure}
 
-\newpage
 \subsubsection{Double DQN} % TODO Philipp
 Die nächste Erweiterung zur Vanillaimplementierung von Deep-Q-Learning befasst sich mit der
 Stabilität des Verfahrens. In dem Paper ''Deep Reinforcement Learning with Double Q-learning''
@@ -1987,6 +1986,17 @@ resultierenden Ergebnisse zu erhalten.
 \end{itemize}
 
 \subsection{Ausblick} % TODO Philipp
+Durch die Implementierung des Teeworld Environments besteht anschließend die möglich weitere Verfahren
+für die Lösung der definierten Problemstellung des Environments umzusetzen. Besonders aufgrund der
+Implementierung der Worker Struktur und dem daraus resultierenden parallelen Sammeln von Trainingsdaten
+wird es möglich on-policy Verfahren wie die Actor Critic Method in der bestehenden Realisierung umzusetzen.
+Des Weiteren exisitieren auf seiten des Environments bereits Funktionalitäten zur Veränderung der
+Ausrichtung des Greifhaken sowie der aktuell ausgerüsteten Waffe. Aufbauend auf diesen Funktionen könnte
+das System um die Erkennung von Lebenspunkten und Trefferpunkten erweitert werden, wodurch die
+Mehrspielerkomponente des Spiels als nächster Forschungsschritt betrachtet werden könnte. Damit
+einhergehend wäre die Verarbeitung von kontinierlichen Actions, die durch Nutzung von Waffen oder dem
+Greifhaken notwendig werden würden.
+
 \begin{itemize}
 \itemsep0pt	
 \item andere Verfahren Umsetzen A2C, PPO, TRPO
