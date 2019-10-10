@@ -1616,16 +1616,41 @@ unterschiedlichen Prozessen auszutauschen. Die gewählten Actions werden dann in
 in einer Bitmaske kodiert und übertragen. Der modifizierte Teeworlds Client empfängt diese
 Informationen und manipuliert den Zustand des Spiels so, als hätte ein Spieler die
 entsprechenden Befehle gegeben. Neben den Actions kann an dieser Stelle ein reset des
-Spielstandes initiiert werden.\\ % TODO Bruno - hier würde ich ein Listing reinmachen, von dem C++ Code
+Spielstandes initiiert werden.
+\begin{lstlisting}[language=C++, caption=Empfangen der Actions,
+label=lst:teeclient_receive]
+void receive_update() {
+  uint8_t buffer[5];
+
+  while (true) {
+    int size = zmq_recv(actions_receiver, buffer,
+                        5, ZMQ_DONTWAIT);
+    if (size == -1) break; // if no more messages are available
+
+    unsigned char action_byte = *(buffer + 4);
+    jump = action_byte & 0b00000001;
+    hook = action_byte & 0b00000010;
+    fire = action_byte & 0b00000100;
+    reset = action_byte & 0b00100000;
+    rotate = action_byte & 0b01000000;
+
+    // set direction
+    uint8_t dir_bits = (uint8_t)(action_byte & 0b00011000) >> 3u;
+    if (dir_bits == 0b00000001) direction = 1;
+    else if (dir_bits == 0b00000010) direction = -1;
+    else direction = 0;
+  }
+}
+\end{lstlisting}
+\noindent
 Um den Reward zu berechnen, den das Environment an den Spieler zurück gibt, muss
-übertragen werden, ob ein Schild oder ein Herz eingesammelt wurden oder ob der Spieler mit
+übertragen werden, ob ein Schild oder ein Herz eingesammelt wurde oder ob der Spieler mit
 Stacheln kollidiert ist. Es stellte sich heraus, dass der Teeworlds Client diese Informationen
 nicht selbst berechnet, sondern den neuen Spielstand durch den Teeworlds Server übertragen bekommt.
 Dadurch wurde es notwendig, ebenfalls eine Verbindung zwischen Environment und Teeworlds Server
 umzusetzen. Der modifizierte Teeworlds Server schickt diese Spielinformationen ebenfalls über
 ZeroMQ an das Environment zurück. Abbildung \ref{fig:teeworlds_env} zeigt eine Übersicht der
 Architektur.
-
 \begin{figure}[htp]
   \centering
   \includegraphics[scale=0.5]{res/teeworlds_env.png}
@@ -1634,8 +1659,8 @@ Architektur.
 \end{figure}
 \noindent
 Weiterhin wurden kleinere Änderungen an Server und Client vorgenommen, wie das Entfernen
-unnötiger Statusanzeigen oder die Möglichkeit mehrere Level in einem Environment spielen
-zu können.\\ % TODO Bruno - Erklärung wieso Statusanzeige?
+unnötiger Statusanzeigen, auf die der Agent fälschlicherweise achten könnte, oder die
+Möglichkeit verschiedene Level in einem Environment spielen zu können.\\
 Wie schon in Abschnitt \ref{sec:multiple_envs} beschrieben, können mehrere Environments
 gleichzeitig verwendet werden, um den Trainingsprozess zu beschleunigen. In der Datei
 \lstinline!dqn\_parallel.py!, die im gleichen Verzeichnis zu finden ist, wie das Teeworlds
@@ -1661,16 +1686,15 @@ Kommunikation zwischen den einzelnen Entitäten herzustellen, da die Kommunikati
 sendenden oder empfangenden Prozess niemals blockieren durfte. Grund dafür ist, dass
 ein blockierendes Element in Teeworlds das Spiel oder im Environment das regelmäßige
 Abfragen der Observation stören würde. Die Nutzung von ZeroMQ war bei dieser
-Problemstellung hilfreich.\\ % TODO Bruno - warum war es hilfreich?
+Problemstellung hilfreich, da nicht blockierende abfragen unterstützt werden.\\
 Eine weitere Herausforderung war es den Agenten in mehreren Environments auszuführen, da
 das Pytorch Multiprocessing eine Schwierigkeit darstellte. Auch die Orientierung im
-Teeworlds Quelltext mit über 70000 Zeilen und deren Modifikation, war eine % TODO Bruno - idk das würde ich anders schreiben
-Herausforderung.
+Teeworlds Quelltext und dessen Umarbeitung war eine Herausforderung.
 
 \subsection{Wahl des Verfahrens}
 In diesem Abschnitt werden die zuvor behandelten Reinforcment Learning Verfahren verglichen
 und in Bezug auf die Anwendung im Teeworlds Environment abgewägt. Anschließend wird ein
-Verfahren gewählt, welches zur Lösung des entwickelte Environment eingesetzt wird.\\
+Verfahren gewählt, welches zur Lösung des entwickelte Environment eingesetzt wird.
 
 \paragraph{Cross Entropy}
 Das erste beschriebene Verfahren ist die Cross Entropy Methode. Wie in
