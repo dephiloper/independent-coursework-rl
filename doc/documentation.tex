@@ -1535,7 +1535,7 @@ Client kann ausschließlich in Kombination mit einem Server genutzt werden. Übe
 werden zwischen Client und Server Informationen zur Veränderung des Game State, der Spielerpositionen
 oder über eingesammelte Objekte ausgetauscht.
 
-\subsection{Umsetzung des Environments} % TODO Bruno
+\subsection{Umsetzung des Environments}
 Um das Spiel Teeworlds für einen Reinforcement Learning Algorithmus zugänglich zu machen,
 musste das Spiel in ein Python Environment eingebetet werden. Dabei mussten Informationen
 sowohl mit dem Teeworlds Client als auch mit dem Teeworlds Server ausgetauscht werden.
@@ -1569,7 +1569,7 @@ gegen andere Spieler ist ebenfalls nicht vorgesehen. Es ist möglich das Environ
 erweitern, sodass auch die kontinuierlichen Actions des Greifhakens und des Schießens
 unterstützt werden.
 
-\subsubsection{Architektur des Environments} % TODO Bruno - hier würde ich noch ein paar listings reinpacken
+\subsubsection{Architektur des Environments}
 \label{sec:architecture-env}
 Dieser Abschnitt beschreibt, wie die Kommunikation zwischen dem Teeworlds Client und
 Server und dem Python Environment umgesetzt wurde. Wie eingangs schon erwähnt funktioniert
@@ -1704,13 +1704,16 @@ ohne Erfolg verläuft. Zum einen
 sollte das Environment Zwischenschritte belohnen, damit schneller in diese Richtung
 optimiert werden kann. Dies ist durch die im Level platzierten Schilde gegeben. Damit
 einher geht eine Unterscheidung zwischen eher guten und schlechten Episoden.\\
-Ein Problem mit der Cross-Entropy Methode ist, dass die Episoden im Teeworlds Environment
-länger sind, als eine durchschnittliche Cart-Pole Episode. Eine Episode im Teeworlds
-Environment gilt als beendet, wenn in Stacheln gesprungen wurde, wenn das Herz
-eingesammelt wurde oder wenn ein Zeitlimit abläuft. Das Zeitlimit wurde für die im
-weiteren Verlauf beschriebenen Experimente auf 40 Sekunden gesetzt, was bei einer
-Framerate von 0.2 Sekunden eine maximale Episodenlänge von 200 Frames bedeutet.
-% TODO Bruno ich glaube das Zeitlimit bei Cart Pole ist auch 200 Frames
+Ein Problem mit der Cross-Entropy Methode ist, dass auf langen Episoden nicht gut gelernt
+werden kann, da die Methode nicht nachvollzieht, welche Actions gut und welche Actions
+weniger gut funktioniert haben. Eine Episode im Teeworlds Environment gilt als beendet,
+wenn in Stacheln gesprungen wurde, wenn das Herz eingesammelt wurde oder wenn ein
+Zeitlimit abläuft. Das Zeitlimit wurde für die im weiteren Verlauf beschriebenen
+Experimente auf 40 Sekunden gesetzt, was bei einer Framerate 5 Frames pro Sekunde eine
+maximale Episodenlänge von 200 Frames bedeutet, was mit dem Cart-Pole Environment
+vergleichbar ist.\\
+Versuche haben gezeigt, dass die Cross-Entropy Methode in ihrer Einsetzbarkeit begrenzt
+ist und schwierigere Environments nicht erfolgreich gelöst werden können.
 
 \paragraph{Tabular Q Learning}
 Tabular-Q-Learning speichert die Values der unterschiedlichen State Action Paare in einer
@@ -1793,8 +1796,11 @@ durchschnittlichen Reward von 12.9. Aufgrund der zuvor festgelegten Lösungsdefi
 Ergebnis als ein erfolgreiches Lösen der definierten Problemstellung einzuordnen.
 
 \subsection{Erweiterungen}
-In den anschließenden Unterabschnitten erfolgt die Erläuterung und Auswertung zu den Erweiterungen der Standardimplementation des Deep-Q-learning Verfahrens. Die Erweiterungen wurden dabei ebenfalls auf den
-zuvor festgelegten Level für eine annähernd gleiche Anzahl an gesammelten Frames trainiert.
+In den anschließenden Unterabschnitten erfolgt die Erläuterung und Auswertung zu den
+Erweiterungen der Standardimplementation des Deep-Q-learning Verfahrens. Die Erweiterungen
+wurden dabei ebenfalls auf den zuvor festgelegten Level für eine annähernd gleiche Anzahl
+an gesammelten Frames trainiert.
+
 \subsubsection{Noisy Network}
 Als erste Erweiterung wurde eine Maßnahme zur Verbesserung der Exploration des Environments implementiert.
 In dem Paper ''Noisy Networks für Exploration'' beschreiben Fortunato et al.\cite[~S.1 f.]{FAPMOGM2017}
@@ -1941,7 +1947,7 @@ Target Netz $Q'$ vollzogen.
 $>$ insert graphs here \\
 Erläuterung der Graphen + Betrachtung zwecks Verbesserung
 
-\subsubsection{Prioritized Replay Buffer} % TODO Bruno
+\subsubsection{Prioritized Replay Buffer}
 Die nächste Erweiterung befasst sich mit den Samples auf denen trainiert wird. Während die
 normale Trainingsprozedur zufällig Samples aus dem Replay Buffer auswählt und trainiert,
 wurde von T. Schaul und anderen \cite{schaul2015prioritized} eine Methode vorgeschlagen,
@@ -1974,8 +1980,94 @@ Der neue Hyperparameter $\beta$ bestimmt dabei, wie stark der Einfluss der Sampl
 verringert wird. In dem Paper von Schaul wird empfohlen $\beta$ mit 0.6 zu initialisieren
 und anschließend langsam bis 1 wachsen zu lassen.
 
+% TODO Bruno: Auswertung Priority Replay Buffer
+
 \subsubsection{Dueling DQN} % TODO Bruno
-Beschreibung, Implementierungen, Graphen
+
+Die Dueling DQN Erweiterung ist inspiriert von der Actor-Critic Methode und wurde von
+\cite{wang2015dueling} vorgestellt. Wie auch in Actor-Critic werden die Q-Values nicht
+direkt berechnet, sondern der Value des States wird separat berechnet und ein Advantage
+Wert für jede Action hinzugerechnet. Daraus ergibt sich der Zusammenhang $Q(s, a) = V(s) +
+A(s, a)$, der schon bei Actor-Critic behandelt wurde. Jeder Action erhält eine Advantage,
+die aussagt, wieviel besser oder schlechter diese Action im Vergleich zu den anderen
+Actions ist. Dabei gilt die weitere Einschränkung, dass die Summe der Advantage Werte auf
+0 liegen soll. Um das Umsetzen wird der Durchschnitt der Advantage Werte von den Advantage
+Werten abgezogen, sodass deren Durchschnitt 0 wird, wie in \ref{aln:dueling_q_values}
+gezeigt.
+\begin{align}
+  Q(s, a) = V(s) + A(s, a) - \frac{1}{N} \sum_{k=0}^{N-1} A(s, k)
+  \label{aln:dueling_q_values}
+\end{align}
+
+\paragraph*{Implementierung}
+\noindent
+\newline
+Wie auch in Actor-Critic kann dies implementiert werden, indem nach den Convolutional
+Layern des Netzes zwei distinkte Netze angeschlossen werden. Abbildung
+\ref{fig:dueling_dqn_nets} veranschaulicht die Netzarchitektur.
+\begin{figure}[htp]
+  \centering
+  \includegraphics[scale=0.30]{res/dueling_dqn_nets.png}
+  \caption{Dueling Netzarchitektur}
+  \source{\cite[~S.283 - Chapter 7 - Figure 11]{L2018}}
+  \label{fig:dueling_dqn_nets}
+\end{figure}
+\noindent
+Die obere Abbildung zeigt den ursprünglichen Netzaufbau, während die untere Abbildung die
+Architektur des Dueling Deep-Q-Networks zeigt. Die Implementation ist in Listing
+\ref{lst:dueling_dqn_net} gezeigt.
+\begin{lstlisting}[language=Python, caption=Dueling Net Implementation,
+label=lst:dueling_dqn_net]
+class DuelingNet:
+  def __init__(self, ...):
+    # init convolutional layers as usual...
+
+    # init advantage net
+    self.fc_adv = nn.Sequential(
+      self.layers[0],
+      nn.ReLU(),
+      self.layers[1]
+    )
+    # init value net
+    self.fc_val = nn.Sequential(
+      self.layers[2],
+      nn.ReLU(),
+      self.layers[3]
+    )
+
+  def forward(self, x):
+    conv_out = self.conv(fx)  # calculate convolutional layers
+
+    val = self.fc_val(conv_out)  # calculate value
+    adv = self.fc_adv(conv_out)  # calculate advantage
+    return val + adv - adv.mean()  # calculate Q-Values
+\end{lstlisting}
+\noindent
+In der \lstinline!__init__()!-Funktion des Dueling Netzes werden neben den Convolutional
+Layern, die wie gewöhnlich initiatisiert werden auch, ebenfalls zwei neue Netze
+initialisiert, von denen das erste die Advantage Werte und das zweite den Value des States
+berechnet. In der \lstinline!forward()!-Funktion wird der Output der Convolutional Layer
+als Input für das Advantage und das Value Netz verwendet. Anschließend wird, wie schon
+angesprochen, der Durchschnitt des Advantage Wertes abgezogen, um zu verhindern, dass der
+Value des States über die Advantage Werte ausgedrückt wird.
+
+\paragraph*{Auswertung}
+\noindent
+\newline
+Abbildung \ref{fig:dueling_dqn_results} zeigt in Blau den Reward Verlauf eines Agenten,
+der neben den anderen vorgestellten Erweiterungen das oben gezeigte DuelingNet verwendet.
+Als Vergleichswert ein Agent, dessen Reward in der Abbildung Grau ist, der ebenfalls alle
+vorhergehenden Erweiterungen benutzt, jedoch nicht das DuelingNet.
+\begin{figure}[htp]
+  \centering
+  \includegraphics[scale=0.25]{res/dueling_dqn_results.png}
+  \caption{Ergebnisse DuelingNet}
+  \label{fig:dueling_dqn_results}
+\end{figure}
+\noindent
+Wie man aus der Entwicklung des Rewards erkennen kann, erreicht der Agent, der das
+DuelingNet benutzt einen höheren maximalen Reward und lernt das Environment mit weniger
+Samples.
 
 \subsubsection{N-step DQN} % TODO Philipp
 Eine zusätzliche Verbesserung kann im Deep-Q-learning Verfahren erziehlt werden, indem die
@@ -1988,14 +2080,14 @@ a_{t+1})$ ebenfalls wie folgt formuliert werden, wobei der Ausdruck in den eckig
 Klammern einer Auflösung von $Q'$ entspricht \cite[~S.168]{L2018}:
 \begin{align}
 Q(s_t, a_t) = r_t + \gamma \max_{a}[r_{a,t+1}+\gamma\max_{a'}Q(s_{t+2},a')]
-\label{aln:double-dqn-q-values-improved}
+\label{aln:nstep-dqn-q-values-improved}
 \end{align}
 Wird davon ausgegangen, dass die Action $a$ im Schritt $t+1$ nahezu optimal ausgeführt wird,
 kann die $\max_{a}$ Operation umgeformt werden, wodurch die folgende Gleichung
-(\ref{aln:double-dqn-q-values-improved}) entsteht \cite[~S.168]{L2018}:
+(\ref{aln:nstep-dqn-q-values-improved-dissolved}) entsteht \cite[~S.168]{L2018}:
 \begin{align}
 Q(s_t, a_t) = r_t + \gamma r_{t+1}+\gamma^2 \max_{a'}Q(s_{t+2},a')
-\label{aln:double-dqn-q-values-improved}
+\label{aln:nstep-dqn-q-values-improved-dissolved}
 \end{align}
 Da diese Gleichung wiederum einen rekursiven Aufruf enthält, wird es möglich weitere
 Auflösungsschritte vorzunehmen. Dadurch können Q values gleich beim Erhalt eines lokalen
