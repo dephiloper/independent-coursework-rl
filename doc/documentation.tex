@@ -977,10 +977,9 @@ Gegner gespielt, wobei alle erreichten States zwischengespeichert werden. Am End
 Spieles wird ein Reward vergeben, der davon abhängt, ob gewonnen oder verloren wurde.
 
 Daraufhin werden alle $V(s)$ Werte der zwischengespeicherten States in Richtung des
-erhaltenen Rewards verändert. Um zu bestimmen wie stark sich der erhaltene Reward auf $V(s)$
-auswirkt wird ein $step\_size$ Parameter verwendet, der wie in Zuweisung 
-\ref{aln:ValueUpdate} 
-benutzt wird.
+erhaltenen Rewards verändert. Um zu bestimmen wie stark sich der erhaltene Reward auf
+$V(s)$ auswirkt wird ein $step\_size$ Parameter verwendet, der wie in Zuweisung 
+\ref{aln:ValueUpdate} benutzt wird.
 \begin{align}
   V(s) \leftarrow V(s) + step\_size * (reward - V(s))
   \label{aln:ValueUpdate}
@@ -1568,8 +1567,7 @@ Die Schilder resultieren in einem Reward von $1$. Das Einsammeln des Herzens ist
 schlussendliche Ziel, führt zu einem Reward von $5$ und beendet die Episode. Das spielen
 gegen andere Spieler ist ebenfalls nicht vorgesehen. Es ist möglich das Environment zu
 erweitern, sodass auch die kontinuierlichen Actions des Greifhakens und des Schießens
-unterstützt werden. Darauf wurde aber im Rahmen dieses Independent Courseworks aus
-Zeitgründen verzichtet. % TODO Bruno - das mit den Zeitgründen würde ich rauslassen oder umformulieren
+unterstützt werden.
 
 \subsubsection{Architektur des Environments} % TODO Bruno - hier würde ich noch ein paar listings reinpacken
 \label{sec:architecture-env}
@@ -1591,8 +1589,26 @@ Packages \lstinline!mss! ein Screenshot vom Teeworlds Fenster durch. Dieses Bild
 später als Schwarzweißbild für die Observation benutzt. Da sich aus einem einzelnen Bild
 keine Bewegungsrichtung ableiten lässt, diese aber für ein erfolgreiches Spielen von
 Echtzeitspielen notwendig ist, werden die letzten vier Bilder des Spiels, ähnlich wie die
-Farbkanäle eines Bildes, übereinander gelegt, wie von \cite[~S.206]{L2018} % TODO Bruno - hier vllt. ein Lisiting was das zeigt
-vorgeschlagen.\\ % TODO Bruno - das ist die Atari Architektur, da würde ich lieber auf die verweisen, als auf Lapan
+Farbkanäle eines Bildes, übereinander gelegt, wie von V. Mnih \cite[~S.5]{mnih2013playing}
+vorgeschlagen. Für die Implementierung wurde eine deque verwendet, wie in Listing
+\ref{lst:env_observation} gezeigt. Für das Environment resetet, so wird ein neues Bild
+aufgenommen und drei mal in den ImageBuffer geschrieben.
+\begin{lstlisting}[language=Python, caption=Observation des Environments,
+label=lst:env_observation]
+class TeeworldsEnv(gym.Env):
+  def reset(self):
+    # ...
+    self.image_buffer = deque(
+      [self.capture_game_image()] * NUMBER_OF_IMAGES,
+      maxlen=NUMBER_OF_IMAGES
+    )
+
+  def step(self, action):
+    # ...
+    game_image = self.capture_game_image()
+    self.image_buffer.append(game_image)
+    observation = np.array(self.image_buffer)
+\end{lstlisting}
 Damit die vom Agenten getätigten Actions wirken können, müssen diese zum Teeworlds Client
 übertragen werden. Um diese Informationen zu übertragen, wurde die Bibliothek ZeroMQ
 \url{https://zeromq.org/} benutzt, die es ermöglicht Datenpackete zwischen
@@ -1619,7 +1635,7 @@ Architektur.
 \noindent
 Weiterhin wurden kleinere Änderungen an Server und Client vorgenommen, wie das Entfernen
 unnötiger Statusanzeigen oder die Möglichkeit mehrere Level in einem Environment spielen
-zuu können.\\ % TODO Bruno - Erklärung wieso Statusanzeige?
+zu können.\\ % TODO Bruno - Erklärung wieso Statusanzeige?
 Wie schon in Abschnitt \ref{sec:multiple_envs} beschrieben, können mehrere Environments
 gleichzeitig verwendet werden, um den Trainingsprozess zu beschleunigen. In der Datei
 \lstinline!dqn\_parallel.py!, die im gleichen Verzeichnis zu finden ist, wie das Teeworlds
