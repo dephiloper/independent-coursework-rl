@@ -2035,16 +2035,15 @@ Ausrichtung des Greifhaken sowie der aktuell ausgerüsteten Waffe. Aufbauend auf
 das System um die Erkennung von Lebenspunkten und Trefferpunkten erweitert werden, wodurch die
 Mehrspielerkomponente des Spiels als nächster Forschungsschritt betrachtet werden könnte. Damit
 einhergehend wäre die Verarbeitung von kontinierlichen Actions, die durch Nutzung von Waffen oder dem
-Greifhaken notwendig werden würden.
+Greifhaken notwendig werden würden. Ein vielversprechendes Verfahren für diesen Einsatzbereich wäre
+das im Paper \textit{Continuous control with deep reinforcement learning} von Lillicrap et al.
+\cite{LHPHETSW2016} vorgestellte Deep Deterministic Policy Gradients Verfahren.
 
-\begin{itemize}
-\itemsep0pt	
-\item andere Verfahren Umsetzen A2C, PPO, TRPO
-\item continuous actions
-\item schießen, grabling hook
-\item alternative Ansätze Genetic Algorithms
-\item env alleinstehend von vielen nutzbar
-\end{itemize}
+Ein weiterer Schritt um die Stabilität und Geschwindigkeit des Environments zu erhöhen wäre die
+Realisierung eines Off-Screen Rendering im Spiel. Dadurch würden weniger Ressourcen während der
+Laufzeit des Spiels durch dieses erzeugt werden und ebenfalls würde dadurch das zyklische Aufnehmen
+von Screenshots redundant werden.
+
 
 \newpage
 %\bibliographystyle{plain}
