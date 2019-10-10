@@ -40,7 +40,7 @@ EXPERIENCE_BUFFER_CLASS = PriorityExperienceBuffer
 
 EXPLORING_STRATEGY = ExploringStrategy.NOISY_NETWORK
 LINEAR_LAYER_CLASS = Linear if EXPLORING_STRATEGY == ExploringStrategy.EPSILON_GREEDY else NoisyLinear
-NET_TYPE = Net  # use DuelingNet for DuelingDQN and Net for default
+NET_TYPE = DuelingNet  # use DuelingNet for DuelingDQN and Net for default
 
 MIN_EPSILON = 0.02  # init: 0.02
 EPSILON_START = 1.0  # init: 1.0
@@ -56,7 +56,7 @@ GAMMA = 0.95  # init: .99 (bellman equation)
 LEARNING_RATE = 1e-4  # init: 1e-4 (also quite low eventually using default 1e-3)
 SYNC_TARGET_FRAMES = COLLECT_EXPERIENCE_SIZE * 5  # init: 10000 (how frequently we sync target net with net)
 L2_REGULARIZATION = 0  # init: 1e-5
-MAP_NAMES = ['newlevel_0', 'newlevel_1', 'newlevel_2', 'newlevel_3']
+MAP_NAMES = ['newlevel_0', 'newlevel_1', 'newlevel_2', 'newlevel_3', 'newlevel_4', 'newlevel_5']
 
 # evaluation
 STATES_TO_EVALUATE = 1000
