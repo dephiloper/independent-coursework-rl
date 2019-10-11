@@ -397,7 +397,7 @@ zukünftige Rewards dieser Action abschätzen zu können.
 
 Neben $\epsilon$-greedy Verfahren ist es eine weitere Möglichkeit Exploration umzusetzen,
 die initiale Bewertung der values sehr optimistisch vorzunehmen. Dadurch wird der Agent
-bei der Wahl einer Action vom erhaltenen Reward \grqq enttäuscht\grqq, sodass sich die
+bei der Wahl einer Action vom erhaltenen Reward ''enttäuscht'', sodass sich die
 Einschätzung dieser Action verschlechtert. Wird nun immer die Action gewählt, die am
 besten eingeschätzt ist, so werden über die Zeit alle Actions versucht, bis sie sich dem
 tatsächlichen Erwartungswert nähern.
@@ -780,13 +780,13 @@ sich der Avatar auf diese bewegt. Das Spielfeld ist in Abbildung \ref{fig:frozen
 \end{figure}
 
 \noindent
-Der Agent kann die Actions \grqq left\grqq, \grqq up\grqq, \grqq right\grqq und \grqq
-down\grqq ausführen. Erschwert wird die Steuerung aber dadurch, dass die Oberfläche
-rutschig ist, weshalb die Folgeposition des Avatars nicht deterministisch ist.
-Wählt man bespielsweise die Action \grqq down\grqq, so bewegt sich der Avatar mit einer
-Wahrscheinlichkeit von jeweils $1/3$ nach unten, rechts oder links. Allgemein gesprochen
-ist die Richtung, in die sich der Avatar nach der Wahl einer Action bewegt, eine zufällige
-Richtung, wobei jedoch nie die entgegengesetzte Action der Wahl vollzogen wird.
+Der Agent kann die Actions ''left'', ''up'', ''right'' und ''down'' ausführen.
+Erschwert wird die Steuerung aber dadurch, dass die Oberfläche rutschig ist, weshalb
+die Folgeposition des Avatars nicht deterministisch ist. Wählt man bespielsweise die
+Action ''down'', so bewegt sich der Avatar mit einer Wahrscheinlichkeit von jeweils
+$1/3$ nach unten, rechts oder links. Allgemein gesprochen ist die Richtung, in die
+sich der Avatar nach der Wahl einer Action bewegt, eine zufällige Richtung, wobei
+jedoch nie die entgegengesetzte Action der Wahl vollzogen wird.
 
 
 \paragraph*{Evaluierung}
@@ -865,7 +865,7 @@ Weise ermittelt werden.
 
 Eine erste Variante von Q-learning benutzt Tabellen, in denen die Abschätzungen
 für unterschiedliche States oder Actions gespeichert werden. Dieses Verfahren wird nach
-\cite[~S.193]{L2018} auch als \grqq Tabular Q-learing\grqq bezeichnet.
+\cite[~S.193]{L2018} auch als ''Tabular Q-learing'' bezeichnet.
 
 
 \subsection{Tabular Q-learning}
@@ -952,14 +952,14 @@ den tatsächlichen Q-values an, wodurch sich die Problemstellung des Environment
 bewältigen lässt.
 
 \subsubsection{Evaluierung}
-Um zu testen, wie gut die gefundenen Q-values funktionieren, wird wie folgt vorgegangen.
+Um zu testen, wie gut die ermittelten Q-values funktionieren, wird wie folgt vorgegangen.
 Ein neues Environment wird initialisiert und der Agent wählt in jedem erfahrenen State die
 Action, die den höchsten Q-value besitzt.
 
 Das vorgestellte Experiment wird als gelöst angesehen, wenn 80\% von 20 Spielen erfolgreich
 beendet wurden. Dieser Aufbau benötigt für 4x4 FrozenLake zwischen 6000 und 42000
-Iterationen, was zwischen einer und sechs Sekunden benötigt. Abbildung
-\ref{fig:frozen-lake_q_learning} visualisiert den typischen Trainingsablauf, wobei der
+Iterationen, was zwischen einer und sechs Sekunden benötigt.
+\autoref{fig:frozen-lake_q_learning} visualisiert den typischen Trainingsablauf, wobei der
 durchschnittliche Reward aus 20 Spielen gezeigt wird.
 
 % TODO Bruno verschiedene farben erklären
@@ -969,36 +969,37 @@ durchschnittliche Reward aus 20 Spielen gezeigt wird.
 \caption{Ergebnisse Tabular Q-learning FrozenLake-v0}
 \label{fig:frozen-lake_q_learning}
 \end{figure}
+% TODO Bruno vllt. nochmal darauf eingeben, dass man denken könnte, dass das Env nur immer einen 0.5er Reward schafft, zumindest laut Graphen 
 
+\subsection{Tic-Tac-Toe}
+Neben der Umsetzung von FrozenLake wurde ebenfalls eine Tic-Tac-Toe Implementation
+entwickelt, in der ein Agent gegen einen zufällig spielenden Gegner trainiert und
+anschließend getestet wurde. Unter \url{https://github.com/Bluemi/tictactoe_rl} ist
+der Quelltext einsehbar. Das umgesetzte Verfahren ist eine Form der value-based
+Verfahren unterscheidet sich aber von Q-learning.
 
-\subsection{Tic Tac Toe}
-Neben der Umsetzung von FrozenLake wurde ebenfalls eine Tic Tac Toe Implementation
-entwickelt, in dem ein Agent gegen einen zufällig spielenden Gegner trainiert und getestet
-wurde. Unter \url{https://github.com/Bluemi/tictactoe_rl} ist diese Implementation
-einsehbar. Das umgesetzte Verfahren ist eine Form der value-based Verfahren unterscheidet
-sich aber von Q-learning.
-
-Ebenfalls wurde ein Tic Tac Toe Environment entwickelt, das das Interface eines OpenAI
+Ebenfalls wurde ein Tic-Tac-Toe Environment entwickelt, das das Interface eines OpenAI
 Gyms implementiert. Dieses kann unter
 \url{https://github.com/dephiloper/independent-coursework-rl} in
 \lstinline!preparation/05_v_learning/gym_tictactoe.py! aufgerufen werden.
 
 Beim Training des Agent werden wie auch in Q-learning values ermittelt. Im Gegensatz zu
-der im letzten Kapitel gezeigten Q-learning Methode werden hier allerdings die values
-unterschiedlicher States und nicht die values der Actions ermittelt. Die zu ermittelnde
-Funktion ist nicht mehr $Q(s, a)$, sondern $V(s)$. Das Verfahren setzt dafür allerdings
-voraus, dass aus einem gegebenen State und einer gegebenen Action der Folgezustand
-berechnet werden kann, was durch das deterministische Spiel Tic Tac Toe gegeben ist.
+der im letzten Kapitel gezeigten Q-learning Methode werden in diesem Verfahren allerdings 
+die values unterschiedlicher States und nicht die values der Actions ermittelt. Die zu
+ermittelnde Funktion ist nicht mehr $Q(s, a)$, sondern $V(s)$. Das Verfahren setzt dafür
+voraus, dass aus einem gegebenen State und einer gegebenen Action der Folgezustand berechnet
+werden kann, was durch das deterministische Spiel Tic-Tac-Toe gegeben ist.
 
 Die Approximationen der values der States werden in einem Dictionary gespeichert und mit
 dem Startwert 0 initialisiert. Anschließend wird ein Spiel gegen einen zufällig spielenden
 Gegner gespielt, wobei alle erreichten States zwischengespeichert werden. Am Ende des
-Spieles wird ein Reward vergeben, der davon abhängt, ob gewonnen oder verloren wurde.
+Spieles wird ein Reward vergeben, der davon abhängt, ob eine Partie gewonnen oder verloren
+wurde.
 
 Daraufhin werden alle $V(s)$ Werte der zwischengespeicherten States in Richtung des
 erhaltenen Rewards verändert. Um zu bestimmen wie stark sich der erhaltene Reward auf
-$V(s)$ auswirkt wird ein $step\_size$ Parameter verwendet, der wie in Zuweisung 
-\ref{aln:ValueUpdate} benutzt wird.
+$V(s)$ auswirkt wird ein $step\_size$ Parameter verwendet, der wie in 
+\autoref{aln:ValueUpdate} benutzt wird.
 \begin{align}
   V(s) \leftarrow V(s) + step\_size * (reward - V(s))
   \label{aln:ValueUpdate}
@@ -1013,13 +1014,14 @@ zur Verfügung stehenden Actions die daraus resultierenden States und wählt die
 zum State mit dem höchsten value führt.
 
 \subsubsection{Evaluierung}
-Um das Verfahren zu testen wurden Agenten mit unterschiedlicher Anzahl an Trainingsspielen
-trainiert, wobei ein Agent entweder immer das Spiel eröffnete oder den zweiten Zug
-hatte. Als step\_size wurde initial 0.1 genutzt. Nach jedem Spiel wurde die step\_size
-dann mit einem decay multipliziert, um die Konvergenz der State values zu garantieren.
+Für die Evaulation des Verfahrens wurden Agenten mit unterschiedlicher Anzahl an
+Trainingsspielen trainiert, wobei ein Agent entweder immer das Spiel eröffnete oder
+den zweiten Zug hatte. Als step\_size wurde initial 0.1 genutzt. Nach jedem Spiel wurde
+die step\_size dann mit einem decay multipliziert, um die Konvergenz der State values
+zu garantieren.
 
-Tabelle \ref{tab:win_probability_tictactoe_begin} zeigt die Gewinnwahrscheinlichkeiten eines
-trainierten Agenten, der gegen einen zufällig spielenden Gegner getestet wird. Jede Zelle
+\autoref{tab:win_probability_tictactoe_begin} zeigt die Gewinnwahrscheinlichkeiten eines
+trainierten Agenten, der gegen einen zufällig spielenden Gegner getestet wurde. Jede Zelle
 enthält zwei Gewinnwahrscheinlichkeiten. Die erste gibt die Gewinnwahrscheinlichkeit für
 den Fall an, dass der Agent das Spiel eröffnet hat, die zweite die
 Gewinnwahrscheinlichkeit, falls der Gegner das Spiel eröffnet hat.
@@ -1036,29 +1038,30 @@ Gewinnwahrscheinlichkeit, falls der Gegner das Spiel eröffnet hat.
       1.000.000 & 99.1\% / 87.7\% & 0.0\% / 0.7\% & 0.9\% / 11.5\% \\
     \end{tabular}
 
-    \caption[Gewinnwahrscheinlichkeiten Tic Tac Toe]{Gewinnwahrscheinlichkeiten Tic Tac
+    \caption[Gewinnwahrscheinlichkeiten Tic-Tac-Toe]{Gewinnwahrscheinlichkeiten Tic Tac
     Toe}
     \label{tab:win_probability_tictactoe_begin}
   \end{center}
 \end{table}
 
 \noindent
-Eine weitere Steigerung der Trainingsspiele führt nicht mehr zu einer Änderung der
-Gewinnwahrscheinlichkeiten. In allen gezeigten Experimenten ist die
-Gewinnwahrscheinlichkeit höher, wenn der Agent beginnt und die Wahrscheinlichkeit zu
-verlieren größer, wenn man nicht beginnt.
+Eine weitere Steigerung der Anzahl an durchgeführten Trainingsspielen bewirkte
+anschließend keine Änderung der Gewinnwahrscheinlichkeiten. In allen gezeigten
+Experimenten ist die Gewinnwahrscheinlichkeit höher, wenn der Agent die Partie beginnt.
+Des Weiteren wird die Wahrscheinlichkeit zu verlieren größer, wenn der Agent nicht den
+eröffnenden Zug spielt.
 
 Auch ist deutlich erkennbar, dass eine erhöhte Anzahl von Trainingsspielen, die
 Gewinnwahrscheinlichkeit des Agenten steigert. Während die Wahrscheinlichkeit zu gewinnen
-beim beginnenden Spieler nach 100 Trainingsspielen noch bei 68.9\% liegt, liegt sie nach
-100.000 Trainingsspielen bei 98.1\%. Auch sinkt die Wahrscheinlichkeit zu verlieren mit
-zunehmendem Training und nach 100.000 Trainingsspielen ist der beginnende Agent nicht mehr
-zu schlagen.
+beim beginnenden Spieler nach 100 Trainingsspielen noch bei 68.9\% liegt, steigt diese nach
+100.000 Trainingsspielen auf 98.1\% an. Zusätzlich sinkt die Wahrscheinlichkeit zu verlieren mit
+zunehmendem Training, wobei nach 100.000 Trainingsspielen der beginnende Agent nicht mehr zu
+schlagen ist.
 
 Interessant ist vor allem, dass auch bei einer Millionen Trainingsspielen der nicht
 beginnende Agent verlieren kann. Dies kann gegen einen zufällig spielenden Gegner
 vernünftig sein, da ein kleines Risiko einzugehen dazu führen kann, dass deutlich häufiger
-gewonnen wird.
+gewonnen wird. % TODO Bruno den Abschlusssatz musst du mir mal erklären
 
 
 \subsection{Limitierungen von Tabular Q-learning}
@@ -1073,14 +1076,15 @@ Dies kann durch die Betrachtung komplizierterer Environments verdeutlicht werden
 mehr als $10^{70802}$ mögliche States besitzten kann. Daraus ergibt sich für
 kompliziertere Environments, dass das Tabular Q-learning nicht praktikabel ist.
 
+% TODO Bruno more citation needed
 \newpage
 \section{Deep Q-learning}
 \label{sec:dqn}
-Die Limitierung von Tabular Q-learning wird in dem nächsten vorgestellten Verfahren \grqq
-Deep Q-learning\grqq überwunden indem ein neuronales Netz eingeführt wird, um die values
+Die Limitierung von Tabular Q-learning wird in dem nächsten vorgestellten Verfahren
+''Deep Q-learning'' überwunden indem ein neuronales Netz eingeführt wird, um die values
 von Actions $Q(s, a)$ zu bestimmen. Diese werden nicht mehr in einer Tabelle gespeichert
-und gelesen, sondern von einem Model berechnet, das zwischen ähnlichen States
-abstrahieren kann.
+und aus dieser gelesen, sondern von einem Model, sprich einem neuronalen Netz, berechnet,
+das zwischen ähnlichen States abstrahieren kann.
 
 In diesem Kapitel wird zuerst eine Einordnung des Verfahrens vorgenommen, um anschließend
 das Verfahren aufbauend auf Tabular Q-learning zu beschreiben. Am Ende werden die	
@@ -1090,18 +1094,19 @@ Ergebnisse vorgestellt.
 \subsection{Einordnung}
 Deep Q-learning funktioniert ähnlich, wie das schon vorgestellte Tabular Q-learning. Auch
 hier werden wahrgenommene Observations abgebildet auf values unterschiedlicher Actions, um
-Actions, welche einen hohen Reward versprechen, wählen zu können. Damit ist
-Deep Q-learning value-based.
+Actions, welche einen hohen Reward versprechen, wählen zu können. Damit ist das Deep 
+Q-learning Verfahren als value-based Methode einzuordnen.
 
 Wie auch für Tabular Q-learning können vergangene Trainingsdaten verwendet werden, um die
 values der unterschiedlichen Actions zu approximieren, wodurch Deep Q-learning zu den
-off-policy Learning Verfahren zählt.
+off-policy learning Verfahren gezählt wird.
 
 \subsection{Verfahren}
 \label{sec:deepq-procedure}
-Im Grunde läuft der Trainingsprozess ähnlich ab, wie bei Tabular Q-learning. Zuerst wird
-das neuronale Netz initialisiert, um anschließend zufällige Actions im Environment
-auszuprobieren und somit ein Tupel aus wahrgenommenem State, gespielter Action, erhaltenem
+Da das Verfahren deutliche Parallelen zu Tabular Q-learning aufweist, läuft der
+Trainingsprozess in diesem ebenfalls ähnlich ab. Zuerst wird ein neuronale Netz
+initialisiert, um anschließend zufällige Actions im Environment auszuprobieren
+und somit ein Tupel aus wahrgenommenem State, gespielter Action, erhaltenem
 Reward und neu erreichten Folgestate zu erhalten.
 
 Daraufhin wird erneut der schon bei Tabular Q-learning genutzte Zusammenhang der Bellman
@@ -1115,77 +1120,82 @@ gewählten Action hervorgeht.
 \end{align}
 \noindent
 In Tabular Q-learning wurde anschließend der Wert $Q(s, a)$ der Tabelle angepasst. Da 
-$Q(s, a)$ nun durch ein neuronales Netz implementiert ist, kann $Q(s, a)$ nicht dem
+$Q(s, a)$ nun durch ein neuronales Netz repräsentiert wird, kann $Q(s, a)$ nicht dem
 gefundenen Wert zugewiesen werden. Anstelle dessen wird ein Loss formuliert, auf dem
-das Netz mit Stochastic Gradient Descent trainiert wird. Die Formel für diesen Loss
-unterscheidet sich abhängig davon, ob es sich bei $s'$ um einen Endzustand handelt oder
-nicht. Ist $s'$ ein Endzustand, so wird der Loss (\ref{aln:DeepQLoss1}) verwendet.
-Andernfalls wird der Loss aus (\ref{aln:DeepQLoss2}) eingesetzt.
+das Netz mittels Stochastic Gradient Descent trainiert werden kann. Die Formel für
+diesen Loss unterscheidet sich abhängig davon, ob es sich bei $s'$ um einen Endzustand
+oder einen Zustand mit Folgezustand handelt. Ist $s'$ ein Endzustand, so wird die
+Lossfunktion verwendet, welche in \autoref{aln:DeepQLoss1}) veranschaulicht wird.
+Besitzt der aktuelle Zustand hingegen einen Folgezustand, wird die Lossberechnung
+aus \autoref{aln:DeepQLoss2} eingesetzt.
 \begin{align}
   L & = \left(Q(s, a) - r\right)^2 \label{aln:DeepQLoss1} \\
   L & = \left(Q(s, a) - \left(r + \gamma \max_{a'} Q(s', a')\right)\right)^2 \label{aln:DeepQLoss2}
 \end{align}
 \noindent
-Der Wert $Q(s, a)$ ist die Vorhersage des Netzes über den long-term Reward. Ist $s$ ein
-Endzustand, so ist der long-term Reward gleich dem unmittelbaren Reward $r$, da nach einem
-Endzustand kein Reward mehr erreicht werden kann. Daraus leitet sich der in
+Der Wert $Q(s, a)$ definiert dabei die Vorhersage des Netzes über den long-term Reward.
+Ist $s$ ein Endzustand, so ist der long-term Reward gleich dem unmittelbaren Reward $r$,
+da nach einem Endzustand kein Reward mehr erreicht werden kann. Daraus leitet sich der in
 (\ref{aln:DeepQLoss1}) gezeigte Loss für einen Endzustand ab. Hier wird der Mean Squared
-Error zwischen der Vorhersage des Netzes und dem tatsächlich zu erwartenden Reward
-eingesetzt.
+Error (auch Mittlere quadratische Abweichung) zwischen der Vorhersage des Netzes und dem
+tatsächlich zu erwartenden Reward eingesetzt.
 
-Handelt es sich bei $s$ nicht um einen Endzustand, so muss der long-term Reward des
+Handelt es sich bei $s$ um keinen Endzustand, so muss der long-term Reward des
 Folgezustandes $s'$ hinzuaddiert werden, um den long-term Reward in $s$ zu berechnen. Aus
-diesem Grund wird der value der besten Action des Folgezustandes, skaliert mit dem
+diesem Grund wird der value der besten Action des Folgezustandes, skaliert mit dem 
 discount factor $\gamma$, auf den unmittelbaren Reward addiert. Dabei wird das Netz selbst
 verwendet, um die Action values des Folgestates zu berechnen.
 
-Diesen Vorgang wiederholt man, bis die vom Netz vorhergesagten Q-values den
-tat\-säch\-lich\-en values der Actions entsprechen.
+Diesen Vorgang wird daraufhin solange wiederholt, bis die vom Netz vorhergesagten Q-values
+den tat\-säch\-lich\-en values der Actions entsprechen.
 
-Dies ist die grundlegende Funktionsweise von Deep Q-learning, allerdings muss nach
+Dies ist die grundlegende Funktionsweise von Deep Q-learning, allerdings muss nach Lapan
 \cite[~S.202]{L2018} der Algorithmus, um in der Praxis zu funktionieren, noch weiter
-verbessert werden. Wählt man bei der Exploration ausschließlich zufällige Actions, so
+angepasst werden. Wählt man bei der Exploration ausschließlich zufällige Actions, so
 werden interessante Situationen nur sehr selten erreicht und es werden sehr viele Samples
-benötigt, um zu einem zufriedenstellenden Ergebnis zu kommen. Aus diesem Grund wird eine
-decaying-$\epsilon$-greedy Exploration Strategie benutzt, um gegen Ende des
-Trainingsprozesses die schon gelernten Actions des Netzes zu verwenden, damit neue
+benötigt, um zu einer erfolgreichen Lösung der Problemstellung zu gelangen. Aus diesem
+Grund wird eine decaying-$\epsilon$-greedy Exploration Strategie benutzt, um gegen Ende
+des Trainingsprozesses die schon gelernten Actions des Netzes zu verwenden, damit neue
 Erkenntnisse gewonnen werden können.
 
 Eine weitere Optimierung, die den Trainingsprozess verbessert, ist die Verwendung eines
 Replay Buffers, in dem Erfahrungen gespeichert werden, um eine breitere Menge an
-Trainingsdaten zu erhalten. Nach Lapan \cite{L2018} tritt ohne diesen Replay Buffer das
+Trainingsdaten zu erhalten. Nach Lapan \cite{L2018} tritt ohne diesen Replay Buffer das %TODO Bruno Seite angeben
 Problem auf, dass sich die gesammelten Daten aus ein Episode zu stark ähneln, sodass das
 Training des Netzes suboptimal funktioniert.
 
 Die letzte Änderung, die vollzogen werden muss, bezieht sich auf die Berechnung des Loss
-Wertes aus (\ref{aln:DeepQLoss2}). Für die Berechnung des Losses, mit dem das Netz $Q$
+Wertes aus \autoref{aln:DeepQLoss2}. Für die Berechnung des Losses, mit dem das Netz $Q$
 trainiert wird, wird die Approximation des Folgestates von $Q$ selbst verwendet. Durch
 diese Selbstreferenzierung kann es passieren, dass das Training instabil wird und nicht
 konvergiert. Um dieses Problem zu lösen wird ein neues Netz $Q'$ eingeführt, das als
 Target Netz bezeichnet wird. Dieses Netz wird für die Loss Berechnung verwendet, wie in
-\ref{aln:DeepQTarget} gezeigt.
+\autoref{aln:DeepQTarget} gezeigt.
 \begin{align}
   L & = \left(Q(s, a) - \left(r + \gamma \max_{a'} \textbf{Q'(s', a')}\right)\right)^2
   \label{aln:DeepQTarget}
 \end{align}
 \noindent
-Nach einer gewissen Anzahl an Trainings werden die Gewichte des Target Netzes mit den
-Gewichten des trainierten Netzes überschrieben, sodass sich die Netze synchronisieren.
+Nach einer gewissen Anzahl an Trainingsiterationen werden die Gewichte des Target Netzes
+mit den Gewichten des trainierten Netzes überschrieben, sodass sich die Netze
+synchronisieren.
 
 \subsection{Implementierung}
 Mit den eben beschriebenen Änderungen wurde ein Deep Q-learning Algorithmus für das
 RoboschoolPong Environment implementiert und getestet. Der Quelltext kann unter
-\url{https://github.com/dephiloper/independent-coursework-rl/tree/master/preparation/07_deep_q_learning}
-gefunden werden.
+\url{https://github.com/dephiloper/independent-coursework-rl/} im Unterverzeichnis
+\href{https://github.com/dephiloper/independent-coursework-rl/tree/master/preparation/07_deep_q_learning}
+{\nolinkurl{preparation/07\_deep\_q\_learning}} gefunden werden.
+
 
 \subsubsection{Das RoboschoolPong Environment}
 Für die Umsetzung des Deep Q-learning Verfahrens wurde ein Pong Environment verwendet, das
 unter \url{https://github.com/openai/roboschool} zu finden ist. In diesem Environment wird
-das bekannte Pong Spiel trainiert. Zwei Spieler bewegen jeweils einen Balken mit dem ein
-Ball auf die Seite des Gegners gestoßen wird. Verfehlt einer der Spieler den Ball, sodass
-dieser auf die Seite hinter dem Spieler trifft, so hat der verfehlende Spieler verloren
-und dessen Gegenspieler gewonnen. Abbildung \ref{fig:pong_env} zeigt das gerenderte
-Environment.
+das bekannte Pong Spiel in einer drei dimensionalen Darstellung simuliert. Zwei Spieler
+bewegen jeweils einen Balken mit dem ein Ball auf die Seite des Gegners gestoßen werden
+kann. Verfehlt einer der Spieler den Ball, sodass dieser auf der eigenen Seite hinter dem
+Spieler das Spielfeld verlässt, so hat der verfehlende Spieler verloren und dessen
+Gegenspieler gewonnen. \autoref{fig:pong_env} zeigt das gerenderte Environment.
 
 \begin{figure}[htp]
 \centering
@@ -1195,17 +1205,18 @@ Environment.
 \end{figure}
 \noindent
 In der verwendeten Variante von Pong können die Spieler ihren Balken nicht nur parallel zu
-ihrer Grundlinie bewegen, sondern auch auf ihren Gegenspieler zu oder von ihm weg. Dadurch
-lässt sich der Ball stärker in die gegnerische Richtung spielen. Als Interface bietet das
-Environment dabei die Möglichkeit den Balken in beliebige Richtungen mit beliebiger
-Geschwindigkeit zu bewegen. Damit handelt es sich um kontinuierliche Actions, die sich mit
-dem beschriebenen Verfahren nicht umsetzen lassen. Aus diesem Grund wurde die Menge der
-Actions auf neun diskrete Actions beschränkt, mit denen sich der Balken in acht
-verschiedene Richtungen bewegen lässt oder stehen bleibt.\\
+ihrer Grundlinie bewegen, sondern auch auf ihren Gegenspieler zu oder von diesem weg.
+Dadurch lässt sich der Ball stärker, sprich mit einer erhöhten Geschwindigkeit, in Richtung
+des Gegenspielers stoßen. Als Interface bietet das Environment dabei die Möglichkeit den
+Balken in beliebige Richtungen mit beliebiger Geschwindigkeit zu bewegen. Damit handelt es
+sich um ein Environment mit kontinuierlichem action space, welches sich mit dem
+beschriebenen Verfahren nicht umsetzen lässt. Aufgrund dessen wurde die Menge der Actions auf
+neun diskrete Actions beschränkt, mit denen sich der Balken in acht verschiedene Richtungen
+bewegen lässt oder stehen bleibt.\\
 Um zwischen den unterschiedlichen Actions unterscheiden zu können, erhält der Agent vom
 Environment die Koordinaten und Geschwindigkeiten der Balken sowie des Balles. Zusätzlich
 wird die Nummer des aktuellen Frames als Information geliefert.\\
-Reward erhält der Agent vor allem dann, wenn er den Ball am gegnerischen Spieler vorbei
+Den Reward erhält der Agent vor allem dann, wenn er den Ball am gegnerischen Spieler vorbei
 auf dessen Grundlinie stößt. Zusätzlich gibt es einen kleineren Reward, wenn der Ball mit
 dem Balken getroffen wird.
 
@@ -1238,8 +1249,8 @@ Besser funktionieren die folgenden Experimente, bei denen 4 Hidden Layer verwend
 Grau zeigt den durchschnittlichen Reward mit 64 Knoten pro Layer und Grün den Reward für
 ein Netz mit 128 Knoten pro Layer.\\
 Damit wurde kurzzeitig ein durchschnittlicher Reward von bis zu 6.9 erreicht. Der
-trainierte Agent kann unter \url{https://www.youtube.com/watch?v=xp4XtrYNKzQ} gesehen
-werden.
+trainierte Agent kann in einem Video unter \url{https://www.youtube.com/watch?v=xp4XtrYNKzQ}
+betrachetet werden.
 
 \newpage
 \section{Policy Gradients}
@@ -1253,27 +1264,27 @@ Werterepräsentationen in Gleitkommadarstellung, angewandt werden können (siehe
 hingegen weisen jedem State oder jeder Action immer ein value zu, was das Optimierungsproblem
 bei einem kontinuierlichen action space deutlich erschwert \cite[~S.242]{L2018}. Ein
 zusätzlicher Vorteil der Policy Gradients ist die stochastische Eigenschaft von Environments.
-Anders als Q-learning wird es mit Policy Gradients möglich, die zugrundeliegende
-Wahrscheinlichkeitsverteilung des Environments besser aufzugreifen, da das Verfahren, statt
-anhand von Erwartungswerten des aktuellen und zukünftigen Rewards zu rechnen, mit einer
-Wahrscheinlichkeitsverteilung von Actions arbeitet. In der nachfolgenden Abbildung 
-(\ref{fig:prob-dist-pg}) wird genau diese Wahrscheinlichkeitsverteilung von diskreten Actions
-nach Anwendung der Policy Approximation visualisiert.
+Anders als Q-learning wird es nach Lapan\cite[~S.242]{L2018} mit Policy Gradients möglich,
+die zugrundeliegende Wahrscheinlichkeitsverteilung des Environments besser aufzugreifen,
+da das Verfahren, statt anhand von Erwartungswerten des aktuellen und zukünftigen Rewards zu
+rechnen, mit einer Wahrscheinlichkeitsverteilung von Actions arbeitet. In der nachfolgenden
+Abbildung (\ref{fig:prob-dist-pg}) wird genau diese Wahrscheinlichkeitsverteilung von
+diskreten Actions nach Anwendung der Policy Approximation visualisiert.
 
 \begin{figure}[htp]
 \centering
 \includegraphics[scale=0.4]{res/policy_approxim.png}
-\caption{Wahrscheinlichkeitsverteilung von Actions mittels Policy Approximation}
+\caption{Wahrscheinlichkeitsverteilung von Actions durch Policy Approximation}
 \source{\cite[~S.243 - Chapter 9 - Figure 1]{L2018}}
 \label{fig:prob-dist-pg}
 \end{figure}
 
 Zusätzlich kommt, durch die Repräsentation der Actions als Wahrscheinlichkeit, der Vorteil einer
-\textit{smooth representation} des Netzes zum tragen. Das heißt, würde der Output des Netzes über
-diskrete Werte ausgedrückt werden, kann schon eine minimale Änderung an den Gewichten des Netzes 
-zu einer komplett anderen Action bei der Vorhersage führen. Aufgrund der
-Wahrscheinlichkeitsverteilung bewirken Anpassungen hingegen nur moderate Änderungen in der
-resultierenden Verteilung des Output \cite[~S.243]{L2018}.
+\textit{smooth representation} des Netzes zum tragen \cite[~S.243]{L2018}. 
+Das heißt, würde der Output des Netzes über diskrete Werte ausgedrückt werden, kann schon eine
+minimale Änderung an den Gewichten des Netzes zu einer komplett anderen Action bei der
+Vorhersage führen. Aufgrund der Wahrscheinlichkeitsverteilung bewirken Anpassungen hingegen
+nur moderate Änderungen in der resultierenden Verteilung des Output.
 
 
 \subsection{REINFORCE Method}
@@ -1281,7 +1292,7 @@ Das nachfolgend beschriebene Verfahren REINFORCE oder Monte Carlo Policy Gradien
 deutliche Ähnlichkeiten zur bereits erläuterten \nameref{sec:cross-entropy-method} auf.
 Genau wie das Cross-Entropy Verfahren, erhält das Netz als Input die Observation des
 Environments und liefert eine Wahrscheinlichkeitsverteilung der Actions an den Agent
-zurück. Der Unterschied kommt durch die in Formel \ref{aln:PG} festgehaltene Definition
+zurück. Der Unterschied kommt durch die in \autoref{aln:PG} festgehaltene Definition
 des $PG$ (Policy Gradient) zustande.
 
 \begin{align}
@@ -1290,13 +1301,12 @@ des $PG$ (Policy Gradient) zustande.
 \end{align}
 
 PG definiert dabei die Richtung, in welche die Gewichte des Netzes verschoben werden müssen,
-um die Policy im Hinblick auf den kumulierten total Reward zu verbessern. Die Skalierung des
-Gradienten ist hierbei proportional zum value der zu wählenden Action $Q(s,a)$
-und der Gradient selbst entspricht in der Formel dem Gradienten der logarithmischen
-Wahrscheinlichkeit der ausgewählten Action \cite[~S.244]{L2018}. Dadurch wird es möglich
-die Wahrscheinlichkeit von Actions mit einem hohen total Reward zu erhöhen und im Gegenzug
-die Wahrscheinlichkeit der Action mit einem niedrigen oder negativen total Reward zu
-verringern.
+um die Policy im Hinblick auf den kumulierten total Reward zu verbessern \cite[~S.244]{L2018}.
+Die Skalierung des Gradienten ist hierbei proportional zum value der zu wählenden Action
+$Q(s,a)$ und der Gradient selbst entspricht in der Formel dem Gradienten der logarithmischen
+Wahrscheinlichkeit der ausgewählten Action. Dadurch wird es möglich die Wahrscheinlichkeit
+von Actions mit einem hohen total Reward zu erhöhen und im Gegenzug die Wahrscheinlichkeit
+der Action mit einem niedrigen oder negativen total Reward zu verringern.
 
 Ein weiterer Unterschied zur Cross-Entropy-Method ist, dass diese als PG Methode mit einem
 $Q(s,a)=1$ für Episoden mit hohem total Reward und $Q(s,a)=0$ für schlechte Episoden
@@ -1313,7 +1323,7 @@ basieren alle Policy Gradient Verfahren auf der in Formel \ref{aln:PG} festgeleg
 wobei ausschließlich Anpassungen am Kernkonzept des Verfahrens vorgenommen werden
 \cite[~S.244 f.]{L2018}. Anders als die bereits behandelten value-learning Verfahren ist
 kein explizites Explorieren notwendig, da das REINFORCE Verfahren durch die Nutzung einer
-Wahrscheinlichkeitsverteilung über alle Actions ein automatisches \grqq Erforschen\grqq 
+Wahrscheinlichkeitsverteilung über alle Actions ein automatisches ''Erforschen'' 
 des Environments und der zu tätigenden Actions vollzieht. Bei einer Initialisierung mit
 zufälligen Gewichten gibt das Netz eine uniforme Wahrscheinlichkeitsverteilung zurück und
 somit die Verhaltensweise eines random Agents.
@@ -1321,13 +1331,13 @@ somit die Verhaltensweise eines random Agents.
 
 \subsubsection{Verfahren}
 Zu Beginn des Verfahrens werden die Parameter des Netzes $\theta$ als zufällige Gewichte
-initialisiert. Nachfolgend werden, genau wie bei der value-based Methode Q-learning,
-multiple Episoden im Environment gespielt wobei ein Batch an SARS-Tupeln produziert wird.
+initialisiert. Nachfolgend werden, genau wie bei der value-based Methode Q-learning, werden
+multiple Episoden im Environment gespielt, wobei ein Batch an SARS-Tupeln produziert wird.
 Anschließend erfolgt die Berechnung des discounted total Reward für die Folgeschritte eines
-jeden steps, wobei ein step einem SARS-Tupel in einer Episode entspricht. Diese Berechnung
+jeden steps. Hierbei entspricht ein step einem SARS-Tupel in einer Episode. Diese Berechnung
 wird durch die nachfolgend aufgeführte Formel \ref{aln:reinforce-total-reward} beschrieben,
-in welcher $t$ für den aktuellen step und $k$ die darin befindliche Episode des steps
-definiert. 
+in welcher $t$ den aktuellen step und $k$ die Episode in welcher der step $t$ enthalten
+ist, definiert. 
 
 \begin{align}
 Q_{k,t}=\sum_{i=0} \gamma^{i}r_{i}
@@ -1355,10 +1365,10 @@ wird daraufhin solange ausgeübt bis es konvergiert.
 Zu den Limitierungen des REINFORCE Verfahrens zählen laut Lapan\cite[~S.252]{L2018}, dass für den
 Trainingsprozess jede Episode immer bis zum Schluss gespielt werden muss. Andernfalls kann der
 discounted total Reward nicht vollständig berechnet werden. Des Weiteren können bessere Resultate
-erzielt werden, umso länger trainiert wird. Dies kann bei Environments mit lang andauernden Episoden
-zeitaufwendig werden, da nach jedem Trainingsschritt immer neue Trainingsdaten vom Environment
-generiert werden müssen. Um diesen Problem entgegen zu wirken existiert ein weiteres Verfahren, die
-\textit{Actor-Critic Method}, welche im nächsten Kapitel erläutert wird. 
+erzielt werden, umso länger trainiert wird. Dies kann bei einem Environment mit lang andauernden
+Episoden zeitaufwendig werden, da nach jedem Trainingsschritt immer neue Trainingsdaten vom
+Environment generiert werden müssen. Um diesen Problemen entgegen zu wirken existiert ein weiteres
+Verfahren, die \textit{Actor-Critic Method}, welche im nächsten Kapitel erläutert wird. 
 
 Zusätzlich weist die REINFORCE Method eine hohe Varianz bei der Berechnung des Gradienten auf.
 Dies kommt aufgrund der Skalierung des Gradienten mittels des discounted total Rewards $Q(s,a)$ zustande.
@@ -1417,7 +1427,6 @@ visualisiert.
 \label{fig:actor-critic}
 \end{figure}
 
-\newpage
 Um den Trainingsprozess umzusetzen, kann die selbe Prozedur wie bei Deep Q-learning verwendet werden, wobei
 die Bellman Equation zur Ermittlung des discounted total Rewards $Q(s,a)$ angewandt wird. Anschließend wird
 der Mean-Square-Error Loss zwischen berechnetem und vorhergesagtem $Q(s,a)$ minimiert, um die Approximation
@@ -1440,7 +1449,7 @@ gespeichert werden. Nach dem Abschluss einer Episode werden anschließend die vo
 umgekehrter Reihenfolge verarbeitet. Darauf folgend werden die Gewichte des Netzes aktualisiert, indem
 die akkumulierten Gradienten beider Netze in Richtung des Policy Gradients $\partial\theta_\pi$
 und entgegen der Richtung des value Gradients $\partial\theta_v$ verschoben werden. Diese Schritte
-werden anschließend solange wiederholt, bis das System konvergiert.
+werden anschließend solange wiederholt, bis das System konvergiert \cite[~S.268 f.]{L2018}.
 
 Das Policy net wird dabei als \textit{Actor} bezeichnet, da man von diesem ableiten kann, welche
 Action ausgeführt werden soll. Das Value net wird hingegen als \textit{Critic} bezeichnet, da es mit
@@ -1465,7 +1474,7 @@ Der Bonus wird als Entropy Wert zur bestehenden Loss-Funktion hinzugefügt (sieh
 
 Da diese Funktion an ihrem Minimum ankommt, sobald die Wahrscheinlichkeitsverteilung uniform,
 sprich gleichverteilt ist, kann durch anfügen des Ergebnisses zur Loss-Funktion der Agent davon
-abgehalten werden sich \grqq zu sicher\grqq bei der Berechnung von Actions zu sein 
+abgehalten werden sich ''zu sicher'' bei der Berechnung von Actions zu sein 
 \cite[~S.269 f.]{L2018}. Im Umkehrschluss bedeutet dies, dass bei einer
 Wahrscheinlichkeitsverteilung bei der ausschließlich eine Action zu 100 Prozent als wählbare
 Action identifiziert wurde, der berechnete Loss nicht einem Ergebnis von 0 entspricht.
@@ -1479,8 +1488,8 @@ von mehreren parallelen Environments \cite[~S.270]{L2018}. Dadurch können simul
 Observations gesammelt werden was aufgrund der on-policy Eigenschaft des Verfahrens den
 Trainingsprozess deutlich beschleunigt. Zusätzlich erhalten die aufgezeichneten Daten eine
 gewisse Unabhängigkeit voneinander, da Observations abwechselnd aus den jeweiligen Environments
-gesampled werden können. Diese Erweiterungsmöglichkeit wird auch als Asynchronous Advantage Actor
-Critic oder in Kurzform A3C bezeichnet.
+gesampled werden können. Diese Erweiterungsmöglichkeit wird auch als \textit{Asynchronous Advantage
+Actor Critic} oder in Kurzform A3C bezeichnet.
 
 \newpage
 \section{Projektarbeit}
@@ -1490,13 +1499,13 @@ ein eigenes Environment zu entwickeln. Anhand dieses Environments soll ein Reinf
 Verfahren implementiert werden, mit dem Ziel die Problemstellung des Environments erfolgreich zu 
 lösen. In diesem Kapitel erfolgt initial die Festlegung auf ein Spiel für die Entwicklung des
 Environments. Nachfolgend wird auf die Entwicklung des Environments und die darin enthaltenen
-Funktionalitäten eingegangen. Des Weiteren wird aus den bereits vorgestellten Algorithmen ein
+Funktionalitäten eingegangen. Abschließend wird aus den bereits vorgestellten Algorithmen ein
 Verfahren gewählt und dieses in dem entwickelten Environment angewandt. 
 
 \subsection{Mögliche Spiele}
 Wie in der Zielsetzung dieser Ausarbeitung beschrieben, soll nachfolgend ein Spiel ausgewählt werden,
-für welches mittels der Open AI Bibliothek ein Environment umgesetzt wird. Für die Wahl des Spieles
-wurden zu Beginn folgende Spiele in Betracht gezogen:
+für welches mittels der Open AI Bibliothek ein Environment umgesetzt wird. Für die abschließende
+Festlegung wurden zu Beginn folgende Spiele in Betracht gezogen:
 
 \subsubsection{Doom}
 Doom (id Software, 1993) ist ein First-Person Shooter, welcher im Dezember 1993 auf dem Betriebssystem
@@ -1505,7 +1514,7 @@ wird und dessen Aufgabe es ist, sich durch eindringende Dämonenhorden aus der H
 \cite{D1993}. Es existieren bereits Realisierungen in denen Agenten mittels Reinforcement Learning
 Verfahren das Spiel lernen zu spielen. Diese verwenden meist alle eine, explizit für die Entwicklung
 von künstlicher Intelligenz, bereitgestellte Modifikation des Hauptspiels - ''ViZDoom'' \cite{ViZDoom}. 
-Diese ermöglicht es das Spiel in beschleunigter Form (7000 Bilder pro Sekunde) auszuführen. Des
+ViZDoom ermöglicht es das Spiel in beschleunigter Form (7000 Bilder pro Sekunde) auszuführen. Des
 Weiteren enthält die Modifikation die Implementierung einer eigens angefertigten API sowie weitere
 durch die Community bereitgestellte Anpassungen.
 
@@ -1556,63 +1565,71 @@ oder über eingesammelte Objekte ausgetauscht.
 
 \subsection{Umsetzung des Environments}
 Um das Spiel Teeworlds für einen Reinforcement Learning Algorithmus zugänglich zu machen,
-musste das Spiel in ein Python Environment eingebetet werden. Dabei mussten Informationen
-sowohl mit dem Teeworlds Client als auch mit dem Teeworlds Server ausgetauscht werden.
-Beachtet wurde, dass das eigens entwickelte Environment dem Standard eines OpenAI gyms
-entsprach.\\
-In diesem Abschnitt wird beschrieben, wie die Umarbeitung des Teeworlds-Clients und
-Servers umgesetzt wurde. Dazu wurde das Teeworlds github repository geforkt und
-modifiziert und ist unter der url \url{https://github.com/nevs-devs/teeworlds} einsehbar.
-Das Python OpenAI Environment ist unter
-\url{https://github.com/dephiloper/independent-coursework-rl/blob/master/teeworlds_env/gym_teeworlds.py} \\
+wird das Spiel in ein Python Environment eingebetet. Dabei ist zu beachten, dass
+Informationen sowohl mit dem Teeworlds Client als auch mit dem Teeworlds Server ausgetauscht
+werden müssen. Zusätzlich wurde darauf geachtet, dass das eigens entwickelte Environment dem
+Standard eines OpenAI gyms entspricht.
 
-zu finden. \\
+In diesem Abschnitt wird beschrieben, wie die Umarbeitung des Teeworlds-Clients und
+Servers realisiert wurde. Dazu wurde das Teeworlds Github Repository geforkt und
+modifiziert. Der Fork ist unter der url \url{github.com/nevs-devs/teeworlds} einsehbar.
+Das Python OpenAI Environment ist unter \url{github.com/dephiloper/independent-coursework-rl/}
+im Unterverzeichnis \textit{teeworlds\_env} in der Datei
+\href{github.com/dephiloper/independent-coursework-rl/teeworlds_env/gym_teeworlds.py}
+{\nolinkurl{gym\_teeworlds.py}} zu finden.
+
 Besonderes Augenmerk wurde auf die standardkonforme API des Environments gelegt, wodurch
-es auch anderen Reinforcement Learning Interessierten möglich ist, das neu entwickelte
+es auch anderen Reinforcement Learning Interessierten möglich ist, das entwickelte
 Environment zu nutzen.
 
 \subsubsection{Abwandlung des Spiels}
 Das Spiel Teeworlds verfügt mit dem Greifhaken über kontinuierliche Actions und ist als
 Mehrspieler online Spiel eine komplexe Problemstellung. Um die in den vorhergehenden
 Kapiteln beschriebenen Verfahren einsetzen zu können, wurde für Umsetzung des Environments
-das Teeworlds Spiel stark vereinfacht.\\
+das Teeworlds Spiel stark vereinfacht.
+
 Da das Problem von kontinuierlichen Actions durch keines der vorgestellten Verfahren
-ausreichend gelöst wurde, wurde die Greifhakenmechanik und das Schießen nicht mit in das
-Environment integriert. Anstelle dessen wurden sechs diskrete Actions umgesetzt. Diese
-sechs Actions sind \grqq links\grqq, \grqq stehen bleiben\grqq, \grqq rechts\grqq, \grqq
-nach links springen\grqq, \grqq springen\grqq, \grqq nach rechts springen\grqq.\\
+ausreichend gelöst wurde, wurde die Greifhakenmechanik und das Schießen bei der
+abschließenden Realisierung nicht verwendet. Anstelle dessen wurden sechs diskrete
+Actions umgesetzt. Diese sechs Actions zur Bewegung des Avatars sind ''links'',
+''stehen bleiben'', ''rechts'', ''nach links springen'', ''springen'',
+''nach rechts springen''.
+
 Die Hauptaufgabe im Spiel wurde dahingehend verändert, dass es das Ziel ist erfolgreich
 durch ein Level zu navigieren und auf dem Weg plazierte Schilder und Herzen einzusammeln.
 Die Schilder resultieren in einem Reward von $1$. Das Einsammeln des Herzens ist das
-schlussendliche Ziel, führt zu einem Reward von $5$ und beendet die Episode. Das spielen
-gegen andere Spieler ist ebenfalls nicht vorgesehen. Es ist möglich das Environment zu
-erweitern, sodass auch die kontinuierlichen Actions des Greifhakens und des Schießens
+schlussendliche Ziel, führt zu einem Reward von $5$ und beendet die Episode. Das Spielen
+gegen andere Spieler ist in dieser Umsetzung des Environments nicht vorgesehen. 
+Es ist jedoch möglich das Environment zu erweitern, sodass auch kontinuierliche Actions
+des Greifhakens und des Schießens sowie die Einbindung der Mehrspielerkomponente
 unterstützt werden.
 
 \subsubsection{Architektur des Environments}
 \label{sec:architecture-env}
-Dieser Abschnitt beschreibt, wie die Kommunikation zwischen dem Teeworlds Client und
-Server und dem Python Environment umgesetzt wurde. Wie eingangs schon erwähnt funktioniert
-Teeworlds indem sich der Teeworldsclient auf einen Teeworldsserver verbindet. Es gibt
-zahlreiche öffentliche Server, die benutzt werden können. Für den Anwendungsfall dieser
-Arbeit ist es allerdings notwendig einen eigenen Server zu erstellen, da so sichergestellt
-wird, dass keine fremden Spieler eine Verbindung zum Server aufbauen. Des Weiteren wird durch 
-das Bereitstellen des Servers die Administration von diesem möglich, wodurch das festgelegte
-Level auf dem gespielt wird bestimmt werden kann. Zusätzlich wurde es dadurch möglich,
-den Spielzustand neu zu starten und eine Kommunikation zwischen Python Environment und 
-Teeworldsserver zu implementieren.\\
+Dieser Abschnitt beschreibt die Umsetzung der Kommunikation, zwischen dem Teeworlds Client
+und Server sowie den Informationsaustausch zum Python Environment. Wie eingangs schon
+erwähnt funktioniert Teeworlds, indem sich der Teeworlds Client auf einen Teeworlds Server
+verbindet. Es gibt zahlreiche öffentliche Server, die benutzt werden können. Für den
+Anwendungsfall dieser Arbeit ist es allerdings notwendig einen eigenen Server zu erstellen,
+da so sichergestellt wird, dass keine fremden Spieler eine Verbindung zum Server aufbauen.
+Des Weiteren wird durch das Bereitstellen des Servers die Administration von diesem möglich,
+weshalb das festgelegte Level auf dem gespielt wird bestimmt werden kann. Zusätzlich wurde
+es dadurch möglich, den Spielzustand neu zu starten und eine Kommunikation zwischen Python
+Environment und Teeworlds Server zu implementieren.
+
 Aus diesem Grund startet das Environment zuerst einen Teeworlds Server und nach einer
 kurzen Verzögerung den Client als Subprocess. Der Client verbindet sich daraufhin mit dem
-neu gestarteten Server und öffnet ein Fenster in dem das Spiel zu sehen ist.\\
-Um den aktuellen Spielstand zu erfahren, führt das Environment mithilfe des Python
-Packages \lstinline!mss! ein Screenshot vom Teeworlds Fenster durch. Dieses Bild wird
+neu gestarteten Server und öffnet ein Fenster in dem das Spiel zu sehen ist.
+
+Um den aktuellen Spielstand zu erfahren, nimmt das Environment mithilfe des Python
+Packages \lstinline!mss! ein Screenshot vom Teeworlds Fenster auf. Dieses Bild wird
 später als Schwarzweißbild für die Observation benutzt. Da sich aus einem einzelnen Bild
 keine Bewegungsrichtung ableiten lässt, diese aber für ein erfolgreiches Spielen von
 Echtzeitspielen notwendig ist, werden die letzten vier Bilder des Spiels, ähnlich wie die
 Farbkanäle eines Bildes, übereinander gelegt, wie von V. Mnih \cite[~S.5]{mnih2013playing}
-vorgeschlagen. Für die Implementierung wurde eine deque verwendet, wie in Listing
-\ref{lst:env_observation} gezeigt. Für das Environment resetet, so wird ein neues Bild
-aufgenommen und drei mal in den ImageBuffer geschrieben.
+vorgeschlagen. Für die Implementierung wurde eine \lstinline!deque! verwendet, wie in
+Listing \ref{lst:env_observation} gezeigt. Wird das Environment zurückgesetzt, so wird
+ein neues Bild aufgenommen und drei mal in den ImageBuffer geschrieben.
 \begin{lstlisting}[language=Python, caption=Observation des Environments,
 label=lst:env_observation]
 class TeeworldsEnv(gym.Env):
@@ -1629,15 +1646,15 @@ class TeeworldsEnv(gym.Env):
     self.image_buffer.append(game_image)
     observation = np.array(self.image_buffer)
 \end{lstlisting}
-Damit die vom Agenten getätigten Actions wirken können, müssen diese zum Teeworlds Client
-übertragen werden. Um diese Informationen zu übertragen, wurde die Bibliothek ZeroMQ
-\url{https://zeromq.org/} benutzt, die es ermöglicht Datenpackete zwischen
-unterschiedlichen Prozessen auszutauschen. Die gewählten Actions werden dann in Python
+Damit die vom Agenten getätigten Actions ausgeführt werden, müssen diese zum Teeworlds Client
+übertragen werden. Damit diese Übertragung bewerkstelligt werden kann, wurde die Bibliothek
+ZeroMQ \url{https://zeromq.org/} verwendet, die es ermöglicht Datenpackete zwischen
+unterschiedlichen Prozessen zu transferieren. Die gewählten Actions werden dann in Python
 in einer Bitmaske kodiert und übertragen. Der modifizierte Teeworlds Client empfängt diese
 Informationen und manipuliert den Zustand des Spiels so, als hätte ein Spieler die
 entsprechenden Befehle gegeben. Neben den Actions kann an dieser Stelle ein reset des
-Spielstandes initiiert werden.
-\begin{lstlisting}[language=C++, caption=Empfangen der Actions,
+Spielstandes sowie der Wechsel des aktuellen Levels initiiert werden.
+\begin{lstlisting}[language=C++, caption=Empfangen der Actions im Teeworlds Client,
 label=lst:teeclient_receive]
 void receive_update() {
   uint8_t buffer[5];
@@ -1666,7 +1683,7 @@ void receive_update() {
 \end{lstlisting}
 \noindent
 Um den Reward zu berechnen, den das Environment an den Spieler zurück gibt, muss
-übertragen werden, ob ein Schild oder ein Herz eingesammelt wurde oder ob der Spieler mit
+übertragen werden, ob ein Schild oder ein Herz eingesammelt wurde oder, ob der Spieler mit
 Stacheln kollidiert ist. Es stellte sich heraus, dass der Teeworlds Client diese Informationen
 nicht selbst berechnet, sondern den neuen Spielstand durch den Teeworlds Server übertragen bekommt.
 Dadurch wurde es notwendig, ebenfalls eine Verbindung zwischen Environment und Teeworlds Server
@@ -1682,16 +1699,16 @@ Architektur.
 \noindent
 Weiterhin wurden kleinere Änderungen an Server und Client vorgenommen, wie das Entfernen
 unnötiger Statusanzeigen, auf die der Agent fälschlicherweise achten könnte, oder die
-Möglichkeit verschiedene Level in einem Environment spielen zu können.\\
+Möglichkeit verschiedene Level in einem Environment spielen zu können.
+
 Wie schon in Abschnitt \ref{sec:multiple_envs} beschrieben, können mehrere Environments
 gleichzeitig verwendet werden, um den Trainingsprozess zu beschleunigen. In der Datei
-\lstinline!dqn\_parallel.py!, die im gleichen Verzeichnis zu finden ist, wie das Teeworlds
+\lstinline!dqn\_parallel.py!, die im gleichen Verzeichnis zu finden ist wie das Teeworlds
 Environment, findet sich eine \lstinline!Worker! Klasse, die von \lstinline!Process! erbt
 und ein Environment erstellt. Im Trainingsprozess werden vier Worker erstellt und
 gleichzeitig verwendet, um das Sammeln der Erfahrung zu beschleunigen. Gleichzeitig kann
 das Spiel auch mit einer höheren Geschwindigkeit gespielt werden. \autoref{fig:multi_env}
 zeigt eine typische Trainingssituation mit vier Workern.
-
 \begin{figure}[htp]
   \centering
   \includegraphics[scale=1.0]{res/multi_env.png}
@@ -1699,43 +1716,50 @@ zeigt eine typische Trainingssituation mit vier Workern.
   \label{fig:multi_env}
 \end{figure}
 \noindent
-Weiterhin wurden mehrere Level entworfen, welche speziell für die Problemstellung
-ausschließlich die drei Spielobjekte Schilde, Herzen und Stacheln beinhalten. Diese
-wurden im Anhang unter \ref{sec:levels} angefügt. Es wurde darauf geachtet
-unterschiedliche Passagen in die Level einzubauen.\\
+
+Weiterhin wurden mehrere Level erstellt, welche speziell für die Problemstellung von
+ausschließlich drei Spielobjekten - Schilde, Herzen und Stacheln -  entworfen wurden.
+Diese wurden im Anhang unter \autoref{sec:levels} angefügt. Zusätzlich wurde darauf
+geachtet, unterschiedliche Passagen in die Level einzubauen.
+
 Eine große Herausforderung bei der Implementierung des Environments bestand darin, die
 Kommunikation zwischen den einzelnen Entitäten herzustellen, da die Kommunikation den
 sendenden oder empfangenden Prozess niemals blockieren durfte. Grund dafür ist, dass
 ein blockierendes Element in Teeworlds das Spiel oder im Environment das regelmäßige
-Abfragen der Observation stören würde. Die Nutzung von ZeroMQ war bei dieser
-Problemstellung hilfreich, da nicht blockierende abfragen unterstützt werden.\\
+Abfragen der Observation stören würde. Die Nutzung von ZeroMQ erwies bei dieser
+Problemstellung als hilfreich, da nicht blockierende Abfragen von dieser Bibliothek
+unterstützt werden.
+
 Eine weitere Herausforderung war es den Agenten in mehreren Environments auszuführen, da
-das Pytorch Multiprocessing eine Schwierigkeit darstellte. Auch die Orientierung im
-Teeworlds Quelltext und dessen Umarbeitung war eine Herausforderung.
+die Multiprocessing Realisierung von Pytorch eine Schwierigkeit darstellte. Auch die
+Orientierung im Teeworlds Quelltext und dessen Umarbeitung stellte sich als Hürde dar.
 
 \subsection{Wahl des Verfahrens}
-In diesem Abschnitt werden die zuvor behandelten Reinforcment Learning Verfahren verglichen
-und in Bezug auf die Anwendung im Teeworlds Environment abgewägt. Anschließend wird ein
-Verfahren gewählt, welches zur Lösung des entwickelte Environment eingesetzt wird.
+In diesem Abschnitt werden die zuvor behandelten Reinforcement Learning Verfahren
+verglichen und in Bezug auf deren Anwendbarkit auf das Teeworlds Environment abgewägt.
+Anschließend wird ein Verfahren ausgewählt, welches zur Lösung des entwickelten
+Environments eingesetzt wird.
 
 \paragraph{Cross-Entropy}
 Das erste beschriebene Verfahren ist die Cross-Entropy Methode. Wie in
-\autoref{itm:cross_entropy_limits} beschrieben, existieren für die Cross-Entropy Methode
+\autoref{itm:cross_entropy_limits} erläutert, existieren für die Cross-Entropy Methode
 Einschränkungen, die dazu führen können, dass das System nicht konvergiert oder anderweitig
-ohne Erfolg verläuft. Zum einen
-sollte das Environment Zwischenschritte belohnen, damit schneller in diese Richtung
-optimiert werden kann. Dies ist durch die im Level platzierten Schilde gegeben. Damit
-einher geht eine Unterscheidung zwischen eher guten und schlechten Episoden.\\
-Ein Problem mit der Cross-Entropy Methode ist, dass auf langen Episoden nicht gut gelernt
-werden kann, da die Methode nicht nachvollzieht, welche Actions gut und welche Actions
-weniger gut funktioniert haben. Eine Episode im Teeworlds Environment gilt als beendet,
-wenn in Stacheln gesprungen wurde, wenn das Herz eingesammelt wurde oder wenn ein
-Zeitlimit abläuft. Das Zeitlimit wurde für die im weiteren Verlauf beschriebenen
-Experimente auf 40 Sekunden gesetzt, was bei einer Framerate 5 Frames pro Sekunde eine
-maximale Episodenlänge von 200 Frames bedeutet, was mit dem CartPole Environment
-vergleichbar ist.\\
+ohne Erfolg verläuft. Zum einen sollte das Environment Zwischenschritte belohnen,
+damit schneller in diese Richtung optimiert werden kann. Dies ist durch die im Level
+platzierten Schilde gegeben. Damit einher geht eine Unterscheidung zwischen eher guten
+und schlechten Episoden, welche für eine erfolgreiche Umsetzung des Verfahrens notwendig
+ist. Ein weiteres Problem mit der Cross-Entropy Methode ist, dass auf langen Episoden
+nicht gut gelernt werden kann, da die Methode nicht nachvollzieht, welche Actions gut
+und welche Actions weniger gut funktioniert haben. 
+
+Eine Episode im Teeworlds Environment gilt als beendet, wenn in Stacheln gesprungen wurde, 
+wenn das Herz eingesammelt wurde oder wenn ein Zeitlimit abläuft. Das Zeitlimit wurde für
+die im weiteren Verlauf beschriebenen Experimente auf 40 Sekunden gesetzt, was bei einer
+Framerate von 5 Frames pro Sekunde eine maximale Episodenlänge von 200 Frames bedeutet,
+was mit dem CartPole Environment vergleichbar ist. %TODO lass das nochmal disskutieren
+
 Versuche haben gezeigt, dass die Cross-Entropy Methode in ihrer Einsetzbarkeit begrenzt
-ist und schwierigere Environments nicht erfolgreich gelöst werden können.
+ist und schwierigere Environments nicht erfolgreich gelöst werden können. %TODO Bruno Quelle
 
 \paragraph{Tabular Q-learning}
 Tabular Q-learning speichert die values der unterschiedlichen State Action Paare in einer
@@ -1744,7 +1768,7 @@ komplexeren Environments führt. Die Ermittlung der unterschiedlichen values fü
 möglichen State sind aufgrund der Observation als Bild nicht praktikabel.
 
 \paragraph{Deep Q-learning}
-Mit Deep Q Learning wird das Problem des zu großen Observation Spaces gelöst, da die
+Mit Deep Q Learning wird das Problem des zu großen observation spaces gelöst, da die
 values der States nicht mehr in einer Tabelle gespeichert werden müssen, sondern über ein
 neuronales Netz berechnet werden. Auch wurden mit Deep Q Learning komplexere Environments
 gelöst, sodass davon auszugehen ist, dass sich dieses Verfahren prinzipiell dazu eignet.
@@ -1753,11 +1777,13 @@ gelöst, sodass davon auszugehen ist, dass sich dieses Verfahren prinzipiell daz
 Da die REINFORCE Methode eine Erweiterung der Cross-Entropy Methode ist, weißt sie
 ähnliche Limitierungen wie diese auf. In Abschnitt \ref{sec:limit-reinforce} wurden
 bereits die Limitierungen der REINFORCE Methode beschrieben. Dazu zählt, dass lange
-Episoden einen langen Trainingsprozess mit sich bringen, da nach jedem Training neue Daten
-generiert werden müssen.
+Episoden einen langen Trainingsprozess mit sich bringen, da nach jedem Training neue 
+Daten generiert werden müssen. Des Weiteren spricht die hohe Varianze bei der Berechnung
+der Gradienten gegen die Nutzung der Methode, da dadurch der Trainingsprozess instabil
+wird.
 
 \paragraph{Actor-Critic}
-Die Actor-Critic Methode ist eine Erweiterung der REINFORCE Methode, das auch in komplexen
+Die Actor-Critic Methode ist eine Erweiterung der REINFORCE Methode, die auch in komplexen
 Environments funktioniert. Unter anderem wurde sie schon im Atari Environment erfolgreich
 getestet. Außerdem erlaubt es die policy-based Actor-Critic Methode nach Lapan,
 kontinuierliche Actions zu verwendet, was \cite[~S.346]{L2018} mit value-based Verfahren
@@ -1768,8 +1794,8 @@ Für die Umsetzung des Prototypen sind vor allem Deep Q-learning und Actor-Criti
 da Tabular Q-learning für das gegebene Environment nicht umsetzbar ist und Actor-Critic
 eine Verbesserung zur Cross-Entropy und REINFORCE Methode darstellt. Da im Vorfeld mehr
 praktische Experimente mit Deep Q-learning durchgeführt wurden, wurde diese Methode für
-die Umsetzung des Prototypen gewählt, auch da keine kontinuierliche Actions im Environment
-benötigt werden.
+die Umsetzung des Prototypen gewählt. Die Festlegung auf ausschließlich diskrete Actions
+im Environment bestärkt diese Auswahl.
 
 % Umsetzung Deep Q erläutern
 %   - wichtige Methoden klären (mal in den Quelltext gucken)
@@ -1788,20 +1814,20 @@ unterscheiden. Jedes Level besitzt neun einsammelbare Schilde (+1 Reward) und ei
 Herz (+5 Reward), wodurch ein maximal zu erhaltender Reward von 14 entsteht. Hierzu ist jedoch zu
 erwähnen, dass diverse Schilder nicht in der, zumindest zeitlich betrachteten, optimalen Laufbahn
 des Agenten liegen, wodurch das Environment bereits bei Werten unter dem maximal Reward als
-erfolgreich absolviert anerkannt werden kann. Aus dieser Feststellung ergibt sich folgende
+erfolgreich absolviert anerkannt wird. Aus dieser Feststellung ergibt sich folgende
 Lösungsdefinition:
 
 \textit{Sobald das Teeworlds Environment einen durchschnittlichen Gesamtreward von über 12 in allen
 vier Level erzielt und der Agent abschließend das Herz einsammelt, gilt die Problemstellung als 
 gelöst.}
 
-Das Environment wurde aus Gründer der Performance ohne zusätzliche Beschleunigung des Spiels
+Das Environment wurde aus Gründen der Performance ohne zusätzliche Beschleunigung des Spiels
 ausgeführt, wobei jeweils 4 Worker (siehe \nameref{sec:architecture-env}) simultan den
-explorierenden Anteil im Environment durchführen. Das entwickelte Gesamtsystem wurde auf einem
+explorierenden Anteil im Environment vollziehen. Das entwickelte Gesamtsystem wurde auf einem
 PC (Spezifikation siehe \autoref{sec:specs}) mit CUDA Unterstützung für durchschnittlich 32 
 Stunden ausgeführt. Die nachfolgenden Graphen % TODO 32 Stunden stimmt nicht
 veranschaulichen den während des Trainingsprozesses erhaltenen durchschnittlichen Reward sowie
-der, für den Verlauf des Explorationprozesses verwendeten $\epsilon$ Wert (\ref{fig:vanilla-dqn}):
+den, für den Verlauf des Explorationprozesses verwendeten $\epsilon$ Wert (\ref{fig:vanilla-dqn}):
 
 \begin{figure}[htp]
 \centering
@@ -1825,7 +1851,7 @@ an gesammelten Frames trainiert.
 
 \subsubsection{Noisy Network}
 Als erste Erweiterung wurde eine Maßnahme zur Verbesserung der Exploration des Environments implementiert.
-In dem Paper ''Noisy Networks für Exploration'' beschreiben Fortunato et al.\cite[~S.1 f.]{FAPMOGM2017}
+In dem Paper ''Noisy Networks for Exploration'' beschreiben Fortunato et al.\cite[~S.1 f.]{FAPMOGM2017}
 ein Verfahren zum Erlernen der Explorationsmerkmale während des Trainings, statt auf die Verwendung von
 Explorationsstrategien zurückzugreifen, wie $\epsilon$-greedy. Durch die Hinzunahme von Rauschen (noise)
 zu den Gewichten der Fully-Connected Layer und dem anschließenden Anpassen der Gewichtsparameter des
@@ -1875,7 +1901,7 @@ class NoisyLinear(nn.Linear):
 		self.reset_parameters()
 \end{lstlisting}
 
-Durch den Aufruf von \lstinline!self.reset_parameter! (\ref{lst:noisy_reset-params} werden die
+Durch den Aufruf von \lstinline!self.reset_parameter! (\ref{lst:noisy_reset-params}) werden die
 Gewichte und Biases nach der im Paper beschriebenen Vorhergehensweise initialisiert. Dabei wird
 jedem Gewicht ein Wert einer unabhängigen Gleichverteilung
 $\mathcal{U}[-\sqrt{\frac{3}{p}},+\sqrt{\frac{3}{p}}]$ zugewiesen, wobei $p$ der Anzahl der
@@ -1943,10 +1969,10 @@ Wie bereits in \autoref{sec:tab-q-learning}:\nameref{sec:tab-q-learning} und \au
 \nameref{sec:dqn} behandelt wird diese zur Berechnung der Q-values verwendet. Da beide
 Verfahren die gleichen values sowohl zur Auswahl, als auch zur Evaluierung von Actions nutzen,
 ist es laut Hasselt et al.\cite[~S.2]{HGD2015} wahrscheinlicher, dass überbewertete values
-ausgewählt werden, was wiederum zu einer überoptimistischen Schätzung zukünftiger values führen
-kann. Um diesem Problem entgegenzuwirken können die values zur Auswahl von Actions von denen
-zur Evaluierung entkoppelt werden. In der Vanilla Ausführung des Deep Q-learning Verfahrens
-wird die Berechung der Q-values wie folgt realisiert:
+ausgewählt werden, was wiederum zu einer überoptimistischen Schätzung zu\-künf\-ti\-ger values
+führen kann. Um diesem Problem entgegenzuwirken können die values zur Auswahl von Actions von
+denen zur Evaluierung entkoppelt werden. In der Vanilla Ausführung des Deep Q-learning
+Verfahrens wird die Berechung der Q-values wie folgt realisiert:
 \begin{align}
 Q(s_t, a_t) = r_t + \gamma\max_{a}Q'(s_{t+1},a_{t+1})
 \label{aln:double-dqn-q-values}
@@ -1970,7 +1996,7 @@ Durch die Einbindung der Double Deep Q-learning Erweiterung konnten keine signif
 Verbesserungen im durchgeführten Trainingsprozess erzielt werden. Ebenfalls konnte in der
 Beobachtung der resultierenden Spielweise des Agenten keine veränderten Verhaltensweisen
 festgestellt werden. Die Dauer des Trainingsprozesses wurde abschließend durch die Anpassung
-der Bellman Equation mit einer benötigten Laufzeit von X Stunden für die Generierung von Y
+der Bellman Equation mit einer benötigten Laufzeit von X Stunden für die Generierung von Y % TODO Philipp
 Frames nicht beeinflusst. In der nachfolgenden Abbildung wird der durchschnittlich erhaltene
 Reward für das Double DQN Verfahren veranschaulicht. Der darin FARBE dargestellte Graph
 beschreibt den Verlauf des Double DQN Verfahren in Kombination mit dem zuvor beschriebenen
@@ -1983,34 +2009,37 @@ Erweiterung ohne das Double Verfahren visualisiert.
 
 
 \subsubsection{Prioritized Replay Buffer}
-Die nächste Erweiterung befasst sich mit den Samples auf denen trainiert wird. Während die
-normale Trainingsprozedur zufällig Samples aus dem Replay Buffer auswählt und trainiert,
-wurde von T. Schaul und anderen \cite{schaul2015prioritized} eine Methode vorgeschlagen,
-bei der die zu trainierenden Samples abhängig von dem von ihnen produzierten Loss
-ausgewählt werden. Dadurch werden Samples, die eine neue Information beinhalten häufiger
-in Betracht gezogen, sodass diese schneller genutzt werden können.\\
-Nach Lapan \cite{L2018} speichert der Replay Buffer neben den Samples eine Priorität für
-jeden Sample. Diese Priorität wird nach dem Training proportional zum entstandenen Loss
-geupdated. Wird ein neues Sample hinzugefügt, so bekommt dieses Sample eine maximale
-Priorität, um eingeschätzt werden zu können. Die Wahrscheinlichkeit $P(i)$, dass der i-te
-Sample für das Training verwendet wird, berechnet sich aus Gleichung \ref{aln:bufprio}.
+Die nächste Erweiterung befasst sich mit der Zwischenspeicherung von Samples, die
+anschließend im Trainingsprozess verwendet werden. Während die normale Trainingsprozedur
+zufällig Samples aus dem Replay Buffer auswählt und trainiert, wurde von T. Schaul und
+anderen \cite{schaul2015prioritized} eine Methode vorgeschlagen, bei der die zu
+trainierenden Samples abhängig von dem von ihnen produzierten Loss ausgewählt werden.
+Dadurch werden Samples, die eine neue Information beinhalten häufiger in Betracht
+gezogen, sodass diese schneller genutzt werden können.
+
+Nach Lapan \cite{L2018} speichert der Replay Buffer neben den Samples eine Priorität für % TODO Bruno page needed for citation
+jeden Eintrag. Diese Priorität wird nach dem Training proportional zum entstandenen Loss
+aktualisiert. Wird ein neues Sample hinzugefügt, so bekommt dieses Sample eine maximale
+Priorität, um eingeschätzt werden zu können. Die Wahrscheinlichkeit $P(i)$, dass der i-te % TODO Bruno um eingeschätzt werden zu können? verstehe ich irgendwie nicht
+Sample für das Training verwendet wird, berechnet sich aus \autoref{aln:bufprio}.
 \begin{align}
   P(i) = \frac{p_i^\alpha}{\sum_k p_k^i}
 \label{aln:bufprio}
 \end{align}
 \noindent
 Der Hyperparameter $\alpha$ entscheidet dabei darüber, wie stark höher priorisierte
-Samples bevorzugt werden.\\
+Samples bevorzugt werden.
+
 Durch dieses Verfahren erhalten manche Samples eine größere Aufmerksamkeit, wodurch es
 nach \cite{schaul2015prioritized} dazu kommen kann, dass das neuronale Netz auf die
 priorisierten Samples overfitted. Um dem entgegenzuwirken, bekommt jedes Sample ein
 weight $w_i$, mit dem der Loss multipliziert wird, sodass der overfitting Effekt nicht
-mehr auftritt. $w_i$ wird nach Formel \ref{aln:weight_bufprio} bestimmt.
+mehr auftritt. Der Wert für $w_i$ wird nach Formel \ref{aln:weight_bufprio} bestimmt.
 \begin{align}
   w_i = \left(N * P(i)\right)^{-\beta}
 \label{aln:weight_bufprio}
 \end{align}
-\noindent
+
 Der neue Hyperparameter $\beta$ bestimmt dabei, wie stark der Einfluss der Samples
 verringert wird. In dem Paper von Schaul wird empfohlen $\beta$ mit 0.6 zu initialisieren
 und anschließend langsam bis 1 wachsen zu lassen.
@@ -2020,15 +2049,16 @@ und anschließend langsam bis 1 wachsen zu lassen.
 \subsubsection{Dueling DQN} % TODO Bruno
 
 Die Dueling DQN Erweiterung ist inspiriert von der Actor-Critic Methode und wurde von
-\cite{wang2015dueling} vorgestellt. Wie auch in Actor-Critic werden die Q-values nicht
+\cite{wang2015dueling} vorgestellt. Wie auch in Actor-Critic werden die Q-values nicht % TODO Bruno hier würde ich schon den namen von der Person schreiben
 direkt berechnet, sondern der value des States wird separat berechnet und ein Advantage
 Wert für jede Action hinzugerechnet. Daraus ergibt sich der Zusammenhang $Q(s, a) = V(s) +
-A(s, a)$, der schon bei Actor-Critic behandelt wurde. Jeder Action erhält eine Advantage,
+A(s, a)$, der schon bei Actor-Critic behandelt wurde. Jede Action erhält eine Advantage,
 die aussagt, wieviel besser oder schlechter diese Action im Vergleich zu den anderen
-Actions ist. Dabei gilt die weitere Einschränkung, dass die Summe der Advantage Werte auf
-0 liegen soll. Um das Umsetzen wird der Durchschnitt der Advantage Werte von den Advantage
-Werten abgezogen, sodass deren Durchschnitt 0 wird, wie in \ref{aln:dueling_q_values}
-gezeigt.
+Actions ist. Dabei gilt die Einschränkung, dass die Summe der Advantage Werte auf
+0 liegen soll. Um diese Charakteristik umzusetzen, wird der Durchschnitt der Advantage
+Werte von den Advantage Werten abgezogen, sodass deren Durchschnitt 0 entspricht, wie in
+\autoref{aln:dueling_q_values} gezeigt wird. % TODO Bruno verstehe ich nicht ganz
+%TODO 4 advantage werte -> 3, 2, -4, 0, durchschn. = 1 -> von allen abziehen: 2, 1, -5, 0 durchschn. = -1
 \begin{align}
   Q(s, a) = V(s) + A(s, a) - \frac{1}{N} \sum_{k=0}^{N-1} A(s, k)
   \label{aln:dueling_q_values}
@@ -2079,9 +2109,9 @@ class DuelingNet:
 \end{lstlisting}
 \noindent
 In der \lstinline!__init__()!-Funktion des Dueling Netzes werden neben den Convolutional
-Layern, die wie gewöhnlich initiatisiert werden auch, ebenfalls zwei neue Netze
-initialisiert, von denen das erste die Advantage Werte und das zweite den value des States
-berechnet. In der \lstinline!forward()!-Funktion wird der Output der Convolutional Layer
+Layern, die wie gewöhnlich initiatisiert werden, zwei weitere Netze initialisiert, von denen
+das erste die Advantage Werte und das zweite den value des States berechnet.
+In der \lstinline!forward()!-Funktion wird der Output der Convolutional Layer
 als Input für das Advantage und das Value net verwendet. Anschließend wird, wie schon
 angesprochen, der Durchschnitt des Advantage Wertes abgezogen, um zu verhindern, dass der
 value des States über die Advantage Werte ausgedrückt wird.
@@ -2089,10 +2119,11 @@ value des States über die Advantage Werte ausgedrückt wird.
 \paragraph*{Auswertung}
 \noindent
 \newline
-Abbildung \ref{fig:dueling_dqn_results} zeigt in Blau den Reward Verlauf eines Agenten,
-der neben den anderen vorgestellten Erweiterungen das oben gezeigte DuelingNet verwendet.
-Als Vergleichswert ein Agent, dessen Reward in der Abbildung Grau ist, der ebenfalls alle
-vorhergehenden Erweiterungen benutzt, jedoch nicht das DuelingNet.
+Abbildung \ref{fig:dueling_dqn_results} zeigt in blau den Reward Verlauf eines Agenten,
+der in Kombination mit den anderen vorgestellten Erweiterungen das DuelingNet Verfahren
+verwendet. Als Vergleichswert dient ein Agent, dessen Reward in der Abbildung grau
+dargestellt wird, welcher ebenfalls alle vorhergehenden Erweiterungen benutzt, 
+jedoch nicht die DuelingNet Erweiterung umsetzt.
 \begin{figure}[htp]
   \centering
   \includegraphics[scale=0.25]{res/dueling_dqn_results.png}
@@ -2102,7 +2133,7 @@ vorhergehenden Erweiterungen benutzt, jedoch nicht das DuelingNet.
 \noindent
 Wie man aus der Entwicklung des Rewards erkennen kann, erreicht der Agent, der das
 DuelingNet benutzt einen höheren maximalen Reward und lernt das Environment mit weniger
-Samples.
+Samples. % TODO Bruno was ist der max reward, warum wird der reward besser (annahme)?
 
 \subsubsection{N-step DQN}
 Eine zusätzliche Verbesserung kann im Deep Q-learning Verfahren erziehlt werden, indem die
@@ -2169,8 +2200,8 @@ das im Paper \textit{Continuous control with deep reinforcement learning} von Li
 
 Ein weiterer Schritt um die Stabilität und Geschwindigkeit des Environments zu erhöhen wäre die
 Realisierung eines Off-Screen Rendering im Spiel. Dadurch würden weniger Ressourcen während der
-Laufzeit des Spiels durch dieses erzeugt werden und ebenfalls würde dadurch das zyklische Aufnehmen
-von Screenshots redundant werden.
+Laufzeit des Spiels durch dieses erzeugt werden und ebenfalls das zyklische Aufnehmen von
+Screenshots würde redundant werden.
 
 Um die Komplexität der Problemstellung zu erhöhen und das bestehende Verfahren Deep Q-learning mit
 sämtlichen Erweiterungen noch ausführlicher zu testen, wurde neben dem definierten Teststandard von
@@ -2178,9 +2209,11 @@ vier Levels, wie im \autoref{sec:results} beschrieben, die Hinzunahme von zwei w
 realisiert. Des Weiteren erfolgte die Umsetzung des Verfahrens auf ausschließlich einem, als eher
 sehr schwer einzustufenden, Level. Dieser Prozess könnte fortgesetzt werden, um die maximale
 Kapazität an lernbaren Levels zu ermitteln oder mittels einer Vergrößerung der Levelstruktur, die
-Anwendbarkeit im Bezug auf die größe der Levels und deren Komplexität zu ermitteln.
+Anwendbarkeit im Bezug auf die Größe der Levels und deren Komplexität zu ermitteln.
 
 %TODO mehrere Rechner als Teststrecke
+%TODO weitere Erweiterungen zu DQN
+%TODO grenzen von DQN herausfinden 
 
 \newpage
 %\bibliographystyle{plain}
@@ -2213,8 +2246,8 @@ Anwendbarkeit im Bezug auf die größe der Levels und deren Komplexität zu ermi
 \includegraphics[width=160pt]{res/newlevel_4_full.png}
 
 \caption{
-  Die Level \grqq newlevel\_0\grqq, \grqq newlevel\_1\grqq,
-            \grqq newlevel\_2\grqq und\grqq newlevel\_3\grqq
+  Die Level ''newlevel\_0'', ''newlevel\_1'',
+            ''newlevel\_2'' und ''newlevel\_3''
         }
 \end{figure}
 
