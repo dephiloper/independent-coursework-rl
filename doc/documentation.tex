@@ -2017,11 +2017,12 @@ trainierenden Samples abhängig von dem von ihnen produzierten Loss ausgewählt 
 Dadurch werden Samples, die eine neue Information beinhalten häufiger in Betracht
 gezogen, sodass diese schneller genutzt werden können.
 
-Nach Lapan \cite{L2018} speichert der Replay Buffer neben den Samples eine Priorität für % TODO Bruno page needed for citation
-jeden Eintrag. Diese Priorität wird nach dem Training proportional zum entstandenen Loss
-aktualisiert. Wird ein neues Sample hinzugefügt, so bekommt dieses Sample eine maximale
-Priorität, um eingeschätzt werden zu können. Die Wahrscheinlichkeit $P(i)$, dass der i-te % TODO Bruno um eingeschätzt werden zu können? verstehe ich irgendwie nicht
-Sample für das Training verwendet wird, berechnet sich aus \autoref{aln:bufprio}.
+Nach Lapan \cite[~S. 282]{L2018} speichert der Replay Buffer neben den Samples eine
+Priorität für jeden Eintrag. Diese Priorität wird nach dem Training proportional zum
+entstandenen Loss aktualisiert. Wird ein neues Sample hinzugefügt, so bekommt dieses
+Sample eine maximale Priorität, sodass neue Samples bevorzugt werden. Die
+Wahrscheinlichkeit $P(i)$, dass der i-te Sample für das Training verwendet wird, berechnet
+sich aus \autoref{aln:bufprio}.
 \begin{align}
   P(i) = \frac{p_i^\alpha}{\sum_k p_k^i}
 \label{aln:bufprio}
@@ -2044,9 +2045,89 @@ Der neue Hyperparameter $\beta$ bestimmt dabei, wie stark der Einfluss der Sampl
 verringert wird. In dem Paper von Schaul wird empfohlen $\beta$ mit 0.6 zu initialisieren
 und anschließend langsam bis 1 wachsen zu lassen.
 
-% TODO Bruno: Auswertung Priority Replay Buffer
+\paragraph*{Implementierung}
+\noindent
+\newline
+% Funktionen zeigen:
+%  - append()
+%  - sample()
+Für die Implementation des Prioritized Replay Buffers wurde eine neue Klasse
+implementiert. Im Gegensazu zum ursprünglichen Replay Buffer speichert die Erweiterung
+neben den erfahrenen Samples Prioritäten, die Auskunft darüber geben, wie stark das
+jeweilige Sample bevorzugt wird.\\
+Um neue Samples hinzuzufügen, wurde die \lstinline!append()! Methode geschrieben, die in
+Listing \ref{lst:prio_buf_append} beschrieben ist.
+\begin{lstlisting}[language=Python, caption=append()-Funktion des PrioritizedReplayBuffers,
+label=lst:prio_buf_append]
+class PrioritizedReplayBuffer:
+  # ...
+  def append(self, experience):
+    max_priority = self.priorities.max() if self.buffer else 1.0
 
-\subsubsection{Dueling DQN} % TODO Bruno
+    if len(self.buffer) < self.capacity:
+        self.buffer.append(experience)
+    else:
+        self.buffer[self.pos] = experience
+
+    self.priorities[self.pos] = max_priority
+    self.pos = (self.pos + 1) % self.capacity
+  # ...
+\end{lstlisting}
+\noindent
+Neben dem hinzufügen des Samples in \lstinline!self.buffer! wird die Priorität des neuen
+Samples gesetzt. Neu hinzugefügte Samples bekommen die maximale Priorität, die entweder
+die höchste bisherige Priorität ist oder, falls noch kein Sample vorhanden ist, der Wert
+$1.0$. Der Index \lstinline!self.pos! bestimmt die Position an die das nächste Samples
+hinzugefügt wird.\\
+Um die Prioritäten der Samples zu erneuern, werden nach dem Training die Prioritäten auf
+den durch die Samples erzeugten Loss gesetzt. Dadurch werden Samples häufiger zum
+Training benutzt, die einen hohen Loss erzeugt haben.\\
+Um anschließend die ermittelten Prioritäten zu nutzen, werden diese in der
+\lstinline!sample()!-Funktion des Replay Buffers berücksichtigt. Eine vereinfachte Version
+der dieser Funktion ist in Listing \ref{lst:prio_buf_sample} gezeigt.
+\begin{lstlisting}[language=Python, caption=sample()-Funktion des PrioritizedReplayBuffers,
+label=lst:prio_buf_sample]
+class PrioritizedReplayBuffer:
+  def sample(self, batch_size, beta=0.4):
+    probs = self.priorities ** self.prob_alpha
+    probs /= probs.sum()
+
+    indices = np.random.choice(len(self.buffer),
+                               batch_size,
+                               p=probs)
+    samples = zip(*[self.buffer[idx] for idx in indices])
+
+    weights = (len(self.buffer) * probs[indices]) ** (-beta)
+    weights /= weights.max()
+
+    return samples, weights, indices
+\end{lstlisting}
+\noindent
+Zuerst werden die Wahrscheinlichkeiten \lstinline!probs!, dass die einzelnen Samples
+trainiert werden aus den Prioritäten berechnet. Anschließend findet das zufällige
+auswählen der Samples mit der Funktion \lstinline!np.random.choice()! statt. Am Ende
+werden die Gewichte berechnet, mit denen der Loss Wert beim Training skaliert wird. Diese
+Gewichte werden zusammen mit den ausgesuchten samples und deren Indexen zurück gegeben.
+Die Indexe werden benötigt, um die Prioritäten der Samples nach dem Training wieder
+anpassen zu können.
+
+\paragraph*{Auswertung}
+Abbildung \ref{fig:prio_buf_results} zeigt die Ergebnisse des Prioritized Replay Buffers
+in Grau im Vergleich zu einem Experiment ohne Replay Buffer in Grün. Im Diagram sind die
+über 10 Episoden gemittelten Rewards abgebildet.
+\begin{figure}[htp]
+\centering
+\includegraphics[scale=0.3]{res/prio_buffer_results.png}
+\caption{Ergebnisse Prioritized Replay Buffer}
+\label{fig:prio_buf_results}
+\end{figure}
+\noindent
+Wie man erkennen kann, hat sich das Ergebnis durch diese Erweiterung verschlechtert. Es
+lässt sich vermuten, dass die Priorisierung einzelner Samples im entwickelten Environment
+nicht eignet oder das zufällige Abweichungen beim Trainingsprozess zu einem schlechteren
+Ergebnis geführt haben.
+
+\subsubsection{Dueling DQN}
 
 Die Dueling DQN Erweiterung ist inspiriert von der Actor-Critic Methode und wurde von
 \cite{wang2015dueling} vorgestellt. Wie auch in Actor-Critic werden die Q-values nicht % TODO Bruno hier würde ich schon den namen von der Person schreiben
