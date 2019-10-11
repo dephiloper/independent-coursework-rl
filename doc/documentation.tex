@@ -1,6 +1,7 @@
 % TODO check for the following spelling:
 % Q-learning (not Q-Learning)
 % Deep Q-learning (not Deep-Q-learning) same for Tabular
+% value iteration (not value-iteration)
 % REINFORCE (not Reinforce)
 % Actor-Critic (not Actor Critic) and separated: Actor and Critic (not actor/critic)
 % Q-value, value (not Q-Value or Value)
@@ -11,6 +12,7 @@
 % FrozenLake (not frozen lake or frozen-lake)
 % CartPole Environment, but Cart-pole Problem (named in paper)
 % RoboschoolPong Environment
+% 'der' value / 'der' Q-value (not 'die' value or 'das' value)
 
 % Allgemeine section Aufbau
 % - Theorie
@@ -472,7 +474,7 @@ vergleichsweise hoher Reward entsteht.
 In der rechten Abbildung sind das Verfahren Optimistic Initial Values und Upper Confidence
 Bound Action Selection zu sehen. Zusätzlich ist der $\epsilon$-greedy Solver mit
 $\epsilon=0.01$ aus der ersten Abbildung zum Vergleich eingezeichnet. Die obere schwarz
-gestrichelte Linie deutet das value der optimalen Action an.
+gestrichelte Linie deutet den value der optimalen Action an.
 
 Tabelle \ref{tab:explorationstrategies} zeigt die erreichten durchschnittlichen Rewards
 der unterschiedlichen Verfahren.
@@ -858,7 +860,7 @@ vorherzusagen.
 
 Wie oben bereits beschrieben, basieren Q-learning Verfahren auf einer Abschätzung des
 values eines States oder einer Action. Die Abschätzung des values einer Action $a$ in
-einem State $s$ wird als $Q(s, a)$ bezeichnet. Diese value kann auf unterschiedliche
+einem State $s$ wird als $Q(s, a)$ bezeichnet. Dieser value kann auf unterschiedliche
 Weise ermittelt werden.
 
 Eine erste Variante von Q-learning benutzt Tabellen, in denen die Abschätzungen
@@ -872,11 +874,11 @@ In diesem Abschnitt wird auf das Tabular Q-learning eingegangen. Um die
 Ver\-ständ\-lich\-keit zu verbessern wird das Verfahren anhand des FrozenLake
 Environments veranschaulicht.
 
-
-\subsubsection{Value-Iteration Verfahren}
+% TODO Bruno citation needed
+\subsubsection{Value iteration Verfahren}
 Da sich das Spielfeld von FrozenLake nicht verändert, beschränken sich die Zustände des
 Environments auf die Positionen des Spielers. Durch die geringe Anzahl an Spielzuständen
-bietet sich das Tabular Q-learning Verfahren an, da es möglich ist alle erreichbaren
+bietet sich das Tabular Q-learning Verfahren an, da es möglich ist, alle erreichbaren
 Zustände in einer Tabelle zu speichern und deren values zu bestimmen. Diese Tabelle
 enthält für jeden State eine Abschätzung der unterschiedlichen Actions.
 Tabelle \ref{tab:q_table} zeigt eine sehr kleine beispielhafte Q-table mit zwei Actions
@@ -915,14 +917,14 @@ Q(s, a) \leftarrow r_{s,a} + \gamma \max_{a' \in A}Q(s', a')
 \label{aln:QValues}
 \end{align}
 \noindent
-$Q(s, a)$ ist das value der Action $a$ im wahrgenommenen State $s$, also der long-term
+$Q(s, a)$ ist der value der Action $a$ im wahrgenommenen State $s$, also der long-term
 Reward, der erwartet wird, führt man in State $s$ die Action $a$ aus. Das Ziel ist es
 $Q(s, a)$ so anzupassen, dass es sich dem tatsächlich zu erwartenden long-term Reward
 annähert. Der unmittelbare Reward $r_{s,a}$ kann dem SARS-Tupel entnommen werden, ebenso
 wie der Folgestate $s'$.
 
 Befindet sich der Agent im State $s'$, so ist der maximal zu erwartende Reward, der 
-maximal zu erwartende Reward der besten Action im State $s'$. Das bedeutet, dass
+maximal zu erwartende Reward der besten Action im State $s'$. Das bedeutet, dass % TODO Bruno, imo ist da ein maximal zu viel (das 2.) ohne das finde ich die aussage schlüssiger oder?
 der Term $\max_{a'\in A} Q(s', a')$ der erwartete long-term Reward der besten Action des
 Folgezustandes, also auch der bestmögliche long-term Reward, den man in State $s'$
 erwarten kann, ist. Nach (\ref{aln:QValues}) gleicht $Q(s, a)$ dem unmittelbaren Reward
@@ -930,12 +932,12 @@ $r_{s,a}$ addiert mit dem besten zu erwartenden long-term Reward des Folgezustan
 Wert des Folgezustandes wird dabei mit dem discount factor $\gamma$ multipliziert, wobei 
 $\gamma$ standardmäßig zwischen $0.9$ und $0.99$ gewählt wird.
 
-Mit Formel (\ref{aln:QValues}) erhalten wir einen neuen Wert für $Q(s, a)$, also einen
-neuen Wert in unserer Q-table. Da die Wirkung einer Action in FrozenLake nicht
-deterministisch ist und auch im Allgemeinen nicht davon ausgegangen werden kann, wäre es
-nicht gut den Wert der Q-table gleich dem ermittelten Wert zu setzen. Stattdessen wird der
-Wert der Tabelle in Richtung des ermittelten Wertes angepasst. Dies geschieht durch die in
-(\ref{aln:QValueAdapt}) dargestellte Zuweisung.
+Mit \autoref{aln:QValues} wird ein neuer Wert für $Q(s, a)$ ermittelt, sprich es wird ein
+neuer Wert in die Q-table eingetragen. Da die Wirkung einer Action in FrozenLake nicht
+deterministisch ist und auch im Allgemeinen nicht davon ausgegangen werden kann, ist es
+nicht ausreichend den Wert der Q-table gleich dem ermittelten Wert zu setzen. Stattdessen
+wird der Wert der Tabelle in Richtung des ermittelten Wertes angepasst. Dies geschieht durch 
+die in \autoref{aln:QValueAdapt} dargestellte Zuweisung.
 
 \begin{align}
   Q(s, a) \leftarrow (1 - \alpha)Q(s, a) +
@@ -944,14 +946,15 @@ Wert der Tabelle in Richtung des ermittelten Wertes angepasst. Dies geschieht du
 \end{align}
 \noindent
 
-Wobei der Hyperparameter $\alpha$ zwischen 0 und 1 gesetzt wird, um den Wert $Q(s, a)$ bei
+Wobei der Hyperparameter $\alpha$ zwischen 0 und 1 gesetzt wird, um den Wert $Q(s, a)$ bei %TODO Bruno: ist das nicht die Learning Rate?
 jeder Iteration schrittweise zu überblenden. Dadurch nähern sich die Q-values der Tabelle
-den tatsächlichen Q-values an, wodurch sich das Environment erfolgreich spielen lässt.
+den tatsächlichen Q-values an, wodurch sich die Problemstellung des Environments erfolgreich 
+bewältigen lässt.
 
 \subsubsection{Evaluierung}
 Um zu testen, wie gut die gefundenen Q-values funktionieren, wird wie folgt vorgegangen.
 Ein neues Environment wird initialisiert und der Agent wählt in jedem erfahrenen State die
-Action, die das höchste Q-value besitzt.
+Action, die den höchsten Q-value besitzt.
 
 Das vorgestellte Experiment wird als gelöst angesehen, wenn 80\% von 20 Spielen erfolgreich
 beendet wurden. Dieser Aufbau benötigt für 4x4 FrozenLake zwischen 6000 und 42000
@@ -1007,7 +1010,7 @@ um das Verfahren konvergieren zu lassen.
 
 Damit der trainierte Agent sein gewonnenes Wissen exploiten kann, berechnet er aus den
 zur Verfügung stehenden Actions die daraus resultierenden States und wählt die Action, die
-zum State mit höchstem value führt.
+zum State mit dem höchsten value führt.
 
 \subsubsection{Evaluierung}
 Um das Verfahren zu testen wurden Agenten mit unterschiedlicher Anzahl an Trainingsspielen
@@ -1247,7 +1250,7 @@ Verfahren auf das Erlernen einer direkten policy $\pi(s)$. Dies bringt den Vorte
 dass Policy Gradients auf Environments mit kontinuierlichen action space, sprich Actions mit
 Werterepräsentationen in Gleitkommadarstellung, angewandt werden können (siehe
 \ref{sec:action} \nameref{sec:action} - Einschlagwinkel eines Lenkrads). Q-learning Verfahren
-hingegen weisen jedem State oder jeder Action immer eine value zu, was das Optimierungsproblem
+hingegen weisen jedem State oder jeder Action immer ein value zu, was das Optimierungsproblem
 bei einem kontinuierlichen action space deutlich erschwert \cite[~S.242]{L2018}. Ein
 zusätzlicher Vorteil der Policy Gradients ist die stochastische Eigenschaft von Environments.
 Anders als Q-learning wird es mit Policy Gradients möglich, die zugrundeliegende
@@ -1288,7 +1291,7 @@ des $PG$ (Policy Gradient) zustande.
 
 PG definiert dabei die Richtung, in welche die Gewichte des Netzes verschoben werden müssen,
 um die Policy im Hinblick auf den kumulierten total Reward zu verbessern. Die Skalierung des
-Gradienten ist hierbei proportional zur value der zu wählenden Action $Q(s,a)$
+Gradienten ist hierbei proportional zum value der zu wählenden Action $Q(s,a)$
 und der Gradient selbst entspricht in der Formel dem Gradienten der logarithmischen
 Wahrscheinlichkeit der ausgewählten Action \cite[~S.244]{L2018}. Dadurch wird es möglich
 die Wahrscheinlichkeit von Actions mit einem hohen total Reward zu erhöhen und im Gegenzug
@@ -1381,7 +1384,7 @@ aller discounted total Rewards entspricht oder als gleitender Mittelwert (moving
 werden, welcher während des Trainingsverlauf stetig angepasst wird. Eine weitere Option ist den Baseline
 Wert zustandsabhängig zu realisieren, sprich in jedem Zustand wird der Wert $V(s)$ ermittelt, der Auskunft
 darüber gibt, wie gut dieser Zustand einzuschätzen ist. Anschließend kann ein \textit{advantage} Wert
-$A(s,a)$ ermittelt werden, indem von dem berechneten discounted total Reward $Q(s,a)$ die \textit{value}
+$A(s,a)$ ermittelt werden, indem von dem berechneten discounted total Reward $Q(s,a)$ der \textit{value}
 des States $V(s)$ abgezogen wird \cite[~S.268 ff.]{L2018}. Hierbei ist zu erwähnen das die Berechnung von
 $Q(s,a)$ genau wie im REINFORCE Verfahren (siehe \autoref{aln:reinforce-total-reward}) umgesetzt wird.
 Die nachfolgende Formel \ref{aln:actor-critic-advantage} veranschaulicht den Zusammenhang zwischen der
@@ -1940,7 +1943,7 @@ Wie bereits in \autoref{sec:tab-q-learning}:\nameref{sec:tab-q-learning} und \au
 \nameref{sec:dqn} behandelt wird diese zur Berechnung der Q-values verwendet. Da beide
 Verfahren die gleichen values sowohl zur Auswahl, als auch zur Evaluierung von Actions nutzen,
 ist es laut Hasselt et al.\cite[~S.2]{HGD2015} wahrscheinlicher, dass überbewertete values
-ausgewählt werden, was wiederum zu einer überoptimistischen Schätzung zukünfitger values führen
+ausgewählt werden, was wiederum zu einer überoptimistischen Schätzung zukünftiger values führen
 kann. Um diesem Problem entgegenzuwirken können die values zur Auswahl von Actions von denen
 zur Evaluierung entkoppelt werden. In der Vanilla Ausführung des Deep Q-learning Verfahrens
 wird die Berechung der Q-values wie folgt realisiert:
@@ -2126,7 +2129,7 @@ Auflösungsschritte vorzunehmen. Dadurch können Q-values gleich beim Erhalt ein
 Rewards über die $n$ vergangenen Schritte, die zum Erreichen dieses Rewards geführt haben,
 aktualisiert werden. Dies ist bei der in \autoref{aln:double-dqn-q-values} definierten
 Vorhergehensweise nicht möglich, da ausschließlich \textit{ein} zukünftiger Schritt geschätzt
-wird und die Aktualisierung lediglich auf die Q value des Ausgangszustandes angewandt wird. 
+wird und die Aktualisierung lediglich auf dem Q value des Ausgangszustandes angewandt wird. 
 Der Hauptvorteil dieser Erweiterung liegt in der Beschleunigung des Trainingsprozesses.
 
 In die schlussendliche Realisierung des Agenten wurde diese Erweiterung jedoch nicht
