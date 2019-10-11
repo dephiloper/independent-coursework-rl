@@ -2,10 +2,15 @@
 % Q-learning (not Q-Learning)
 % Deep Q-learning (not Deep-Q-learning) same for Tabular
 % REINFORCE (not Reinforce)
+% Actor-Critic (not Actor Critic) and separated: Actor and Critic (not actor/critic)
 % Q-value, value (not Q-Value or Value)
 % Q-table (not Q-Table)
 % Action (not Aktion)
 % Reward (not reward)
+% *-based (like policy-based)
+% FrozenLake (not frozen lake or frozen-lake)
+% CartPole Environment, but Cart-pole Problem (named in paper)
+% RoboschoolPong Environment
 
 % Allgemeine section Aufbau
 % - Theorie
@@ -691,8 +696,8 @@ zusätzlich visuell dargestellt:
 \label{fig:cross_entropy_procedure}
 \end{figure}
 
-\subsection{Cart-Pole}
-Das Cart-Pole Environment beschreibt ein eher einfach einzustufendes Environment, welches durch seine
+\subsection{CartPole}
+Das CartPole Environment beschreibt ein eher einfach einzustufendes Environment, welches durch seine
 simple Nutzung gerne als Einstiegspunkt für die Entwicklung von Reinforcement Learning Algorithmen 
 dient. Das Environment besteht aus einem Stab (pole), welcher über ein Gelenk an einem Wagen (cart) 
 befestigt ist \cite{OAI2016_2}. Der Agent kann den Wagen durch das Aufbringen einer horizontalen Kraft 
@@ -706,9 +711,9 @@ für jeden Frame in dem der Stab und der Wagen die beschriebenen Anforderungen e
 erhält der Agent als Observation die aktuelle Position und Geschwindigkeit des Wagens, sowie den Winkel
 der Ausrichtung des Stabs und die Geschwindigkeit die auf die Spitze des Stabs wirkt.
 
-In dem Toolkit von Open AI existieren diverse Versionen von Cart-Pole, wobei sich die eben
+In dem Toolkit von Open AI existieren diverse Versionen von CartPole, wobei sich die eben
 erläuterte Beschreibung auf das Environment CartPole-v0 bezieht, des von Barto, Sutton und
-Anderson beschriebenen Cart-Pole-Problems \cite[~S.838 f.]{BSA1983}. Erreicht der Agent einen
+Anderson beschriebenen Cart-pole Problems \cite[~S.838 f.]{BSA1983}. Erreicht der Agent einen
 durchschnittlichen Reward von mindestens 195,0 über 100 aufeinanderfolgende Versuche hinweg gilt das
 Problem als gelöst. \autoref{fig:cart-pole} veranschaulicht die beschriebene Problemstellung aus dem 
 Paper\cite{BSA1983} von Barto, Sutton und Anderson:
@@ -716,7 +721,7 @@ Paper\cite{BSA1983} von Barto, Sutton und Anderson:
 \begin{figure}[htp]
 \centering
 \includegraphics[scale=0.15]{res/cart-pole.png}
-\caption{Illustration des Cart-Pole Problems}
+\caption{Illustration des Cart-pole Problems}
 \source{\cite[~S.838]{BSA1983}}
 \label{fig:cart-pole}
 \end{figure}
@@ -724,7 +729,7 @@ Paper\cite{BSA1983} von Barto, Sutton und Anderson:
 \paragraph*{Evaluierung}
 \noindent
 \newline
-Das Cross-Entropy-Verfahren wurde im Cart-Pole Environment mittels neuronalen Netz mit
+Das Cross-Entropy-Verfahren wurde im CartPole Environment mittels neuronalen Netz mit
 einem Hidden Layer von 128 Nodes und einer Learning Rate von 0.01 trainiert. Als
 Optimizer wurde Adam verwendet und als Aktivierungsfunktion zwischen Input Layer und
 Hidden Layer die ReLu Funktion. Zur Berechnung eines Loss zwischen Vorhersage des Netzes
@@ -748,15 +753,15 @@ Werten einer Verteilung die unter oder gleich einem festgelegten Wert sind (z.B.
 \label{fig:cross-entropy-graph}
 \end{figure}
 
-Die Implementierung der Cross-Entropy-Method zum Cart-Pole Problem ist unter
+Die Implementierung der Cross-Entropy-Method zum Cart-pole Problem ist unter
 \url{github.com/dephiloper/independent-coursework-rl} im Unterverzeichnis 
 \textit{preparation/04\_cross\_entropy} in der Datei
 \href{https://github.com/dephiloper/independent-coursework-rl/blob/master/preparation/04_cross_entropy/cart_pole_torch.py}{\nolinkurl{cart\_pole\_torch.py}} umgesetzt.
 
 
-\subsection{Frozen Lake}
+\subsection{FrozenLake}
 \label{sec:frozen-lake}
-Bei dem zweiten Environment Frozen Lake handelt es sich um ein Environment mit diskretem action-
+Bei dem zweiten Environment FrozenLake handelt es sich um ein Environment mit diskretem action-
 und diskretem observation-space, das heißt, dass sowohl die zu tätigende Action diskret ist,
 aber auch die Observation als diskreter Zahlenwert von 0-15 wahrgenommen wird. Der Zahlenwert
 der Observation repräsentiert dabei ausschließlich die Position des Agenten. Das Ziel ist es
@@ -767,7 +772,7 @@ sich der Avatar auf diese bewegt. Das Spielfeld ist in Abbildung \ref{fig:frozen
 \begin{figure}[htp]
 \centering
 \includegraphics[scale=0.25]{res/frozen_lake.png}
-\caption{Frozen Lake Spielfeld}
+\caption{FrozenLake Spielfeld}
 \source{\cite[~S.90 - Chapter 4 - Figure 5]{L2018}}
 \label{fig:frozen_lake}
 \end{figure}
@@ -785,7 +790,7 @@ Richtung, wobei jedoch nie die entgegengesetzte Action der Wahl vollzogen wird.
 \paragraph*{Evaluierung}
 \noindent
 \newline
-Anders als das Cart-Pole Environment erhält der Agent bei dem Frozen Lake Environment 
+Anders als das CartPole Environment erhält der Agent bei dem FrozenLake Environment 
 ausschließlich einen +1 Reward, sobald der gesteuerte Avatar das Ziel erreicht. Daraus folgt,
 dass anhand des \textit{total Reward} einer Episode nicht darauf geschlossen werden kann,
 wie gut eine Episode gespielt wurde (Avatar kann lange umherwandern bevor er auf das Ziel kommt).
@@ -823,7 +828,7 @@ etwa 50\% erfolgreichen Lösung des Environments stagniert.
 \label{fig:frozen-lake_cross-entropy}
 \end{figure}
 
-Die Implementierung der Cross-Entropy-Method zum Frozen Lake Environment ist unter
+Die Implementierung der Cross-Entropy-Method zum FrozenLake Environment ist unter
 \url{github.com/dephiloper/independent-coursework-rl} im Unterverzeichnis 
 \textit{preparation/04\_cross\_entropy} in der Datei 
 \href{https://github.com/dephiloper/independent-coursework-rl/blob/master/preparation/04_cross_entropy/frozen_lake_torch.py}{\nolinkurl{frozen\_lake\_torch.py}} umgesetzt.
@@ -832,7 +837,7 @@ Die Implementierung der Cross-Entropy-Method zum Frozen Lake Environment ist unt
 
 \section{Q-learning}
 In diesem Abschnitt wird das Verfahren Q-learning erläutert. Anschließend wird die Methode
-an zwei praktischen Anwendungen getestet. Einerseits in der Testumgebung frozen-lake 
+an zwei praktischen Anwendungen evaluiert. Einerseits in der Testumgebung FrozenLake
 (siehe \autoref{sec:frozen-lake}) und zum Anderen in einer selbstständig entwickelten
 Tic-Tac-Toe Anwendung, in der das Verfahren anhand eines zufällig spielenden Gegner
 validiert wird.
@@ -864,12 +869,12 @@ für unterschiedliche States oder Actions gespeichert werden. Dieses Verfahren w
 \subsection{Tabular Q-learning}
 \label{sec:tab-q-learning}
 In diesem Abschnitt wird auf das Tabular Q-learning eingegangen. Um die
-Ver\-ständ\-lich\-keit zu verbessern wird das Verfahren anhand des Frozen Lake
+Ver\-ständ\-lich\-keit zu verbessern wird das Verfahren anhand des FrozenLake
 Environments veranschaulicht.
 
 
 \subsubsection{Value-Iteration Verfahren}
-Da sich das Spielfeld von Frozen Lake nicht verändert, beschränken sich die Zustände des
+Da sich das Spielfeld von FrozenLake nicht verändert, beschränken sich die Zustände des
 Environments auf die Positionen des Spielers. Durch die geringe Anzahl an Spielzuständen
 bietet sich das Tabular Q-learning Verfahren an, da es möglich ist alle erreichbaren
 Zustände in einer Tabelle zu speichern und deren values zu bestimmen. Diese Tabelle
@@ -926,7 +931,7 @@ Wert des Folgezustandes wird dabei mit dem discount factor $\gamma$ multiplizier
 $\gamma$ standardmäßig zwischen $0.9$ und $0.99$ gewählt wird.
 
 Mit Formel (\ref{aln:QValues}) erhalten wir einen neuen Wert für $Q(s, a)$, also einen
-neuen Wert in unserer Q-table. Da die Wirkung einer Action in Frozen Lake nicht
+neuen Wert in unserer Q-table. Da die Wirkung einer Action in FrozenLake nicht
 deterministisch ist und auch im Allgemeinen nicht davon ausgegangen werden kann, wäre es
 nicht gut den Wert der Q-table gleich dem ermittelten Wert zu setzen. Stattdessen wird der
 Wert der Tabelle in Richtung des ermittelten Wertes angepasst. Dies geschieht durch die in
@@ -949,7 +954,7 @@ Ein neues Environment wird initialisiert und der Agent wählt in jedem erfahrene
 Action, die das höchste Q-value besitzt.
 
 Das vorgestellte Experiment wird als gelöst angesehen, wenn 80\% von 20 Spielen erfolgreich
-beendet wurden. Dieser Aufbau benötigt für 4x4 Frozen Lake zwischen 6000 und 42000
+beendet wurden. Dieser Aufbau benötigt für 4x4 FrozenLake zwischen 6000 und 42000
 Iterationen, was zwischen einer und sechs Sekunden benötigt. Abbildung
 \ref{fig:frozen-lake_q_learning} visualisiert den typischen Trainingsablauf, wobei der
 durchschnittliche Reward aus 20 Spielen gezeigt wird.
@@ -964,10 +969,10 @@ durchschnittliche Reward aus 20 Spielen gezeigt wird.
 
 
 \subsection{Tic Tac Toe}
-Neben der Umsetzung von Frozen Lake wurde ebenfalls eine Tic Tac Toe Implementation
+Neben der Umsetzung von FrozenLake wurde ebenfalls eine Tic Tac Toe Implementation
 entwickelt, in dem ein Agent gegen einen zufällig spielenden Gegner trainiert und getestet
 wurde. Unter \url{https://github.com/Bluemi/tictactoe_rl} ist diese Implementation
-einsehbar. Das umgesetzte Verfahren ist eine Form der value based Verfahren unterscheidet
+einsehbar. Das umgesetzte Verfahren ist eine Form der value-based Verfahren unterscheidet
 sich aber von Q-learning.
 
 Ebenfalls wurde ein Tic Tac Toe Environment entwickelt, das das Interface eines OpenAI
@@ -1076,8 +1081,8 @@ abstrahieren kann.
 
 In diesem Kapitel wird zuerst eine Einordnung des Verfahrens vorgenommen, um anschließend
 das Verfahren aufbauend auf Tabular Q-learning zu beschreiben. Am Ende werden die	
-Implementierung eines Agenten für das Pong Environment und die damit erzielten Ergebnisse
-vorgestellt.
+Implementierung eines Agenten für das RoboschoolPong Environment und die damit erzielten
+Ergebnisse vorgestellt.
 
 \subsection{Einordnung}
 Deep Q-learning funktioniert ähnlich, wie das schon vorgestellte Tabular Q-learning. Auch
@@ -1165,12 +1170,12 @@ Nach einer gewissen Anzahl an Trainings werden die Gewichte des Target Netzes mi
 Gewichten des trainierten Netzes überschrieben, sodass sich die Netze synchronisieren.
 
 \subsection{Implementierung}
-Mit den eben beschriebenen Änderungen wurde ein Deep Q-learning Algorithmus für ein Pong
-Environment implementiert und getestet. Der Quelltext kann unter
+Mit den eben beschriebenen Änderungen wurde ein Deep Q-learning Algorithmus für das
+RoboschoolPong Environment implementiert und getestet. Der Quelltext kann unter
 \url{https://github.com/dephiloper/independent-coursework-rl/tree/master/preparation/07_deep_q_learning}
 gefunden werden.
 
-\subsubsection{Das Roboschool Pong Environment}
+\subsubsection{Das RoboschoolPong Environment}
 Für die Umsetzung des Deep Q-learning Verfahrens wurde ein Pong Environment verwendet, das
 unter \url{https://github.com/openai/roboschool} zu finden ist. In diesem Environment wird
 das bekannte Pong Spiel trainiert. Zwei Spieler bewegen jeweils einen Balken mit dem ein
@@ -1182,7 +1187,7 @@ Environment.
 \begin{figure}[htp]
 \centering
 \includegraphics[scale=0.4]{res/pong_env.png}
-\caption{Roboschool Pong Environment}
+\caption{RoboschoolPong Environment}
 \label{fig:pong_env}
 \end{figure}
 \noindent
@@ -1202,7 +1207,7 @@ auf dessen Grundlinie stößt. Zusätzlich gibt es einen kleineren Reward, wenn 
 dem Balken getroffen wird.
 
 \subsubsection{Agent}
-Für die Lösung des Pong Environments wurde das Deep Q-learning Verfahren implementiert,
+Für die Lösung des RoboschoolPong Environments wurde das Deep Q-learning Verfahren implementiert,
 wobei die Q-values von einem neuronalen Netz berechnet wurden. Es wurden unterschiedliche
 Konfigurationen getestet, wobei die Anzahl der Layer zwischen drei und vier, als auch die
 Anzahl der Knoten pro Layer variiert wurden. Als Aktivierungsfunktion wurde die
@@ -1212,14 +1217,14 @@ Als discount factor wurde $\gamma = 0.99$ und eine Replaybuffergröße von 10000
 Samples gewählt. Nach 1000 Frames wird das Target Net durch das trainierte Netz geupdated.
 
 \subsubsection{Ergebnisse}
-Abbildung \ref{fig:pong_results} zeigt eine Auswahl der Testläufe im Pong Environment.
+Abbildung \ref{fig:pong_results} zeigt eine Auswahl der Testläufe im RoboschoolPong Environment.
 Eine Abbildung aller Testläufe ist im Anhang in Abbildung \ref{fig:pong_all_results} zu
 sehen.
 
 \begin{figure}[htp]
 \centering
 \includegraphics[scale=0.4]{res/pong_results.png}
-\caption{Ergebnisse Pong}
+\caption{Ergebnisse RoboschoolPong}
 \label{fig:pong_results}
 \end{figure}
 \noindent
@@ -1364,9 +1369,9 @@ Environments.
 \newpage
 
 
-\section{Actor Critic}
+\section{Actor-Critic}
 Das letzte zu erläuternde Verfahren reiht sich als Erweiterung in die Policy Gradients Familie ein.
-Bei der \textit{Actor Critic Method} handelt es sich um ein state-of-the-art Reinforcement Learning
+Bei der \textit{Actor-Critic Method} handelt es sich um ein state-of-the-art Reinforcement Learning
 Verfahren mit der Bestrebung die Stabilität und den Prozess des Konvergierens im Trainingsablauf
 zu verbessern. Wie bereits in \autoref{sec:limit-reinforce}: \nameref{sec:limit-reinforce} beschrieben
 kann durch die Einführung einer Baseline, sprich einem Wert, welcher in der Berechnung des Loss von dem
@@ -1404,7 +1409,7 @@ visualisiert.
 \begin{figure}[htp]
 \centering
 \includegraphics[scale=0.5]{res/actor-critic.png}
-\caption{Actor Critic - shared net Architektur}
+\caption{Actor-Critic - shared net Architektur}
 \source{\cite[~S.268 - Chapter 10 - Figure 5]{L2018}}
 \label{fig:actor-critic}
 \end{figure}
@@ -1434,13 +1439,13 @@ die akkumulierten Gradienten beider Netze in Richtung des Policy Gradients $\par
 und entgegen der Richtung des value Gradients $\partial\theta_v$ verschoben werden. Diese Schritte
 werden anschließend solange wiederholt, bis das System konvergiert.
 
-Das Policy net wird dabei als \textit{actor} bezeichnet, da man von diesem ableiten kann, welche
-Action ausgeführt werden soll. Das Value net wird hingegen als \textit{critic} bezeichnet, da es mit
+Das Policy net wird dabei als \textit{Actor} bezeichnet, da man von diesem ableiten kann, welche
+Action ausgeführt werden soll. Das Value net wird hingegen als \textit{Critic} bezeichnet, da es mit
 diesem möglich wird, zu bewerten wie gut die ausgeführten Actions waren, um somit bei einem hohen
 advantage Wert die Wahrscheinlichkeiten der gewählten Action mehr in diese Richtung zu bewegen.
 
 \subsection{Erweiterungen}
-Obwohl das Actor Critic Verfahren bereits als Erweiterung zum klassischen Policy Gradient Ansatz
+Obwohl das Actor-Critic Verfahren bereits als Erweiterung zum klassischen Policy Gradient Ansatz
 gezählt wird existieren weitere Maßnahmen zur Verbesserung und Beschleunigung der Methode.
 
 \paragraph*{Entropy Bonus} 
@@ -1724,7 +1729,7 @@ weniger gut funktioniert haben. Eine Episode im Teeworlds Environment gilt als b
 wenn in Stacheln gesprungen wurde, wenn das Herz eingesammelt wurde oder wenn ein
 Zeitlimit abläuft. Das Zeitlimit wurde für die im weiteren Verlauf beschriebenen
 Experimente auf 40 Sekunden gesetzt, was bei einer Framerate 5 Frames pro Sekunde eine
-maximale Episodenlänge von 200 Frames bedeutet, was mit dem Cart-Pole Environment
+maximale Episodenlänge von 200 Frames bedeutet, was mit dem CartPole Environment
 vergleichbar ist.\\
 Versuche haben gezeigt, dass die Cross-Entropy Methode in ihrer Einsetzbarkeit begrenzt
 ist und schwierigere Environments nicht erfolgreich gelöst werden können.
@@ -1748,7 +1753,7 @@ bereits die Limitierungen der REINFORCE Methode beschrieben. Dazu zählt, dass l
 Episoden einen langen Trainingsprozess mit sich bringen, da nach jedem Training neue Daten
 generiert werden müssen.
 
-\paragraph{Actor Critic}
+\paragraph{Actor-Critic}
 Die Actor-Critic Methode ist eine Erweiterung der REINFORCE Methode, das auch in komplexen
 Environments funktioniert. Unter anderem wurde sie schon im Atari Environment erfolgreich
 getestet. Außerdem erlaubt es die policy-based Actor-Critic Methode nach Lapan,
@@ -2149,7 +2154,7 @@ resultierenden Ergebnisse zu erhalten.
 Durch die Implementierung des Teeworld Environments besteht anschließend die möglich weitere Verfahren
 für die Lösung der definierten Problemstellung des Environments umzusetzen. Besonders aufgrund der
 Implementierung der Worker Struktur und dem daraus resultierenden parallelen Sammeln von Trainingsdaten
-wird es möglich on-policy Verfahren wie die Actor Critic Method in der bestehenden Realisierung umzusetzen.
+wird es möglich on-policy Verfahren wie die Actor-Critic Methode in der bestehenden Realisierung umzusetzen.
 Des Weiteren exisitieren auf seiten des Environments bereits Funktionalitäten zur Veränderung der
 Ausrichtung des Greifhaken sowie der aktuell ausgerüsteten Waffe. Aufbauend auf diesen Funktionen könnte
 das System um die Erkennung von Lebenspunkten und Trefferpunkten erweitert werden, wodurch die
