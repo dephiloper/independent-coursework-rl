@@ -409,11 +409,10 @@ dreier Parameter aus.
 Der erste Parameter ist $t$ die Anzahl der Actions, die bis jetzt gespielt wurden. Der
 zweite ist der bis jetzt ermittelte $value$ der Action $a$ bezeichnet mit $Q(a)$ und der
 dritte Parameter ist die Anzahl, wie oft Action $a$ schon ausprobiert wurde. Die nächste
-zu spielende Action wird dann nach folgender Gleichung gewählt:
+zu spielende Action wird dann nach folgender Gleichung gewählt \cite[~S.27]{SB1998}:
 
 \begin{align}
   A = \argmax_a\left( Q(a) + c*\sqrt\frac{\ln(t)}{N(a)} \right)
-  \source{\cite[~S.27]{SB1998}}
 \end{align}
 
 $A$ ist die gewählte Action. $N(a)$ ist die Anzahl, wie oft die Action $a$ schon gewählt
