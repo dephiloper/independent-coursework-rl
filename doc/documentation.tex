@@ -397,7 +397,7 @@ zukünftige Rewards dieser Action abschätzen zu können.
 
 Neben $\epsilon$-greedy Verfahren ist es eine weitere Möglichkeit Exploration umzusetzen,
 die initiale Bewertung der values sehr optimistisch vorzunehmen \cite[~S.26]{SB1998}.
-Dadurch wird der Agent bei der Wahl einer Action vom erhaltenen Reward ''enttäuscht'',
+Dadurch wird der Agent bei der Wahl einer Action vom erhaltenen Reward ''enttäuscht''
 sodass sich die Einschätzung dieser Action verschlechtert. Wird nun immer die Action
 gewählt, die am besten eingeschätzt ist, so werden über die Zeit alle Actions versucht,
 bis sie sich dem tatsächlichen Erwartungswert nähern.
@@ -1833,10 +1833,10 @@ gelöst.}
 
 Das Environment wurde aus Gründen der Performance ohne zusätzliche Beschleunigung des Spiels
 ausgeführt, wobei jeweils 4 Worker (siehe \nameref{sec:architecture-env}) simultan den
-explorierenden Anteil im Environment vollziehen. Das entwickelte Gesamtsystem wurde auf einem
-PC (Spezifikation siehe \autoref{sec:specs}) mit CUDA Unterstützung für durchschnittlich 32 
-Stunden ausgeführt. Die nachfolgenden Graphen % TODO 32 Stunden stimmt nicht
-veranschaulichen den während des Trainingsprozesses erhaltenen durchschnittlichen Reward sowie
+explorierenden Anteil im Environment vollziehen. Das entwickelte Gesamtsystem wurde für den
+Trainingsprozess auf einem PC (Spezifikation siehe \autoref{sec:specs}) mit CUDA Unterstützung
+für 38 Stunden ausgeführt und sammelte dabei 2.25 Millionen Frames. Die nachfolgenden Graphen
+veranschaulichen den, während des Trainingsprozesses erhaltenen durchschnittlichen Reward sowie
 den, für den Verlauf des Explorationprozesses verwendeten $\epsilon$ Wert (\ref{fig:vanilla-dqn}):
 
 \begin{figure}[htp]
@@ -1951,13 +1951,13 @@ Linear Layer, wobei diese durch die \textit{NoisyLayer} Klasse ausgetauscht werd
 \paragraph*{Auswertung}
 \noindent
 \newline
-Der Trainingsprozess nach dem Einbinden der Erweiterung beträgt 32 Stunden. % TODO wie viele Stunden?
-Durch die Einbindung der Noisy Layer wird der Trainingsprozess deutlich stabiler, was mit der
-alternativen Form der Exploration des Environments erklärt werden kann. Jedoch konnte
-abschließend durch die Nutzung der Erweiterung kein besseres Verhalten erzielt werden, als
-bei der Vanilla Variante. In \autoref{fig:noisy-dqn} wird erneut die Entwicklung des
-durchschnittlichen Rewards des Noisy Deep Q-learning Verfahrens (blau) im Vergleich zur
-Entwicklung des Vanilla Verfahrens (rot) veranschaulicht:
+Der Trainingsprozess nach dem Einbinden der Erweiterung beträgt 36 Stunden, wodurch 2.13 Millionen
+Frames aufgezeichnet wurden. Durch die Einbindung der Noisy Layer wird der Trainingsprozess
+deutlich stabiler, was mit der alternativen Form der Exploration des Environments erklärt werden
+kann. Abschließend konnte durch die Einbindung der Noisy Layer Erweiterung, ein besseres
+Trainingsergebnis erziehlt werden. In \autoref{fig:noisy-dqn} wird erneut die Entwicklung des
+durchschnittlichen Rewards des Noisy Deep Q-learning Verfahrens (blau) im Vergleich zur Entwicklung
+des Vanilla Verfahrens (rot) veranschaulicht:
 
 \begin{figure}[htp]
 \centering
