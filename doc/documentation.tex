@@ -2141,8 +2141,9 @@ anpassen zu können.
 
 \paragraph*{Auswertung}
 Abbildung \ref{fig:prio_buf_results} zeigt die Ergebnisse des Prioritized Replay Buffers
-in Grau im Vergleich zu einem Experiment ohne Replay Buffer in Grün. Im Diagram sind die
-über 10 Episoden gemittelten Rewards abgebildet.
+in grau im Vergleich zu einem Experiment ohne Replay Buffer in grün, wobei die über 10
+Episoden gemittelten Rewards erneut abgebildet sind. Der Trainingsprozess wurde für 37
+Stunden ausgeführt, wobei 2.2 Millionen Samples gesammelt wurden.
 \begin{figure}[htp]
 \centering
 \includegraphics[scale=0.3]{res/prio_buffer_results.png}
@@ -2150,10 +2151,11 @@ in Grau im Vergleich zu einem Experiment ohne Replay Buffer in Grün. Im Diagram
 \label{fig:prio_buf_results}
 \end{figure}
 \noindent
-Wie man erkennen kann, hat sich das Ergebnis durch diese Erweiterung verschlechtert. Es
-lässt sich vermuten, dass die Priorisierung einzelner Samples im entwickelten Environment
-nicht eignet oder das zufällige Abweichungen beim Trainingsprozess zu einem schlechteren
-Ergebnis geführt haben.
+Wie zu erkennen ist, hat sich das Ergebnis durch diese Erweiterung verschlechtert. Der
+durchschnittliche Reward ist geringer ausgefallen und nicht alle Levels konnten
+erfolgreich absolviert werden. Es lässt sich vermuten, dass die Priorisierung einzelner
+Samples für das entwickelte Environment nicht eignet ist oder das zufällige Abweichungen
+beim Trainingsprozess zu einem schlechteren Ergebnis geführt haben.
 
 \subsubsection{Dueling DQN}
 Die Dueling DQN Erweiterung ist inspiriert von der Actor-Critic Methode und wurde von
@@ -2165,9 +2167,8 @@ eine Advantage, die aussagt, wieviel besser oder schlechter diese Action im Verg
 den anderen Actions ist. Dabei gilt die Einschränkung, dass die Summe der Advantage Werte
 auf 0 liegen soll. Um diese Charakteristik umzusetzen, wird der Durchschnitt der Advantage
 Werte von den Advantage Werten abgezogen, sodass deren Durchschnitt 0 entspricht, wie in
-\autoref{aln:dueling_q_values} gezeigt wird. % TODO Bruno verstehe ich nicht ganz
-%TODO 4 advantage werte -> 3, 2, -4, 0, durchschn. = 1 -> von allen abziehen: 2, 1, -5, 0 durchschn. = -1
-%                                       durchschn. = (3+2-4+0)/4 = 0.25
+\autoref{aln:dueling_q_values} gezeigt wird.
+
 \begin{align}
   Q(s, a) = V(s) + A(s, a) - \frac{1}{N} \sum_{k=0}^{N-1} A(s, k)
   \label{aln:dueling_q_values}
@@ -2241,8 +2242,11 @@ jedoch nicht die DuelingNet Erweiterung umsetzt.
 \end{figure}
 \noindent
 Wie man aus der Entwicklung des Rewards erkennen kann, erreicht der Agent, der das
-DuelingNet benutzt einen höheren maximalen Reward und lernt das Environment mit weniger
-Samples. % TODO Bruno was ist der max reward, warum wird der reward besser (annahme)?
+DuelingNet benutzt einen höheren maximalen Reward von 13.1 und lernt das Environment mit
+weniger Samples (2.1 Millionen Samples in 38.5 Stunden). Alle Level der Problemstellung
+konnten erfolgreich durchgespielt werden. Des Weiteren erreichte das Verfahren zum Ende
+des Trainingsprozesses durchgängig konstante Ergebnisse, wobei der Reward über eine Stunde
+einen Schwellwert von 11 nicht unterschritt.
 
 \subsubsection{N-step DQN}
 Eine zusätzliche Verbesserung kann im Deep Q-learning Verfahren erziehlt werden, indem die
