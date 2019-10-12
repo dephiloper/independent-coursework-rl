@@ -189,7 +189,7 @@ Environment zu nehmen. Zu Actions zählen das Ausführen von Spielzügen, die du
 Regelwerk erlaubt sind sowie die Änderung eines Zustandes in umfangreicheren Systemen. Die
 Komplexität der Actions kann dabei ebenfalls variieren. Des Weiteren unterscheidet man im Bereich
 Reinforcement Learning zwischen zwei Arten von Actions: diskrete und kontinuierliche Actions.
-Diskrete Actions definieren eine endliche Menge an gegenseitig ausschließenden Handlungen die ein  % TODO wirklich gegenseitig ausschließend?
+Diskrete Actions definieren eine endliche Menge an gegenseitig ausschließenden Handlungen die ein
 Agent vollziehen kann \cite[~S.8]{L2018}. Dazu zählen Actions wie sich nach links und rechts zu
 bewegen oder zu springen. Kontinuierliche Actions werden hingegen als Handlungen definiert, die
 über einen zusätzlichen Wert beeinflusst werden, wie zum Beispiel das Steuern eines Fahrzeuges
@@ -369,25 +369,25 @@ values der unterschiedlichen Actions am Anfang und Ende des Spiels identisch sin
 auch Erfahrungen, die zu Beginn des Spielens gemacht wurden, am Ende benutzt werden
 können.
 
-% TODO Bruno mehr cite
 \subsubsection{Exploration-Strategien}
-Im folgenden werden verschiedene Exploration-Strategien beleuchtet. Dazu werden diese erst
-theoretisch erklärt und anschließend praktisch an einem k-armed-Bandit Problem verglichen.
+Im folgenden werden verschiedene Exploration-Strategien beleuchtet, die von R. Sutton und
+A. Barto \cite[~S.19]{SB1998} vorgestellt wurden. Dazu werden diese erst theoretisch
+erklärt und anschließend praktisch an einem eigenständig entwickelten k-armed-Bandit
+Problem verglichen.
 
-% TODO Bruno citation needed
 \paragraph{$\epsilon$ greedy / decaying $\epsilon$ greedy}
 Eine Strategie, die zu jedem Zeitpunkt die Action wählt, die nach derzeitigem Wissen den
-höchsten value hat, wird $greedy$ genannt. $\epsilon$-greedy-Strategien sind greedy
-Strategien, die mit einer gewissen Wahrscheinlichkeit $\epsilon$ eine zufällige Action
-wählen. Sie wählen also mit einer Wahrscheinlichkeit von $1 - \epsilon$ die Action, von
-der sie sich den höchsten Reward versprechen und andernfalls eine zufällige Action.
+höchsten value hat, wird nach R. Sutton \cite[~S.20]{SB1998} $greedy$ genannt.
+$\epsilon$-greedy-Strategien sind greedy Strategien, die mit einer gewissen
+Wahrscheinlichkeit $\epsilon$ eine zufällige Action wählen. Sie wählen also mit einer
+Wahrscheinlichkeit von $1 - \epsilon$ die Action, von der sie sich den höchsten Reward
+versprechen und andernfalls eine zufällige Action.
 
 In der Praxis werden häufig decaying-$\epsilon$-greedy-Strategien verwendet, bei denen der
 $\epsilon$-Wert über den Trainingsprozess hinweg verringert wird. Dadurch werden zu Beginn
 des Trainings viele neue Actions ausprobiert, während gegen Ende das Anwenden des
 Gelernten stärker in den Vordergrund tritt.
 
-% TODO Bruno citation needed
 \paragraph{Optimistic Initial Values}
 Ein Agent, der ein k-armed-Bandit Problem lösen soll, besitzt eine interne Abschätzung der
 values, um Actions wählen zu können, die einen besseren Reward versprechen. Die
@@ -396,13 +396,12 @@ Action. Beispielsweise können die erfahrenen Rewards einer Action gemittelt wer
 zukünftige Rewards dieser Action abschätzen zu können.
 
 Neben $\epsilon$-greedy Verfahren ist es eine weitere Möglichkeit Exploration umzusetzen,
-die initiale Bewertung der values sehr optimistisch vorzunehmen. Dadurch wird der Agent
-bei der Wahl einer Action vom erhaltenen Reward ''enttäuscht'', sodass sich die
-Einschätzung dieser Action verschlechtert. Wird nun immer die Action gewählt, die am
-besten eingeschätzt ist, so werden über die Zeit alle Actions versucht, bis sie sich dem
-tatsächlichen Erwartungswert nähern.
+die initiale Bewertung der values sehr optimistisch vorzunehmen \cite[~S.26]{SB1998}.
+Dadurch wird der Agent bei der Wahl einer Action vom erhaltenen Reward ''enttäuscht'',
+sodass sich die Einschätzung dieser Action verschlechtert. Wird nun immer die Action
+gewählt, die am besten eingeschätzt ist, so werden über die Zeit alle Actions versucht,
+bis sie sich dem tatsächlichen Erwartungswert nähern.
 
-% TODO Bruno citation needed
 \paragraph{Upper Confidence Bound Action Selection}
 Während $\epsilon$-greedy-Methoden zufällig zwischen allen nicht greedy Actions
 auswählen, wählt die Upper Confidence Bound Ac\-tion Selection Methode Actions entsprechend
@@ -413,7 +412,8 @@ dritte Parameter ist die Anzahl, wie oft Action $a$ schon ausprobiert wurde. Die
 zu spielende Action wird dann nach folgender Gleichung gewählt:
 
 \begin{align}
-A = \argmax_a\left( Q(a) + c*\sqrt\frac{\ln(t)}{N(a)} \right)
+  A = \argmax_a\left( Q(a) + c*\sqrt\frac{\ln(t)}{N(a)} \right)
+  \source{\cite[~S.27]{SB1998}}
 \end{align}
 
 $A$ ist die gewählte Action. $N(a)$ ist die Anzahl, wie oft die Action $a$ schon gewählt
@@ -426,7 +426,6 @@ $c$ lässt sich bestimmen, wie stark selten benutzte Actions ausprobiert werden 
 Ein Vorteil gegenüber $\epsilon$-greedy Strategien ist, dass durch die Einbeziehung von
 $Q(a)$ Actions häufiger ausprobiert werden, die besser erscheinen, während Actions, die
 sehr schlecht wirkende Actions weniger oft ausprobiert werden.
-
 
 \subsubsection{Implementierung}
 Das k-armed-Bandit Problem sowie verschiedene Varianten der Action-Selection wurden
@@ -574,7 +573,8 @@ Die Funktionen \textit{\_take\_action(action)}, \textit{\_get\_reward()} und
 \textit{\_check\_if\_done(reward)} setzen die Kommunikation mit dem Environment um. In
 diesem Bespiel besteht die Observation ausschließlich aus den Zuständen der beiden Spieler.
 Nach der Änderung der Systemdynamik und dem Erfassen der Observation wird das bereits
-beschriebene Tupel an Umgebungsinformationen zurückgeliefert.\\
+beschriebene Tupel an Umgebungsinformationen zurückgeliefert.
+
 Die Methode \textbf{reset()} dient zum vollständigen Zurücksetzen des Environments und aller
 darin gespeicherten Zustände. Anschließend gibt die Methode den Ausgangszustand als Observation
 an den Aufrufenden zurück. Reset kommt zum Einsatz, sobald eine Episode abgeschlossen wurde
@@ -596,13 +596,15 @@ Video zu visualisieren und
 Abschließend kann durch \textbf{close()} das Environment und somit gegebenenfalls die 
 dahinterliegende Anwendung geschlossen werden. Durch den Aufruf von 
 \textbf{seed(seed)} kann ein Seed für den \textit{random number generator}
-des Environments festgelegt werden.\\
+des Environments festgelegt werden.
+
 
 Neben den beschriebenen Methoden exisiteren die Properties \textit{action\_space}, welcher die
 Art und Anzahl der zu wählenden Actions vorgibt (z.B. \textit{Discrete(9)} für 9 verschiedene
 diskrete Actions), \textit{observation\_space}, welcher gleiches für die Observation des
 Environments angibt und \textit{reward\_range}, welcher einen Wertebereich für den zu erhaltenen
-lokalen Reward definiert.\\
+lokalen Reward definiert.
+
 Für das Spiel Tic-Tac-Toe wurde ein Einspieler Environment implementiert, welches im
 Unterverzeichnis \textit{preparation/05\_v\_learning/} unter dem nachfolgenden Link abgerufen
 werden kann: \url{github.com/dephiloper/independent-coursework-rl/}
@@ -790,6 +792,7 @@ jedoch nie die entgegengesetzte Action der Wahl vollzogen wird.
 
 
 \paragraph*{Evaluierung}
+\label{sec:cross_entropy_results}
 \noindent
 \newline
 Anders als das CartPole Environment erhält der Agent bei dem FrozenLake Environment 
@@ -870,9 +873,9 @@ für unterschiedliche States oder Actions gespeichert werden. Dieses Verfahren w
 
 \subsection{Tabular Q-learning}
 \label{sec:tab-q-learning}
-In diesem Abschnitt wird auf das Tabular Q-learning eingegangen. Um die
-Ver\-ständ\-lich\-keit zu verbessern wird das Verfahren anhand des FrozenLake
-Environments veranschaulicht.
+In diesem Abschnitt wird auf das Tabular Q-learning eingegangen, wie es von Lapan
+\cite[~S.193]{L2018} vorgestellt wird. Um die Ver\-ständ\-lich\-keit zu verbessern wird
+das Verfahren anhand des FrozenLake Environments veranschaulicht.
 
 % TODO Bruno citation needed
 \subsubsection{Value iteration Verfahren}
@@ -911,10 +914,11 @@ unmittelbaren Reward $r$, der vom Environment bestimmt wird, sowie den Folgestat
 also den State, den das Environment nach Ausführung von $a$ erreicht hat.
 
 Ist das SARS-Tupel gefunden, werden die Q-values der Tabelle angepasst, wobei der folgende
-Zusammenhang, der aus der Bellman Equation hervorgeht, verwendet wird.
+Zusammenhang, der aus der Bellman Equation hervorgeht, verwendet wird
+\cite[~S.193 ff.]{L2018}.
 \begin{align}
-Q(s, a) \leftarrow r_{s,a} + \gamma \max_{a' \in A}Q(s', a')
-\label{aln:QValues}
+  Q(s, a) \leftarrow r_{s,a} + \gamma \max_{a' \in A}Q(s', a')
+  \label{aln:QValues}
 \end{align}
 \noindent
 $Q(s, a)$ ist der value der Action $a$ im wahrgenommenen State $s$, also der long-term
@@ -924,8 +928,8 @@ annähert. Der unmittelbare Reward $r_{s,a}$ kann dem SARS-Tupel entnommen werde
 wie der Folgestate $s'$.
 
 Befindet sich der Agent im State $s'$, so ist der maximal zu erwartende Reward, der 
-maximal zu erwartende Reward der besten Action im State $s'$. Das bedeutet, dass % TODO Bruno, imo ist da ein maximal zu viel (das 2.) ohne das finde ich die aussage schlüssiger oder?
-der Term $\max_{a'\in A} Q(s', a')$ der erwartete long-term Reward der besten Action des
+zu erwartende Reward der besten Action im State $s'$. Das bedeutet, dass der Term
+$\max_{a'\in A} Q(s', a')$ der erwartete long-term Reward der besten Action des
 Folgezustandes, also auch der bestmögliche long-term Reward, den man in State $s'$
 erwarten kann, ist. Nach (\ref{aln:QValues}) gleicht $Q(s, a)$ dem unmittelbaren Reward
 $r_{s,a}$ addiert mit dem besten zu erwartenden long-term Reward des Folgezustandes. Der
@@ -946,7 +950,7 @@ die in \autoref{aln:QValueAdapt} dargestellte Zuweisung.
 \end{align}
 \noindent
 
-Wobei der Hyperparameter $\alpha$ zwischen 0 und 1 gesetzt wird, um den Wert $Q(s, a)$ bei %TODO Bruno: ist das nicht die Learning Rate?
+Wobei der Hyperparameter $\alpha$ zwischen 0 und 1 gesetzt wird, um den Wert $Q(s, a)$ bei
 jeder Iteration schrittweise zu überblenden. Dadurch nähern sich die Q-values der Tabelle
 den tatsächlichen Q-values an, wodurch sich die Problemstellung des Environments erfolgreich 
 bewältigen lässt.
@@ -960,16 +964,17 @@ Das vorgestellte Experiment wird als gelöst angesehen, wenn 80\% von 20 Spielen
 beendet wurden. Dieser Aufbau benötigt für 4x4 FrozenLake zwischen 6000 und 42000
 Iterationen, was zwischen einer und sechs Sekunden benötigt.
 \autoref{fig:frozen-lake_q_learning} visualisiert den typischen Trainingsablauf, wobei der
-durchschnittliche Reward aus 20 Spielen gezeigt wird.
-
-% TODO Bruno verschiedene farben erklären
+durchschnittliche Reward aus 20 Spielen gezeigt wird. Die unterschiedlichen Graphen zeigen
+unterschiedliche Abläufe des gleichen Experiments. Weiterhin sind die Daten geglättet, um
+ein anschaulicheres Ergebnis zu erhalten. Transparent im Hintergrund sind die nicht
+geglätteten Daten zu erkennen, welche jeweils einen Höchstwert von 0.85 aufweisen nachdem
+das Experiment als gelöst angesehen wurde.
 \begin{figure}[htp]
 \centering
 \includegraphics[scale=0.7]{res/frozen_lake_reward_tabular_q.png}
 \caption{Ergebnisse Tabular Q-learning FrozenLake-v0}
 \label{fig:frozen-lake_q_learning}
 \end{figure}
-% TODO Bruno vllt. nochmal darauf eingeben, dass man denken könnte, dass das Env nur immer einen 0.5er Reward schafft, zumindest laut Graphen 
 
 \subsection{Tic-Tac-Toe}
 Neben der Umsetzung von FrozenLake wurde ebenfalls eine Tic-Tac-Toe Implementation
@@ -1082,9 +1087,9 @@ kompliziertere Environments, dass das Tabular Q-learning nicht praktikabel ist.
 \label{sec:dqn}
 Die Limitierung von Tabular Q-learning wird in dem nächsten vorgestellten Verfahren
 ''Deep Q-learning'' überwunden indem ein neuronales Netz eingeführt wird, um die values
-von Actions $Q(s, a)$ zu bestimmen. Diese werden nicht mehr in einer Tabelle gespeichert
-und aus dieser gelesen, sondern von einem Model, sprich einem neuronalen Netz, berechnet,
-das zwischen ähnlichen States abstrahieren kann.
+von Actions $Q(s, a)$ zu bestimmen \cite[~S.199 ff.]{L2018}. Diese werden nicht mehr in
+einer Tabelle gespeichert und aus dieser gelesen, sondern von einem Model, sprich einem
+neuronalen Netz, berechnet, das zwischen ähnlichen States abstrahieren kann.
 
 In diesem Kapitel wird zuerst eine Einordnung des Verfahrens vorgenommen, um anschließend
 das Verfahren aufbauend auf Tabular Q-learning zu beschreiben. Am Ende werden die	
@@ -1160,9 +1165,9 @@ Erkenntnisse gewonnen werden können.
 
 Eine weitere Optimierung, die den Trainingsprozess verbessert, ist die Verwendung eines
 Replay Buffers, in dem Erfahrungen gespeichert werden, um eine breitere Menge an
-Trainingsdaten zu erhalten. Nach Lapan \cite{L2018} tritt ohne diesen Replay Buffer das %TODO Bruno Seite angeben
-Problem auf, dass sich die gesammelten Daten aus ein Episode zu stark ähneln, sodass das
-Training des Netzes suboptimal funktioniert.
+Trainingsdaten zu erhalten. Nach Lapan \cite[~S.204]{L2018} tritt ohne diesen Replay
+Buffer das Problem auf, dass sich die gesammelten Daten aus ein Episode zu stark ähneln,
+sodass das Training des Netzes suboptimal funktioniert.
 
 Die letzte Änderung, die vollzogen werden muss, bezieht sich auf die Berechnung des Loss
 Wertes aus \autoref{aln:DeepQLoss2}. Für die Berechnung des Losses, mit dem das Netz $Q$
@@ -1212,10 +1217,12 @@ Balken in beliebige Richtungen mit beliebiger Geschwindigkeit zu bewegen. Damit 
 sich um ein Environment mit kontinuierlichem action space, welches sich mit dem
 beschriebenen Verfahren nicht umsetzen lässt. Aufgrund dessen wurde die Menge der Actions auf
 neun diskrete Actions beschränkt, mit denen sich der Balken in acht verschiedene Richtungen
-bewegen lässt oder stehen bleibt.\\
+bewegen lässt oder stehen bleibt.
+
 Um zwischen den unterschiedlichen Actions unterscheiden zu können, erhält der Agent vom
 Environment die Koordinaten und Geschwindigkeiten der Balken sowie des Balles. Zusätzlich
-wird die Nummer des aktuellen Frames als Information geliefert.\\
+wird die Nummer des aktuellen Frames als Information geliefert.
+
 Den Reward erhält der Agent vor allem dann, wenn er den Ball am gegnerischen Spieler vorbei
 auf dessen Grundlinie stößt. Zusätzlich gibt es einen kleineren Reward, wenn der Ball mit
 dem Balken getroffen wird.
@@ -1226,7 +1233,8 @@ wobei die Q-values von einem neuronalen Netz berechnet wurden. Es wurden untersc
 Konfigurationen getestet, wobei die Anzahl der Layer zwischen drei und vier, als auch die
 Anzahl der Knoten pro Layer variiert wurden. Als Aktivierungsfunktion wurde die
 ReLu-Funktion verwendet. Da die Observation nicht als Bild gegeben ist, werden keine
-Convolutional Layer verwendet. Die Learning Rate wurde auf $10^{-4}$ gesetzt.\\
+Convolutional Layer verwendet. Die Learning Rate wurde auf $10^{-4}$ gesetzt.
+
 Als discount factor wurde $\gamma = 0.99$ und eine Replaybuffergröße von 10000
 Samples gewählt. Nach 1000 Frames wird das Target Net durch das trainierte Netz geupdated.
 
@@ -1244,10 +1252,12 @@ sehen.
 \noindent
 Die verschiedenen Versuche unterscheiden sich in der Netzarchitektur. Hellblau zeigt die
 Ergebnisse eines Agenten mit 3 Hidden Layern mit jeweils 64 Knoten. Wie zu erkennen ist,
-stagniert der Prozess bei einem Reward von -7.\\
+stagniert der Prozess bei einem Reward von -7.
+
 Besser funktionieren die folgenden Experimente, bei denen 4 Hidden Layer verwendet wurden.
 Grau zeigt den durchschnittlichen Reward mit 64 Knoten pro Layer und Grün den Reward für
-ein Netz mit 128 Knoten pro Layer.\\
+ein Netz mit 128 Knoten pro Layer.
+
 Damit wurde kurzzeitig ein durchschnittlicher Reward von bis zu 6.9 erreicht. Der
 trainierte Agent kann in einem Video unter \url{https://www.youtube.com/watch?v=xp4XtrYNKzQ}
 betrachetet werden.
@@ -1756,10 +1766,11 @@ Eine Episode im Teeworlds Environment gilt als beendet, wenn in Stacheln gesprun
 wenn das Herz eingesammelt wurde oder wenn ein Zeitlimit abläuft. Das Zeitlimit wurde für
 die im weiteren Verlauf beschriebenen Experimente auf 40 Sekunden gesetzt, was bei einer
 Framerate von 5 Frames pro Sekunde eine maximale Episodenlänge von 200 Frames bedeutet,
-was mit dem CartPole Environment vergleichbar ist. %TODO lass das nochmal disskutieren
+was mit dem CartPole Environment vergleichbar ist. %TODO lass das nochmal diskutieren
 
-Versuche haben gezeigt, dass die Cross-Entropy Methode in ihrer Einsetzbarkeit begrenzt
-ist und schwierigere Environments nicht erfolgreich gelöst werden können. %TODO Bruno Quelle
+Wie in Kapitel \ref{sec:cross_entropy_results} gezeigt, eignet sich die Cross-Entropy
+Methode in ihrer Einsetzbarkeit nur begrenzt und komplexere Environments können nicht
+erfolgreich gelöst werden.
 
 \paragraph{Tabular Q-learning}
 Tabular Q-learning speichert die values der unterschiedlichen State Action Paare in einer
@@ -2048,13 +2059,11 @@ und anschließend langsam bis 1 wachsen zu lassen.
 \paragraph*{Implementierung}
 \noindent
 \newline
-% Funktionen zeigen:
-%  - append()
-%  - sample()
 Für die Implementation des Prioritized Replay Buffers wurde eine neue Klasse
 implementiert. Im Gegensazu zum ursprünglichen Replay Buffer speichert die Erweiterung
 neben den erfahrenen Samples Prioritäten, die Auskunft darüber geben, wie stark das
-jeweilige Sample bevorzugt wird.\\
+jeweilige Sample bevorzugt wird.
+
 Um neue Samples hinzuzufügen, wurde die \lstinline!append()! Methode geschrieben, die in
 Listing \ref{lst:prio_buf_append} beschrieben ist.
 \begin{lstlisting}[language=Python, caption=append()-Funktion des PrioritizedReplayBuffers,
@@ -2078,10 +2087,12 @@ Neben dem hinzufügen des Samples in \lstinline!self.buffer! wird die Priorität
 Samples gesetzt. Neu hinzugefügte Samples bekommen die maximale Priorität, die entweder
 die höchste bisherige Priorität ist oder, falls noch kein Sample vorhanden ist, der Wert
 $1.0$. Der Index \lstinline!self.pos! bestimmt die Position an die das nächste Samples
-hinzugefügt wird.\\
+hinzugefügt wird.
+
 Um die Prioritäten der Samples zu erneuern, werden nach dem Training die Prioritäten auf
 den durch die Samples erzeugten Loss gesetzt. Dadurch werden Samples häufiger zum
-Training benutzt, die einen hohen Loss erzeugt haben.\\
+Training benutzt, die einen hohen Loss erzeugt haben.
+
 Um anschließend die ermittelten Prioritäten zu nutzen, werden diese in der
 \lstinline!sample()!-Funktion des Replay Buffers berücksichtigt. Eine vereinfachte Version
 der dieser Funktion ist in Listing \ref{lst:prio_buf_sample} gezeigt.
@@ -2128,18 +2139,18 @@ nicht eignet oder das zufällige Abweichungen beim Trainingsprozess zu einem sch
 Ergebnis geführt haben.
 
 \subsubsection{Dueling DQN}
-
 Die Dueling DQN Erweiterung ist inspiriert von der Actor-Critic Methode und wurde von
-\cite{wang2015dueling} vorgestellt. Wie auch in Actor-Critic werden die Q-values nicht % TODO Bruno hier würde ich schon den namen von der Person schreiben
-direkt berechnet, sondern der value des States wird separat berechnet und ein Advantage
-Wert für jede Action hinzugerechnet. Daraus ergibt sich der Zusammenhang $Q(s, a) = V(s) +
-A(s, a)$, der schon bei Actor-Critic behandelt wurde. Jede Action erhält eine Advantage,
-die aussagt, wieviel besser oder schlechter diese Action im Vergleich zu den anderen
-Actions ist. Dabei gilt die Einschränkung, dass die Summe der Advantage Werte auf
-0 liegen soll. Um diese Charakteristik umzusetzen, wird der Durchschnitt der Advantage
+Z. Wang \cite{wang2015dueling} vorgestellt. Wie auch in Actor-Critic werden die Q-values
+nicht direkt berechnet, sondern der value des States wird separat berechnet und ein
+Advantage Wert für jede Action hinzugerechnet. Daraus ergibt sich der Zusammenhang
+$Q(s, a) = V(s) + A(s, a)$, der schon bei Actor-Critic behandelt wurde. Jede Action erhält
+eine Advantage, die aussagt, wieviel besser oder schlechter diese Action im Vergleich zu
+den anderen Actions ist. Dabei gilt die Einschränkung, dass die Summe der Advantage Werte
+auf 0 liegen soll. Um diese Charakteristik umzusetzen, wird der Durchschnitt der Advantage
 Werte von den Advantage Werten abgezogen, sodass deren Durchschnitt 0 entspricht, wie in
 \autoref{aln:dueling_q_values} gezeigt wird. % TODO Bruno verstehe ich nicht ganz
 %TODO 4 advantage werte -> 3, 2, -4, 0, durchschn. = 1 -> von allen abziehen: 2, 1, -5, 0 durchschn. = -1
+%                                       durchschn. = (3+2-4+0)/4 = 0.25
 \begin{align}
   Q(s, a) = V(s) + A(s, a) - \frac{1}{N} \sum_{k=0}^{N-1} A(s, k)
   \label{aln:dueling_q_values}
@@ -2335,8 +2346,20 @@ Anwendbarkeit im Bezug auf die Größe der Levels und deren Komplexität zu ermi
 % TODO Bruno add real specs
 \subsection{Spezifikation PC Training}
 \label{sec:specs}
-Intel Bla
-Nvidia Bla
+\begin{table}[ht]
+  \begin{center}
+    \begin{tabular}{l | l}
+      \textbf{Hardware} & \textbf{Specification} \\
+      \hline
+      GPU & Nvidia GeForce GTX 970 (4034MiB VRAM)\\
+      CPU & Intel(R) Xeon(R) E-2136 CPU @ 3.30GHz; 6 Kerne, 12 Threads\\
+      RAM & DDR4 31.3GB; 2400MT/s
+    \end{tabular}
+
+    \caption[PC Specifikation]{Trainings PC Hardware Spezifikation}
+    \label{tab:pc_specs}
+  \end{center}
+\end{table}
 
 
 \end{document}
