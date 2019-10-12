@@ -1856,8 +1856,12 @@ Ergebnis als ein erfolgreiches Lösen der definierten Problemstellung einzuordne
 \subsection{Erweiterungen}
 In den anschließenden Unterabschnitten erfolgt die Erläuterung und Auswertung zu den
 Erweiterungen der Standardimplementation des Deep Q-learning Verfahrens. Die Erweiterungen
-wurden dabei ebenfalls auf den zuvor festgelegten Level für eine annähernd gleiche Anzahl
+wurden dabei ebenfalls auf den zuvor festgelegten Levels für eine annähernd gleiche Anzahl
 an gesammelten Frames trainiert.
+
+Sämtliche Erweiterungen wurden als optionale Einstellungen im Trainingsprozess implementiert,
+damit diese Schrittweise hinzugefügt werden können, um einen guten Vergleich der daraus
+resultierenden Ergebnisse zu erhalten.
 
 \subsubsection{Noisy Network}
 Als erste Erweiterung wurde eine Maßnahme zur Verbesserung der Exploration des Environments implementiert.
@@ -2284,18 +2288,42 @@ müssen, von welchen das Spiel anschließend weitergelaufen wäre. Aufgrund der
 Echtzeiteigenschaft des Environments wurde abschließend jedoch von einer Implementierung
 abgesehen.
 
-\subsection{Ergebnisse} % TODO gemeinsam
+\subsection{Erkentnisse}
 \label{sec:results}
-Sämtliche Erweiterungen wurden als optionale Einstellungen im Trainingsprozess implementiert,
-damit diese Schrittweise hinzugefügt werden können, um einen guten Vergleich der daraus
-resultierenden Ergebnisse zu erhalten.
+In der finalen Umsetzung des Agenten wurde es bewerkstelligt mehrere Level im Environment
+erfolgreich zu absolvieren. Neben der Testreihe mit vier Leveln wurde zusätzlich ein
+Experiment mit sechs Leveln vollzogen, welches ebenfalls ein erfolgreiches Ergebnis
+lieferte. Des Weiteren wurde mit dem Experiment ()%TODO ref
+festgestellt, dass der Agent ein bisher unbekanntes Level (nicht) erfolgreich durchspielen
+konnte. Daran lässt sich beurteilen, dass das Verfahren (zwischen unterschiedlichen
+Situationen abstrahiert) overfitted und die zu spielenden Levels (nicht) ''auswendig'' lernt.
 
-\begin{itemize}
-\itemsep0pt	
-\item evtl. noch mehr Graphen mit Erläuterungen
-\item Auswertung der Ergebnisse, Annahmen: lernt nur auswendig? spielt besser durch.. kann mehrere maps spielen
-\item IC erfolgreich durchgeführt.. lol guck mal ein ^^
-\end{itemize}
+Aufgrund der Tatsache, dass das in Experiment () % TODO ref
+beschriebene ''schwerere'' Level durchgespielt werden konnte, lässt sich ableiten, dass sich
+das Verfahren ebenfalls in komplizierteren Aufgabenstellungen einsetzen lässt.
+
+Während der Realisierung des Environments wurden Experimente mit unterschiedlicher Beschleunigung
+des Spiels durchgeführt. Dabei stellte sich heraus, dass eine hohe Beschleunigung des Spiels
+schlechtere Trainingsergebnisse hervorbrachte. Ein möglicher Grund für diese Verschlechterung ist,
+dass durch die Echtzeitkomponente des Spiels, das Spiel bereits weiter lief, während der Agent noch
+die auszuführende Action berechnete. Diese Erkenntnis wurde während der Durchführung der
+Kalibrierungsexperimente (siehe ) %TODO ref
+ermittelt.
+
+\subsection{Fazit}
+In der Projektarbeit wurden Grundlagen im Bereich Reinforcement Learning, theoretische Hintergründe
+zu Verfahren sowie Implementierungen von Algorithmen des Reinforcement Learning betrachtet. Es
+erfolgte die Beleuchtung und Abgrenzung einzelner Verfahren und die Auswertung der daraus
+entstandenen Ergebnisse, wodurch Limitierungen festgestellt wurden.
+
+Nach der Aufabreitung der theoretischen Grundlagen wurde ein Environment entwickelt, dessen
+Umsetzung die von OpenAI festgelegte Interfacedefinition implementiert. Zusätzlich wurde eine
+parallele Worker Architektur umgesetzt, mit welcher das Environment für weitere Verfahren
+zugänglich gemacht wurde. Beide Maßnahmen erlauben es anderen Entwicklern einen Agenten für
+das Environment zu entwerfen.
+
+Mittels des entwickelten Environments wurde ein Agent mit Deep Q-learning trainiert, welcher
+abschließend die Problemstellung des Environments erfolgreich löste.
 
 \subsection{Ausblick} % TODO Philipp
 Durch die Implementierung des Teeworld Environments besteht anschließend die Möglichkeit weitere Verfahren
@@ -2364,7 +2392,6 @@ Anwendbarkeit im Bezug auf die Größe der Levels und deren Komplexität zu ermi
         }
 \end{figure}
 
-% TODO Bruno add real specs
 \subsection{Spezifikation PC Training}
 \label{sec:specs}
 \begin{table}[ht]
