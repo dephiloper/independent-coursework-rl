@@ -97,7 +97,6 @@
 	\vspace{2cm}
 	{\LARGE \scshape{Reinforcement Learning}\par}
 	{\scshape\Large Projekt Dokumentation\par}
-	%\includegraphics[width=0.9\linewidth]{title.jpg}\par\vspace{1cm}
 	\vspace{4cm}
 	{\large\itshape Bruno Schilling,\\Philipp Bönsch\par}
 	\vfill
@@ -876,7 +875,7 @@ In diesem Abschnitt wird auf das Tabular Q-learning eingegangen, wie es von Lapa
 \cite[~S.193]{L2018} vorgestellt wird. Um die Ver\-ständ\-lich\-keit zu verbessern wird
 das Verfahren anhand des FrozenLake Environments veranschaulicht.
 
-% TODO Bruno citation needed
+
 \subsubsection{Value iteration Verfahren}
 Da sich das Spielfeld von FrozenLake nicht verändert, beschränken sich die Zustände des
 Environments auf die Positionen des Spielers. Durch die geringe Anzahl an Spielzuständen
@@ -1035,7 +1034,6 @@ Gewinnwahrscheinlichkeit, falls der Gegner das Spiel eröffnet hat.
       Anzahl Trainingsspiele & Gewonnen & Verloren & Unentschieden \\
       \hline
       100 & 68.9\% / 40.8\% & 14.3\% / 54.5\% & 16.9\% / 4.7\% \\
-      % 500 & 80.7\% / 53.6\% & 28.6\% / 37.1\% & 14.0\% / 9.3\% \\
       1.000 & 83.6\% / 58.4\% & 10.1\% / 26.1\% & 6.4\% / 15.5\% \\
       10.000 & 94.6\% / 77.3\% & 0.5\% / 7.7\% & 4.9\% / 15.0\% \\
       100.000 & 98.1\% / 83.0\% & 0.0\% / 1.5\% & 1.9\% / 14.6\% \\
@@ -1065,7 +1063,7 @@ schlagen ist.
 Interessant ist vor allem, dass auch bei einer Millionen Trainingsspielen der nicht
 beginnende Agent verlieren kann. Dies kann gegen einen zufällig spielenden Gegner
 vernünftig sein, da ein kleines Risiko einzugehen dazu führen kann, dass deutlich häufiger
-gewonnen wird. % TODO Bruno den Abschlusssatz musst du mir mal erklären
+gewonnen wird.
 
 
 \subsection{Limitierungen von Tabular Q-learning}
@@ -1080,8 +1078,7 @@ Dies kann durch die Betrachtung komplizierterer Environments verdeutlicht werden
 mehr als $10^{70802}$ mögliche States besitzten kann. Daraus ergibt sich für
 kompliziertere Environments, dass das Tabular Q-learning nicht praktikabel ist.
 
-% TODO Bruno more citation needed
-\newpage
+
 \section{Deep Q-learning}
 \label{sec:dqn}
 Die Limitierung von Tabular Q-learning wird in dem nächsten vorgestellten Verfahren
@@ -1765,7 +1762,7 @@ Eine Episode im Teeworlds Environment gilt als beendet, wenn in Stacheln gesprun
 wenn das Herz eingesammelt wurde oder wenn ein Zeitlimit abläuft. Das Zeitlimit wurde für
 die im weiteren Verlauf beschriebenen Experimente auf 40 Sekunden gesetzt, was bei einer
 Framerate von 5 Frames pro Sekunde eine maximale Episodenlänge von 200 Frames bedeutet,
-was mit dem CartPole Environment vergleichbar ist. %TODO lass das nochmal diskutieren
+was mit dem CartPole Environment vergleichbar ist.
 
 Wie in Kapitel \ref{sec:cross_entropy_results} gezeigt, eignet sich die Cross-Entropy
 Methode in ihrer Einsetzbarkeit nur begrenzt und komplexere Environments können nicht
@@ -1807,14 +1804,6 @@ praktische Experimente mit Deep Q-learning durchgeführt wurden, wurde diese Met
 die Umsetzung des Prototypen gewählt. Die Festlegung auf ausschließlich diskrete Actions
 im Environment bestärkt diese Auswahl.
 
-% Umsetzung Deep Q erläutern
-%   - wichtige Methoden klären (mal in den Quelltext gucken)
-%   - SummaryWriter
-%   - Ablauf des Trainings
-%     - Hyperparameter
-%     - zuerst Referenz Settings finden
-%     - dann Erweiterungen zuschalten
-%   - Trainingsdauer vergleichen mit anderen Experimenten
 
 \subsection{Vanilla Deep Q-learning}
 Initial erfolgte die Implementierung des Deep Q-learning Verfahrens ohne jede Form einer Erweiterung,
@@ -2318,9 +2307,9 @@ erfolgreich absolvieren.
 \subsubsection{Level mit höherem Schwierigkeitsgrad}
 \label{sec:hard_level}
 Es wurde ein weiteres Experiment durchgeführt, bei dem eine kompliziertere Levelstruktur
-benutzt wurde. Das Level wird im Anhang unter \ref{sec:hard_level_appendix} gezeigt.
+benutzt wurde. Das Level wird im Anhang unter \ref{sec:hard_level_appendix} veranschaulicht.
 
-% Abbildung \ref{fig:hard_level_results} zeigt den Trainingsverlauf des Experiments.
+% TODO Abbildung \ref{fig:hard_level_results} zeigt den Trainingsverlauf des Experiments.
 
 % TODO graph
 % \begin{figure}[htp]
@@ -2332,32 +2321,36 @@ benutzt wurde. Das Level wird im Anhang unter \ref{sec:hard_level_appendix} geze
 
 \subsubsection{Untrainierte Level}
 \label{sec:untrained_level}
-Um zu testen in wie weit der trainierte Agent abstrahieren kann, wurde er auf einem neuen
-für ihn unbekannten Level getestet ohne dieses vorher gelernt zu haben. Das 
+Um zu testen in wie weit der trainierte Agent die gelernte Verhaltensweise abstrahieren
+kann, wurde dieser auf einem neuen, für ihn unbekannten Level getestet, ohne diesen
+vorher darauf trainiert zu haben. Bei dem Testlauf erhielt der Agent einen durchschnittlichen
+Reward von 2.4, wobei ein Maximalwert von 4 erreicht wurde. Daraus lässt sich schließen,
+dass der Agent die zuvor trainierten Level auswendig lernt, sprich overfitted. Es sind
+jedoch Tendenzen einer Abstraktion zu erkennen, welche durch das gelegentliche Überwinden
+von neuen Hindernissen auffallen. Das Level wird im Anhang unter \ref{sec:untrained_level_appendix}
+dargestellt.
 
-% TODO
 
 \subsection{Erkenntnisse}
 \label{sec:results}
 In der finalen Umsetzung des Agenten wurde es bewerkstelligt mehrere Level im Environment
 erfolgreich zu absolvieren. Neben der Testreihe mit vier Leveln wurde zusätzlich ein
 Experiment mit sechs Leveln vollzogen, welches ebenfalls ein erfolgreiches Ergebnis
-lieferte. Des Weiteren wurde mit dem Experiment (\ref{sec:untrained_level}) festgestellt, dass
-der Agent ein bisher unbekanntes Level (nicht) erfolgreich durchspielen konnte. Daran
-lässt sich beurteilen, dass das Verfahren (zwischen unterschiedlichen Situationen
-abstrahiert) overfitted und die zu spielenden Levels (nicht) ''auswendig'' lernt.
+lieferte. Des Weiteren wurde mit dem Experiment (\ref{sec:untrained_level}) festgestellt,
+dass der Agent ein bisher unbekanntes Level nicht erfolgreich durchspielen konnte. Daran
+lässt sich beurteilen, dass das Verfahren overfitted und die zu spielenden Levels ''auswendig''
+lernt.
 
-Aufgrund der Tatsache, dass das in Experiment (\ref{sec:hard_level}) % TODO ref
+Aufgrund der Tatsache, dass das in Experiment (\ref{sec:hard_level})
 beschriebene ''schwerere'' Level durchgespielt werden konnte, lässt sich ableiten, dass sich
-das Verfahren ebenfalls in komplizierteren Aufgabenstellungen einsetzen lässt.
+das Verfahren ebenfalls in komplizierteren Aufgabenstellungen einsetzen lässt. %TODO das wissen wir noch nicht
 
 Während der Realisierung des Environments wurden Experimente mit unterschiedlicher Beschleunigung
 des Spiels durchgeführt. Dabei stellte sich heraus, dass eine hohe Beschleunigung des Spiels
 schlechtere Trainingsergebnisse hervorbrachte. Ein möglicher Grund für diese Verschlechterung ist,
 dass durch die Echtzeitkomponente des Spiels, das Spiel bereits weiter lief, während der Agent noch
 die auszuführende Action berechnete. Diese Erkenntnis wurde während der Durchführung der
-Kalibrierungsexperimente (siehe ) %TODO ref
-ermittelt.
+Kalibrierungsexperimente (siehe \ref{sec:calibration_experiments}) ermittelt.
 
 \subsection{Fazit}
 In der Projektarbeit wurden Grundlagen im Bereich Reinforcement Learning, theoretische Hintergründe
@@ -2374,7 +2367,7 @@ das Environment zu entwerfen.
 Mittels des entwickelten Environments wurde ein Agent mit Deep Q-learning trainiert, welcher
 abschließend die Problemstellung des Environments erfolgreich löste.
 
-\subsection{Ausblick} % TODO Philipp
+\subsection{Ausblick}
 Durch die Implementierung des Teeworld Environments besteht anschließend die Möglichkeit weitere Verfahren
 für die Lösung der definierten Problemstellung des Environments umzusetzen. Besonders aufgrund der
 Implementierung der Worker Struktur und dem daraus resultierenden parallelen Sammeln von Trainingsdaten
@@ -2494,7 +2487,7 @@ Anwendbarkeit im Bezug auf die Größe der Levels und deren Komplexität zu ermi
 
 \subsection{Weitere Trainingsergebnisse}
 \label{sec:further_train_results}
-% TODO
+% TODO Bruno
 
 
 \end{document}
