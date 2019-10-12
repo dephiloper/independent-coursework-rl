@@ -1954,10 +1954,11 @@ Linear Layer, wobei diese durch die \textit{NoisyLayer} Klasse ausgetauscht werd
 Der Trainingsprozess nach dem Einbinden der Erweiterung beträgt 36 Stunden, wodurch 2.13 Millionen
 Frames aufgezeichnet wurden. Durch die Einbindung der Noisy Layer wird der Trainingsprozess
 deutlich stabiler, was mit der alternativen Form der Exploration des Environments erklärt werden
-kann. Abschließend konnte durch die Einbindung der Noisy Layer Erweiterung, ein besseres
-Trainingsergebnis erziehlt werden. In \autoref{fig:noisy-dqn} wird erneut die Entwicklung des
-durchschnittlichen Rewards des Noisy Deep Q-learning Verfahrens (blau) im Vergleich zur Entwicklung
-des Vanilla Verfahrens (rot) veranschaulicht:
+kann. Abschließend konnte durch die Einbindung der Noisy Layer Erweiterung, ein
+gleichbleibenderes Trainingsergebnis erzielt werden, jedoch konnte der trainierte Agent
+das Level \textit{new\_level\_02} nicht vollständig lösen. In \autoref{fig:noisy-dqn}
+wird erneut die Entwicklung des durchschnittlichen Rewards des Noisy Deep Q-learning
+Verfahrens (blau) im Vergleich zur Entwicklung des Vanilla Verfahrens (rot) veranschaulicht:
 
 \begin{figure}[htp]
 \centering
@@ -2002,21 +2003,38 @@ Target Netz $Q'$ vollzogen.
 \paragraph*{Auswertung}
 \noindent
 \newline
-Durch die Einbindung der Double Deep Q-learning Erweiterung konnten keine signifikaten
-Verbesserungen im durchgeführten Trainingsprozess erzielt werden. Ebenfalls konnte in der
-Beobachtung der resultierenden Spielweise des Agenten keine veränderten Verhaltensweisen
-festgestellt werden. Die Dauer des Trainingsprozesses wurde abschließend durch die Anpassung
-der Bellman Equation mit einer benötigten Laufzeit von X Stunden für die Generierung von Y % TODO Philipp
-Frames nicht beeinflusst. In der nachfolgenden Abbildung wird der durchschnittlich erhaltene
-Reward für das Double DQN Verfahren veranschaulicht. Der darin FARBE dargestellte Graph
-beschreibt den Verlauf des Double DQN Verfahren in Kombination mit dem zuvor beschriebenen
-Verfahren Noisy Net, wohin gegen der FARBE Graph den Verlauf der bereits behandelten
-Erweiterung ohne das Double Verfahren visualisiert.
+Durch die Einbindung der Double Deep Q-learning Erweiterung konnten deutliche
+Verbesserungen im durchgeführten Trainingsprozess erzielt werden. Anders als in der zuvor
+realisierten Erweiterung konnte der Agent alle Level erfolgreich durchspielen, was als
+eine Verbesserung des Verfahrens betrachtet werden kann. Die Dauer des Trainingsprozesses
+wurde durch die Anpassung mit einer benötigten Laufzeit von 41 Stunden für die Generierung
+von 2.5 Millionen Frames geringfügig erhöht. In der nachfolgenden Abbildung wird der
+durchschnittlich erhaltene Reward für das Double DQN Verfahren veranschaulicht. Der darin
+grün dargestellte Graph beschreibt den Verlauf des Double DQN Verfahren in Kombination
+mit dem zuvor beschriebenen Verfahren Noisy Net, wohingegen der blaue Graph den Verlauf
+der bereits behandelten Erweiterung ohne das Double Verfahren visualisiert.
 
-%TODO Philipp Bild hinzufügen
-%TODO Philipp überprüfen, ob wir mean value of actions haben um zu zeigen das wir weniger
-% overestimaten
+\begin{figure}[htp]
+\centering
+\includegraphics[scale=0.38]{res/double_dqn_results.png}
+\caption{Avg. Reward: Double DQN und Noisy (grün) im Vergleich zu Noisy (blau)}
+\label{fig:double-dqn}
+\end{figure}
 
+In Abbildung \ref{fig:double-dqn-value-mean} sind die durchschnittlichen value Vorhersagen
+des Agenten visualisiert. Obwohl das Double DQN Verfahren in grün die Overestimation der
+values verhindert, liegen die durchschnittlichen vorhergesagten Werte des Agenten mit
+Double DQN höher als beim Vergleichswert ohne Double DQN (blau). Erfolgt der Vergleich mit
+dem Vanilla Verfahren (rot), ist zu sehen, dass die mean values niedriger ausfallen. Für
+eine abschließende Untersuchung wäre ein Vergleich zwischen Vanilla DQN und Double DQN
+ohne zusätzliche Erweiterungen sinnvoll.
+
+\begin{figure}[htp]
+  \centering
+  \includegraphics[scale=0.38]{res/double_dqn_values_mean.png}
+  \caption{Avg. values Double DQN}
+  \label{fig:double-dqn-value-mean}
+\end{figure}
 
 \subsubsection{Prioritized Replay Buffer}
 Die nächste Erweiterung befasst sich mit der Zwischenspeicherung von Samples, die
