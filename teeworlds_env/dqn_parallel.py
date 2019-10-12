@@ -56,7 +56,8 @@ GAMMA = 0.95  # init: .99 (bellman equation)
 LEARNING_RATE = 1e-4  # init: 1e-4 (also quite low eventually using default 1e-3)
 SYNC_TARGET_FRAMES = COLLECT_EXPERIENCE_SIZE * 5  # init: 10000 (how frequently we sync target net with net)
 L2_REGULARIZATION = 0  # init: 1e-5
-MAP_NAMES = ['newlevel_0', 'newlevel_1', 'newlevel_2', 'newlevel_3', 'newlevel_4', 'newlevel_5']
+#MAP_NAMES = ['newlevel_0', 'newlevel_1', 'newlevel_2', 'newlevel_3', 'newlevel_4', 'newlevel_5']
+MAP_NAMES = ['hard_0']
 
 # evaluation
 STATES_TO_EVALUATE = 1000
