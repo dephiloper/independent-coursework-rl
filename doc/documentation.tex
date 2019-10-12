@@ -2288,17 +2288,66 @@ müssen, von welchen das Spiel anschließend weitergelaufen wäre. Aufgrund der
 Echtzeiteigenschaft des Environments wurde abschließend jedoch von einer Implementierung
 abgesehen.
 
-\subsection{Erkentnisse}
+\subsection{Weitere Experimente}
+In diesem Kapitel werden weitere Experimente vorgestellt, die als Vorbereitung zu den eben
+gezeigten Implementierungen oder als weiterführende Versuche durchgeführt wurden.
+
+\subsubsection{Kalibrierungsexperimente}
+\label{sec:calibration_experiments}
+Um eine funktionierende Grundeinstellung der Hyperparameter und der Entwicklungsumgebung
+zu erhalten wurden Experimente durchgeführt und dokumentiert. Dabei wurden Hyperparameter
+und Implementierungen umgesetzt und anschließend mit einander verglichen. Informationen
+zu den durchgeführten Tests sind unter
+\url{https://github.com/dephiloper/independent-coursework-rl/wiki/Models} einzusehen. Die
+dabei entstandenen Graphen, die den durchschnittlichen Reward veranschaulichen, sind in
+der Anlage unter \autoref{sec:further_train_results} zu sehen.
+
+\subsubsection{Experiment mit 6 Leveln}
+Die nachfolgende Abbildung \ref{fig:six_levels_results} veranschaulicht die Ergebnisse
+eines Experiments mit 6 Leveln. Die benutzten Level sind im Anhang im
+\autoref{sec:six_levels} veranschaulicht. Der Agent konnte abschließend alle sechs Level
+erfolgreich absolvieren.
+
+\begin{figure}[htp]
+\centering
+\includegraphics[scale=0.19]{res/six_levels_results.png}
+\caption{Avg. Reward auf sechs Leveln}
+\label{fig:six_levels_results}
+\end{figure}
+
+\subsubsection{Level mit höherem Schwierigkeitsgrad}
+\label{sec:hard_level}
+Es wurde ein weiteres Experiment durchgeführt, bei dem eine kompliziertere Levelstruktur
+benutzt wurde. Das Level wird im Anhang unter \ref{sec:hard_level_appendix} gezeigt.
+
+% Abbildung \ref{fig:hard_level_results} zeigt den Trainingsverlauf des Experiments.
+
+% TODO graph
+% \begin{figure}[htp]
+% \centering
+% \includegraphics[scale=0.19]{res/hard_level_results.png}
+% \caption{Avg. Reward in schwerem Level}
+% \label{fig:hard_level_results}
+% \end{figure}
+
+\subsubsection{Untrainierte Level}
+\label{sec:untrained_level}
+Um zu testen in wie weit der trainierte Agent abstrahieren kann, wurde er auf einem neuen
+für ihn unbekannten Level getestet ohne dieses vorher gelernt zu haben. Das 
+
+% TODO
+
+\subsection{Erkenntnisse}
 \label{sec:results}
 In der finalen Umsetzung des Agenten wurde es bewerkstelligt mehrere Level im Environment
 erfolgreich zu absolvieren. Neben der Testreihe mit vier Leveln wurde zusätzlich ein
 Experiment mit sechs Leveln vollzogen, welches ebenfalls ein erfolgreiches Ergebnis
-lieferte. Des Weiteren wurde mit dem Experiment ()%TODO ref
-festgestellt, dass der Agent ein bisher unbekanntes Level (nicht) erfolgreich durchspielen
-konnte. Daran lässt sich beurteilen, dass das Verfahren (zwischen unterschiedlichen
-Situationen abstrahiert) overfitted und die zu spielenden Levels (nicht) ''auswendig'' lernt.
+lieferte. Des Weiteren wurde mit dem Experiment (\ref{sec:untrained_level}) festgestellt, dass
+der Agent ein bisher unbekanntes Level (nicht) erfolgreich durchspielen konnte. Daran
+lässt sich beurteilen, dass das Verfahren (zwischen unterschiedlichen Situationen
+abstrahiert) overfitted und die zu spielenden Levels (nicht) ''auswendig'' lernt.
 
-Aufgrund der Tatsache, dass das in Experiment () % TODO ref
+Aufgrund der Tatsache, dass das in Experiment (\ref{sec:hard_level}) % TODO ref
 beschriebene ''schwerere'' Level durchgespielt werden konnte, lässt sich ableiten, dass sich
 das Verfahren ebenfalls in komplizierteren Aufgabenstellungen einsetzen lässt.
 
@@ -2375,7 +2424,8 @@ Anwendbarkeit im Bezug auf die Größe der Levels und deren Komplexität zu ermi
 \label{fig:pong_all_results}
 \end{figure}
 
-\subsection{Die benutzen Level}
+\newpage
+\subsection{Levelauswahl}
 \label{sec:levels}
 \begin{figure}[htp]
 \centering
@@ -2392,6 +2442,39 @@ Anwendbarkeit im Bezug auf die Größe der Levels und deren Komplexität zu ermi
         }
 \end{figure}
 
+\subsubsection{Weitere Level}
+\label{sec:six_levels}
+
+\begin{figure}[htp]
+\centering
+\includegraphics[width=160pt]{res/newlevel_5_full.png}
+\includegraphics[width=160pt]{res/newlevel_6_full.png}
+
+\caption{
+  Die Level ''newlevel\_4'', ''newlevel\_5''}
+\end{figure}
+
+\subsubsection{Level mit erhöhtem Schwierigkeitsgrad}
+\label{sec:hard_level_appendix}
+
+\begin{figure}[htp]
+\centering
+\includegraphics[width=160pt]{res/hard_level.png}
+
+\caption{Level mit erhöhtem Schwierigkeitsgrad}
+\end{figure}
+
+\subsubsection{Level zur Evaluierung}
+\label{sec:untrained_level_appendix}
+
+\begin{figure}[htp]
+\centering
+\includegraphics[width=160pt]{res/eval_level_0.png}
+
+\caption{Level zur Evaluierung}
+\end{figure}
+
+\newpage
 \subsection{Spezifikation PC Training}
 \label{sec:specs}
 \begin{table}[ht]
@@ -2408,6 +2491,10 @@ Anwendbarkeit im Bezug auf die Größe der Levels und deren Komplexität zu ermi
     \label{tab:pc_specs}
   \end{center}
 \end{table}
+
+\subsection{Weitere Trainingsergebnisse}
+\label{sec:further_train_results}
+% TODO
 
 
 \end{document}
