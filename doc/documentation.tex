@@ -1,4 +1,5 @@
 % TODO check for the following spelling:
+% TODO Bellman Equation erwähnen?
 % Q-learning (not Q-Learning)
 % Deep Q-learning (not Deep-Q-learning) same for Tabular
 % value iteration (not value-iteration)
@@ -149,7 +150,7 @@ werden, welche sich auf die Terminologie dieses Abschnittes beziehen.
 
 \subsection{Reinforcement Learning}
 Reinforcement Learning beschreibt eine Ansammlung von Machine Learning Verfahren, in denen die 
-lernende Entität, auch \textit{Agent}, keine bezeichneten Beispiele für das Lösen eines Problemes 
+lernende Entität, auch \textit{Agent}, keine bezeichneten Beispiele für das Lösen eines Problemes % TODO bezeichneten/Problems?
 erhält. Die einzige Information, welche mitgeteilt wird, ist Feedback zu gewählten Aktionen in Form
 einer Belohnung oder Bestrafung. Diese Art des Feedbacks wird auch als Verstärkung bezeichnet.
 Somit muss vom Lernenden selbstständig eine Strategie entwickelt werden, um das gegebene
@@ -206,7 +207,7 @@ aus einzelnen Werten bestehen, welche zum Beispiel im Falle von Pong Information
 und Geschwindigkeiten zu den Schlägern und dem Spielball zurückliefern. Zusätzlich kann eine
 Observationen auch in Form eines Bildes oder einer Aneinanderreihung von Bildern umgesetzt sein.
 Das Bild wird dabei von dem Agenten verarbeitet und dieser führt dementsprechende Actions zum
-visuell wahrgenommenen Zustand, sprich der Anordnung der Pixel aus. 
+visuell wahrgenommenen Zustand, sprich der Anordnung der Pixel aus.
 
 
 \subsubsection{Reward}
@@ -224,7 +225,7 @@ noch größeren negativen Auswirkungen auf den Agenten haben wird.
 
 
 \subsection{Markov Processes}
-Der Makrov Process und seine Erweiterungen bilden das theoretische Konstrukt für Reinforcement Learning
+Der Markov Process und seine Erweiterungen bilden das theoretische Konstrukt für Reinforcement Learning
 Verfahren. Durch die Beleuchtung dieser Prozesse werden weitere Terminologien geklärt, welche ebenfalls
 ihren Einsatz im Reinforcement Learning finden.
 
@@ -263,7 +264,7 @@ Folgezustände.
 
 \subsubsection{Markov Reward Process}
 \label{sec:markov_reward_process}
-Die erste Erweiterung zum Markov Process enTsteht durch die Hinzunahme eines weiteren Wertes zu den 
+Die erste Erweiterung zum Markov Process enTsteht durch die Hinzunahme eines weiteren Wertes zu den
 Übergängen zwischen zwei States, dem \textit{Reward} $R$. Dieser Wert definiert wie hoch die Belohnung
 oder Bestrafung bei einem Wechsel der States ausfällt. Durch den Reward kann anschließend der
 \textit{value of state} $V(s)$ berechnet werden. Für jeden State $s$ ist der value of state $V(s)$
@@ -316,7 +317,7 @@ Wahrscheinlichkeiten die möglichen Actions \cite[~S.78 f.]{L2018}.
 
 \subsubsection{On-policy - off-policy}
 Die Kategorisierung \textit{off-policy} beschreibt die Fähigkeit von Reinforcement Learning Verfahren auf
-Grundlage alter, bereits vor längerer Zeit aufgenommener Daten zu trainieren \cite[~S.78 f.]{L2018}. 
+Grundlage alter, bereits vor längerer Zeit aufgenommener Daten zu trainieren \cite[~S.78 f.]{L2018}.
 Im Kontrast dazu definiert \textit{on-policy} die Notwendigkeit von immer neu aufgezeichneten 
 Trainingsdaten, welche nach einem Trainingsdurchlauf wieder verworfen und somit neu gesammelt
 werden müssen.
@@ -565,7 +566,7 @@ def step(self, action):
 	is_done = self._check_if_done(reward)
     
 	return observation, reward, is_done or not valid, {}
-\end{lstlisting}
+\end{lstlisting} % TODO code
 \noindent
 Die Funktionen \textit{\_take\_action(action)}, \textit{\_get\_reward()} und
 \textit{\_check\_if\_done(reward)} setzen die Kommunikation mit dem Environment um. In
@@ -673,7 +674,7 @@ Observation sowie den Reward für die zuvor ausgeführte Action.
 Diese Schritte werden anschließend solange wiederholt, bis eine Ansammlung an Episoden (siehe 
 \autoref{sec:markov_reward_process}: \nameref{sec:markov_reward_process}), das heißt, eine Folge
 von Observations, Actions und Rewards, gesammelt wurde. Innerhalb jeder Episode wird nun der
-insgesamt erwirtschaftete Reward, der \textit{total eward}, berechnet. Dadurch kann bewertet werden
+insgesamt erwirtschaftete Reward, der \textit{total Reward}, berechnet. Dadurch kann bewertet werden
 wie gut eine Episode im Vergleich zu anderen Episoden ausgefallen ist. Aufgrund der Zufälligkeit
 bei der Selektion von Actions kommt es dazu, dass einige Episoden besser ausfallen als andere.
 Die Cross-Entropy-Method macht sich dieses Verhalten zu Nutze, verwirft schlechtere Episoden und
@@ -681,7 +682,7 @@ trainiert ausschließlichen auf besseren Episoden. Das Kernprinzip des Verfahren
 aufgelistet in drei Schritte untergliedert \cite[~S.80 f.]{L2018}:
 
 Initial wird eine definierte Anzahl $N$ an Episoden mit dem aktuellen Model im Environment gespielt
-oder auch wahrgenommen. Anschließend erfolgt die Berechnung des total Rewards für jede gespielte
+oder auch wahrgenommen. Anschließend erfolgt die Berechnung des total Rewards für jede gespielte % TODO oder auch wahrgenommen?
 Episode. Zusätzlich wird in diesem Schritt eine Obergrenze für den Reward festgelegt 
 (\textit{reward boundary}). Daraus folgt, dass die besten 30 Prozent der Episoden behalten werden,
 wohingegen die restlichen schlechteren Episoden verworfen werden. Anschließend wird im letzten Schritt
@@ -743,8 +744,8 @@ durchschnittlich erhaltenen Reward beim Spielen einer Episode (\textit{reward\_m
 Das Model des orange dargestellten Graphs verwendet bei der Auswahl der elite Episoden
 ein Perzentil von 70, das Blau dargestellte Model ein Perzentil von 80 und das Rot
 dargestellte Model ein Perzentil von 90. Ein Perzentil definiert eine Menge von Werten
-einer Verteilung die unter oder gleich einem festgelegten Wert sind (z.B. Median = 
-50\%-Perzentil). 
+einer Verteilung die unter oder gleich einem festgelegten Wert sind (z.B. Median =
+50\%-Perzentil).
 
 \begin{figure}[htp]
 \centering
@@ -811,7 +812,7 @@ aufgeführt \cite[~S.92 f.]{L2018}:
   \label{itm:cross_entropy_limits}
 \end{itemize}
 
-Diese Einschränkungen können jedoch adressiert werden, indem mehr Episoden gespielt werden, 
+Diese Einschränkungen können jedoch adressiert werden, indem mehr Episoden gespielt werden,
 um somit die Wahrscheinlichkeit zu erhöhen erfolgreiche Episoden zu erhalten. Des Weiteren
 muss der discount factor $\gamma$ auf die Berechnung des total Reward angewandt werden, damit
 kürzere Episoden einen höheren total Reward erzielen, als lange Episoden. Abschließend ist es
@@ -902,7 +903,7 @@ und zwei States.
 
 \noindent
 Das Ziel des Verfahrens ist es die Q-values der Tabelle zu ermitteln. Dazu werden die
-Q-values mit null initialisiert, um diese anschließend iterativ zu bestimmen. Das Verfahren 
+Q-values mit null initialisiert, um diese anschließend iterativ zu bestimmen. Das Verfahren
 sieht vor, dass zufällige Actions ausgewählt und in einem Environment ausprobiert werden.
 
 Daraus resultieren ein State, eine Action, ein Reward und ein Folgestate, auch SARS-Tupel
@@ -987,7 +988,7 @@ Gyms implementiert. Dieses kann unter
 \lstinline!preparation/05_v_learning/gym_tictactoe.py! aufgerufen werden.
 
 Beim Training des Agenten werden wie auch in Q-learning values ermittelt. Im Gegensatz zu
-der im letzten Kapitel gezeigten Q-learning Methode werden in diesem Verfahren allerdings, 
+der im letzten Kapitel gezeigten Q-learning Methode werden in diesem Verfahren allerdings,
 die values unterschiedlicher States und nicht die values der Actions ermittelt. Die zu
 ermittelnde Funktion ist nicht mehr $Q(s, a)$, sondern $V(s)$. Das Verfahren setzt dafür
 voraus, dass aus einem gegebenen State und einer gegebenen Action der Folgezustand berechnet
@@ -1001,7 +1002,7 @@ wurde.
 
 Daraufhin werden alle $V(s)$ Werte der zwischengespeicherten States in Richtung des
 erhaltenen Rewards verändert. Um zu bestimmen, wie stark sich der erhaltene Reward auf
-$V(s)$ auswirkt, wird ein $step\_size$ Parameter verwendet, der wie in 
+$V(s)$ auswirkt, wird ein $step\_size$ Parameter verwendet, der wie in
 \autoref{aln:ValueUpdate} benutzt wird.
 \begin{align}
   V(s) \leftarrow V(s) + step\_size * (reward - V(s))
@@ -1088,7 +1089,7 @@ einer Tabelle gespeichert und aus dieser gelesen, sondern von einem Model, spric
 neuronalen Netz, berechnet, das zwischen ähnlichen States abstrahieren kann.
 
 In diesem Kapitel wird zuerst eine Einordnung des Verfahrens vorgenommen, um anschließend
-das Verfahren aufbauend auf Tabular Q-learning zu beschreiben. Am Ende wird die	
+das Verfahren aufbauend auf Tabular Q-learning zu beschreiben. Am Ende wird die
 Implementierung eines Agenten für das RoboschoolPong Environment und die damit erzielten
 Ergebnisse vorgestellt.
 
@@ -1301,6 +1302,8 @@ Environments und liefert eine Wahrscheinlichkeitsverteilung der Actions an den A
 zurück. Der Unterschied kommt durch die in \autoref{aln:PG} festgehaltene Definition
 des $PG$ (Policy Gradient) zustande.
 
+% TODO (10) zeigt L nicht PG
+
 \begin{align}
 \mathcal{L}=-Q(s,a)\log\pi(a|s)
 \label{aln:PG}
@@ -1480,7 +1483,7 @@ Der Bonus wird als Entropy Wert zur bestehenden Loss-Funktion hinzugefügt (sieh
 
 Da diese Funktion an ihrem Minimum ankommt, sobald die Wahrscheinlichkeitsverteilung uniform,
 sprich gleichverteilt ist, kann durch das Anfügen des Ergebnisses zur Loss-Funktion der
-Agent davon abgehalten werden sich ''zu sicher'' bei der Berechnung von Actions zu sein 
+Agent davon abgehalten werden sich ''zu sicher'' bei der Berechnung von Actions zu sein
 \cite[~S.269 f.]{L2018}. Im Umkehrschluss bedeutet dies, dass bei einer
 Wahrscheinlichkeitsverteilung bei der ausschließlich eine Action zu 100 Prozent als wählbare
 Action identifiziert wurde, der berechnete Loss nicht einem Ergebnis von 0 entspricht.
@@ -1525,7 +1528,7 @@ Weiteren enthält die Modifikation die Implementierung einer eigens angefertigte
 durch die Community bereitgestellte Anpassungen.
 
 Die Steuerung der Kernmechaniken im Spiel umfassen das nach links und rechts Drehen des Spielers,
-das Bewegen in die vier Haupthimmelsrichtungen sowie das Abfeuern einer Waffe (sieben diskrete
+das Bewegen in die vier Haupthimmelsrichtungen sowie das Abfeuern einer Waffe (sieben diskrete % TODO sieben diskrete Actions?
 Actions). Die Modifikation des Hauptspiels ist unter \url{https://github.com/mwydmuch/ViZDoom}
 aufrufbar. Zusätzlich wäre auch die Anfertigung eines eigenen Environments in Doom möglich. Dafür
 stehen weitere Portierungen zur Verfügung wie zum Beispiel \url{https://zdoom.org/index}, welches
@@ -1635,7 +1638,7 @@ Echtzeitspielen notwendig ist, werden die letzten vier Bilder des Spiels, ähnli
 Farbkanäle eines Bildes, übereinandergelegt, wie von V. Mnih \cite[~S.5]{mnih2013playing}
 vorgeschlagen. Für die Implementierung wurde eine \lstinline!deque! verwendet, wie in
 Listing \ref{lst:env_observation} gezeigt. Wird das Environment zurückgesetzt, so wird
-ein neues Bild aufgenommen und dreimal in den ImageBuffer geschrieben.
+ein neues Bild aufgenommen und vier mal in den ImageBuffer geschrieben.
 \begin{lstlisting}[language=Python, caption=Observation des Environments,
 label=lst:env_observation]
 class TeeworldsEnv(gym.Env):
@@ -1737,7 +1740,7 @@ Problemstellung als hilfreich, da nicht blockierende Abfragen von dieser Bibliot
 unterstützt werden.
 
 Eine weitere Herausforderung war es den Agenten in mehreren Environments auszuführen, da
-die Multiprocessing Realisierung von Pytorch eine Schwierigkeit darstellte. Auch die
+die Multiprocessing Realisierung mit Pytorch eine Schwierigkeit darstellte. Auch die
 Orientierung im Teeworlds Quelltext und dessen Umarbeitung stellte sich als Hürde dar.
 
 \subsection{Wahl des Verfahrens}
@@ -1964,14 +1967,14 @@ Verfahrens (Blau) im Vergleich zur Entwicklung des Vanilla Verfahrens (Rot) vera
 \subsubsection{Double DQN}
 Die nächste Erweiterung zur Vanillaimplementierung von Deep Q-learning befasst sich mit der
 Stabilität des Verfahrens. In dem Paper ''Deep Reinforcement Learning with Double Q-learning''
-von DeepMind\cite{HGD2015} wird das Überbewerten von Q-values bei dem Eintreten definierter
+von DeepMind\cite{HGD2015} wird das Überbewerten von Q-values bei dem Eintreten definierter % Überwerten Überbewerten?
 Zuständen überprüft. In dem Paper werden genau diese Overestimations bei dem Trainieren auf
 Atari 2600 Spielen mittels Vanilla Deep Q-learning festgestellt und es wird eine Lösung mit
 der Bezeichnung \textit{Double Deep Q-learning} vorgestellt.
 
 Grund für die Überbewertung ist die Nutzung des $\max$ Operators in der Bellman Equation.
 Wie bereits in \autoref{sec:tab-q-learning}:\nameref{sec:tab-q-learning} und \autoref{sec:dqn}:
-\nameref{sec:dqn} behandelt wird diese zur Berechnung der Q-values verwendet. Da beide
+\nameref{sec:dqn} behandelt, wird diese zur Berechnung der Q-values verwendet. Da beide
 Verfahren die gleichen values sowohl zur Auswahl, als auch zur Evaluierung von Actions nutzen,
 ist es laut Hasselt et al.\cite[~S.2]{HGD2015} wahrscheinlicher, dass überbewertete values
 ausgewählt werden, was wiederum zu einer überoptimistischen Schätzung zu\-künf\-ti\-ger values
@@ -2127,7 +2130,7 @@ class PrioritizedReplayBuffer:
 \noindent
 Zuerst werden die Wahrscheinlichkeiten \lstinline!probs!, dass die einzelnen Samples
 trainiert werden aus den Prioritäten berechnet. Anschließend findet das zufällige
-auswählen der Samples mit der Funktion \lstinline!np.random.choice()! statt. Am Ende
+Auswählen der Samples mit der Funktion \lstinline!np.random.choice()! statt. Am Ende
 werden die Gewichte berechnet, mit denen der Loss Wert beim Training skaliert wird. Diese
 Gewichte werden zusammen mit den ausgesuchten Samples und deren Indexen zurückgegeben.
 Die Indizes werden benötigt, um die Prioritäten der Samples nach dem Training wieder
@@ -2295,8 +2298,9 @@ der Anlage in \autoref{sec:further_train_results} zu sehen.
 \subsubsection{Experiment mit 6 Leveln}
 Die nachfolgende Abbildung \ref{fig:six_levels_results} visualisiert die Ergebnisse
 eines Experiments des Deep Q-learning Verfahrens mit sämtlichen Erweiterungen auf 6 Leveln
-(Orange). Die benutzten Level sind im Anhang im \autoref{sec:six_levels} veranschaulicht. 
-Der Agent konnte abschließend alle sechs Level erfolgreich absolvieren, wobei eine deutlich
+(Orange). Die benutzten Level sind im Anhang im \autoref{sec:six_levels} veranschaulicht.
+Der Agent konnte abschließend nach 50 Stunden
+und 2.8 Millionen Samples alle sechs Level erfolgreich absolvieren, wobei eine deutlich
 längere Laufzeit von 52 Stunden notwendig war.
 
 \begin{figure}[htp]
@@ -2332,7 +2336,8 @@ vorher darauf trainiert zu haben. Bei dem Testlauf erhielt der Agent einen durch
 Reward von 2.4, wobei ein Maximalwert von 4 erreicht wurde. Daraus lässt sich schließen,
 dass der Agent die zuvor trainierten Level auswendig lernt, sprich overfitted. Es sind
 jedoch Tendenzen einer Abstraktion zu erkennen, welche durch das gelegentliche Überwinden
-von neuen, bisher unbekannten Hindernissen auffallen. Das Level wird im Anhang unter \ref{sec:untrained_level_appendix} dargestellt.
+von neuen, bisher unbekannten Hindernissen auffallen. Das Level, das für die Evaluierung verwendet wurde, wird
+im Anhang unter \ref{sec:untrained_level_appendix} dargestellt.
 
 
 \subsection{Erkenntnisse}
@@ -2370,6 +2375,8 @@ das Environment zu entwerfen.
 
 Mittels des entwickelten Environments wurde ein Agent mit Deep Q-learning trainiert, welcher
 abschließend die Problemstellung des Environments erfolgreich löste.
+
+% TODO dazu noch was schreiben?
 
 \subsection{Ausblick}
 Durch die Implementierung des Teeworld Environments besteht anschließend die Möglichkeit weitere Verfahren
@@ -2421,7 +2428,6 @@ Anwendbarkeit im Bezug auf die Größe der Level und deren Komplexität zu ermit
 \label{fig:pong_all_results}
 \end{figure}
 
-\newpage
 \subsection{Levelauswahl}
 \label{sec:levels}
 \begin{figure}[htp]
@@ -2491,7 +2497,6 @@ Anwendbarkeit im Bezug auf die Größe der Level und deren Komplexität zu ermit
 
 \subsection{Weitere Trainingsergebnisse}
 \label{sec:further_train_results}
-% TODO Bruno
 
 \begin{figure}[htp]
 \centering
