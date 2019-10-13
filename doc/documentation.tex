@@ -255,7 +255,7 @@ Folgezustände.
 
 \begin{figure}[htp]
 \centering
-\includegraphics[scale=0.19]{res/sunny-rainy-weather-model.png}
+\includegraphics[scale=0.20]{res/sunny-rainy-weather-model.png}
 \caption{Sunny/Rainy Wettermodell}
 \source{\cite[~S.13 - Chapter 1 - Figure 4]{L2018}}
 \label{fig:markov}
@@ -300,7 +300,7 @@ Die Verhaltensweise, die der Agent ausübt und welche für die Wahl der Actions 
 wird als \textit{Policy} bezeichnet. Formal wird diese nach Lapan\cite[~S.22 f.]{L2018} als
 Wahrscheinlichkeitsverteilung über Actions für jeden möglichen Zustand definiert.
 
-
+\newpage
 \subsection{Weiterführende Taxonomie}
 In diesem Kapitel werden diverse Kategorisierungen für Reinforcement Learning Verfahren beschrieben,
 welche nachfolgend bei der Erläuterung der realisierten Verfahren für deren Einordnung genutzt werden.
@@ -449,8 +449,8 @@ Experimente gemittelt, um ein anschaulicheres Ergebnis zu erhalten.
 
 \begin{figure}[htp]
 \centering
-\includegraphics[scale=0.3]{res/k_armed_bandit_epsilon.png}
-\includegraphics[scale=0.3]{res/k_armed_bandit_optimistic_upper.png}
+\includegraphics[scale=0.31]{res/k_armed_bandit_epsilon.png}
+\includegraphics[scale=0.31]{res/k_armed_bandit_optimistic_upper.png}
 \caption{Ergebnisse 10-armed-Bandit}
 \label{fig:karmed_bandit}
 \end{figure}
@@ -501,8 +501,6 @@ kleinsten Rewards. Deutlich besser funktionierte die erweiterte Version mit deca
 vergleichbar mit dem Verfahren Optimistic Initial Values ist. Am besten schneidet die
 Upper Bound Confidence Action Selection ab.
 
-
-\newpage
 \subsection{OpenAI Gym}
 Die Python Bibliothek \textit{gym}, welche von der Firma OpenAI umgesetzt wurde umfasst ein
 Toolkit, welches zur Entwicklung und zum Vergleich von Reinforcement Learning Algorithmen
@@ -521,7 +519,6 @@ beschloss OpenAI mit der gym Bibliothek genau diesen Problemen entgegenzuwirken
 Nachfolgend sollen der Aufbau und die Nutzung eines Environments durch die Bibliothek gym
 erläutert werden und es wird auf eine Referenzimplementierung eines Environments für das
 Spiel Tic-Tac-Toe eingegangen.
-
 
 \subsubsection{Konzept}
 Ein Environment ist eine von der Klasse gym.Env erbende Unterklasse, welche durch die
@@ -606,7 +603,7 @@ lokalen Reward definiert.
 
 Für das Spiel Tic-Tac-Toe wurde ein Einspieler Environment implementiert, welches im
 Unterverzeichnis \textit{preparation/05\_v\_learning/} unter dem nachfolgenden Link abgerufen
-werden kann: \url{github.com/dephiloper/independent-coursework-rl/}
+werden kann: \url{https://github.com/dephiloper/independent-coursework-rl/}
 
 
 \subsubsection{Verwendung}
@@ -694,7 +691,7 @@ beschriebenen Schritte zusätzlich visuell dargestellt:
 
 \begin{figure}[htp]
 \centering
-\includegraphics[scale=0.45]{res/cross-entropy-procedure.png}
+\includegraphics[scale=0.5]{res/cross-entropy-procedure.png}
 \caption{Cross-Entropy Verfahren}
 \label{fig:cross_entropy_procedure}
 \end{figure}
@@ -723,7 +720,7 @@ Paper\cite{BSA1983} von Barto, Sutton und Anderson:
 
 \begin{figure}[htp]
 \centering
-\includegraphics[scale=0.15]{res/cart-pole.png}
+\includegraphics[scale=0.25]{res/cart-pole.png}
 \caption{Illustration des Cart-pole Problems}
 \source{\cite[~S.838]{BSA1983}}
 \label{fig:cart-pole}
@@ -757,7 +754,7 @@ einer Verteilung die unter oder gleich einem festgelegten Wert sind (z.B. Median
 \end{figure}
 
 Die Implementierung der Cross-Entropy-Method zum Cart-pole Problem ist unter
-\url{github.com/dephiloper/independent-coursework-rl} im Unterverzeichnis 
+\url{https://github.com/dephiloper/independent-coursework-rl} im Unterverzeichnis 
 \textit{preparation/04\_cross\_entropy} in der Datei
 \href{https://github.com/dephiloper/independent-coursework-rl/blob/master/preparation/04_cross_entropy/cart_pole_torch.py}{\nolinkurl{cart\_pole\_torch.py}} umgesetzt.
 
@@ -774,7 +771,7 @@ sich der Avatar auf diese bewegt. Das Spielfeld ist in Abbildung \ref{fig:frozen
 
 \begin{figure}[htp]
 \centering
-\includegraphics[scale=0.25]{res/frozen_lake.png}
+\includegraphics[scale=0.32]{res/frozen_lake.png}
 \caption{FrozenLake Spielfeld}
 \source{\cite[~S.90 - Chapter 4 - Figure 5]{L2018}}
 \label{fig:frozen_lake}
@@ -833,7 +830,7 @@ etwa 50\% erfolgreichen Lösung des Environments stagniert.
 \end{figure}
 
 Die Implementierung der Cross-Entropy-Method zum FrozenLake Environment ist unter
-\url{github.com/dephiloper/independent-coursework-rl} im Unterverzeichnis 
+\url{https://github.com/dephiloper/independent-coursework-rl} im Unterverzeichnis 
 \textit{preparation/04\_cross\_entropy} in der Datei 
 \href{https://github.com/dephiloper/independent-coursework-rl/blob/master/preparation/04_cross_entropy/frozen_lake_torch.py}{\nolinkurl{frozen\_lake\_torch.py}} umgesetzt.
 \newpage
@@ -970,11 +967,12 @@ geglätteten Daten zu erkennen, welche jeweils einen Höchstwert von 0.85 aufwei
 das Experiment als gelöst angesehen wurde.
 \begin{figure}[htp]
 \centering
-\includegraphics[scale=0.7]{res/frozen_lake_reward_tabular_q.png}
+\includegraphics[scale=0.8]{res/frozen_lake_reward_tabular_q.png}
 \caption{Ergebnisse Tabular Q-learning FrozenLake-v0}
 \label{fig:frozen-lake_q_learning}
 \end{figure}
 
+\newpage
 \subsection{Tic-Tac-Toe}
 Neben der Umsetzung von FrozenLake wurde ebenfalls eine Tic-Tac-Toe Implementation
 entwickelt, in der ein Agent gegen einen zufällig spielenden Gegner trainiert und
@@ -1109,14 +1107,13 @@ Da das Verfahren deutliche Parallelen zu Tabular Q-learning aufweist, läuft der
 Trainingsprozess in diesem ebenfalls ähnlich ab. Zuerst wird ein neuronales Netz
 initialisiert, um anschließend zufällige Actions im Environment auszuprobieren
 und somit ein Tupel aus wahrgenommenem State, gespielter Action, erhaltenem
-Reward und neu erreichten Folgestate zu erhalten.
-
-Daraufhin wird erneut der schon bei Tabular Q-learning genutzte Zusammenhang der Bellman
-Equation (\ref{aln:DeepQ}) ausgenutzt, um die Ergebnisse des neuronalen Netzes anzupassen.
-Die Bezeichnungen der Variablen sind identisch zu denen im Tabular Q-learning. Der State
-$s$ ist der wahrgenommene State, $a$ ist die gewählte Action, $r$ ist der dadurch
-erhaltene unmittelbare Reward und $s'$ ist der Folgestate, der aus dem Anwenden der
-gewählten Action hervorgeht.
+Reward und neu erreichten Folgestate zu erhalten. Daraufhin wird erneut der schon
+bei Tabular Q-learning genutzte Zusammenhang der Bellman Equation (\ref{aln:DeepQ})
+ausgenutzt, um die Ergebnisse des neuronalen Netzes anzupassen. Die Bezeichnungen
+der Variablen sind identisch zu denen im Tabular Q-learning. Der State $s$ ist der
+wahrgenommene State, $a$ ist die gewählte Action, $r$ ist der dadurch erhaltene
+unmittelbare Reward und $s'$ ist der Folgestate, der aus dem Anwenden der gewählten
+Action hervorgeht.
 \begin{align}
   Q(s, a) \leftarrow r_{s,a} + \gamma \max_{a' \in A}Q(s', a') \label{aln:DeepQ}
 \end{align}
@@ -1185,7 +1182,7 @@ synchronisieren.
 \subsection{Implementierung}
 Mit den eben beschriebenen Änderungen wurde ein Deep Q-learning Algorithmus für das
 RoboschoolPong Environment implementiert und getestet. Der Quelltext kann unter
-\url{https://github.com/dephiloper/independent-coursework-rl/} im Unterverzeichnis
+\url{https://github.com/dephiloper/independent-coursework-rl/} im Verzeichnis
 \href{https://github.com/dephiloper/independent-coursework-rl/tree/master/preparation/07_deep_q_learning}
 {\nolinkurl{preparation/07\_deep\_q\_learning}} gefunden werden.
 
@@ -1201,7 +1198,7 @@ Gegenspieler gewonnen. \autoref{fig:pong_env} zeigt das gerenderte Environment.
 
 \begin{figure}[htp]
 \centering
-\includegraphics[scale=0.4]{res/pong_env.png}
+\includegraphics[scale=0.45]{res/pong_env.png}
 \caption{RoboschoolPong Environment}
 \label{fig:pong_env}
 \end{figure}
@@ -1242,7 +1239,7 @@ sehen.
 
 \begin{figure}[htp]
 \centering
-\includegraphics[scale=0.4]{res/pong_results.png}
+\includegraphics[scale=0.5]{res/pong_results.png}
 \caption{Ergebnisse RoboschoolPong}
 \label{fig:pong_results}
 \end{figure}
@@ -1256,8 +1253,9 @@ Grau zeigt den durchschnittlichen Reward mit 64 Knoten pro Layer und Grün den R
 ein Netz mit 128 Knoten pro Layer.
 
 Damit wurde kurzzeitig ein durchschnittlicher Reward von bis zu 6.9 erreicht. Der
-trainierte Agent kann in einem Video unter \url{https://www.youtube.com/watch?v=xp4XtrYNKzQ}
-betrachetet werden.
+trainierte Agent kann in einem Video unter folgenden Link betrachetet werden:
+
+\url{https://www.youtube.com/watch?v=xp4XtrYNKzQ}
 
 \newpage
 \section{Policy Gradients}
@@ -1280,7 +1278,7 @@ diskreten Actions nach Anwendung der Policy Approximation visualisiert.
 
 \begin{figure}[htp]
 \centering
-\includegraphics[scale=0.4]{res/policy_approxim.png}
+\includegraphics[scale=0.5]{res/policy_approxim.png}
 \caption{Wahrscheinlichkeitsverteilung von Actions durch Policy Approximation}
 \source{\cite[~S.243 - Chapter 9 - Figure 1]{L2018}}
 \label{fig:prob-dist-pg}
@@ -1299,14 +1297,12 @@ Das nachfolgend beschriebene Verfahren REINFORCE oder Monte Carlo Policy Gradien
 deutliche Ähnlichkeiten zur bereits erläuterten \nameref{sec:cross-entropy-method} auf.
 Genau wie das Cross-Entropy Verfahren erhält das Netz als Input die Observation des
 Environments und liefert eine Wahrscheinlichkeitsverteilung der Actions an den Agent
-zurück. Der Unterschied kommt durch die in \autoref{aln:PG} festgehaltene Definition
-des $PG$ (Policy Gradient) zustande.
-
-% TODO (10) zeigt L nicht PG
+zurück. Der Unterschied kommt durch die in \autoref{aln:PG-Loss} festgehaltene Definition
+des PG Loss zustande.
 
 \begin{align}
 \mathcal{L}=-Q(s,a)\log\pi(a|s)
-\label{aln:PG}
+\label{aln:PG-Loss}
 \end{align}
 
 PG definiert dabei die Richtung, in welche die Gewichte des Netzes verschoben werden müssen,
@@ -1430,7 +1426,7 @@ visualisiert.
 
 \begin{figure}[htp]
 \centering
-\includegraphics[scale=0.5]{res/actor-critic.png}
+\includegraphics[scale=0.4]{res/actor-critic.png}
 \caption{Actor-Critic - shared net Architektur}
 \source{\cite[~S.268 - Chapter 10 - Figure 5]{L2018}}
 \label{fig:actor-critic}
@@ -1534,6 +1530,7 @@ aufrufbar. Zusätzlich wäre auch die Anfertigung eines eigenen Environments in 
 stehen weitere Portierungen zur Verfügung wie zum Beispiel \url{https://zdoom.org/index}, welches
 das Spiel auf modernen Geräten ausführbar macht. 
 
+\newpage
 \subsubsection{Teeworlds}
 Bei dem Spiel Teeworlds handelt es sich um ein kostenloses online Mehrspieler Spiel, welches seine
 Erstveröffentlichung am 27. Mai 2007 hatte. Das Spiel wurde am Anfang ausschließlich von dem
@@ -1574,17 +1571,17 @@ oder über eingesammelte Objekte ausgetauscht.
 
 \subsection{Umsetzung des Environments}
 Um das Spiel Teeworlds für einen Reinforcement Learning Algorithmus zugänglich zu machen,
-wird das Spiel in ein Python Environment eingebettet. Dabei ist zu brücksichtigen, dass
+wird das Spiel in ein Python Environment eingebettet. Dabei ist zu be\-rück\-sich\-ti\-gen, dass
 Informationen sowohl mit dem Teeworlds Client als auch mit dem Teeworlds Server ausgetauscht
 werden müssen. Zusätzlich wurde darauf geachtet, dass das eigens entwickelte Environment dem
 Standard eines OpenAI gyms entspricht.
 
 In diesem Abschnitt wird beschrieben, wie die Umarbeitung des Teeworlds Clients und
 Servers realisiert wurde. Dazu wurde das Teeworlds Github Repository geforkt und
-modifiziert. Der Fork ist unter der url \url{github.com/nevs-devs/teeworlds} einsehbar.
-Das Python OpenAI Environment ist unter \url{github.com/dephiloper/independent-coursework-rl/}
+modifiziert. Der Fork ist unter der url \url{https://github.com/nevs-devs/teeworlds} einsehbar.
+Das Python OpenAI Environment ist unter \url{https://github.com/dephiloper/independent-coursework-rl/}
 im Unterverzeichnis \textit{teeworlds\_env} in der Datei
-\href{github.com/dephiloper/independent-coursework-rl/teeworlds_env/gym_teeworlds.py}
+\href{https://github.com/dephiloper/independent-coursework-rl/blob/master/teeworlds_env/gym_teeworlds.py}
 {\nolinkurl{gym\_teeworlds.py}} zu finden.
 
 Besonderes Augenmerk wurde auf die standardkonforme API des Environments gelegt, wodurch
@@ -1670,8 +1667,7 @@ void receive_update() {
 
   while (true) {
     int size = zmq_recv(actions_receiver, buffer,
-                        5, ZMQ_DONTWAIT);
-                        
+                        5, ZMQ_DONTWAIT); 
     // if no more messages are available
     if (size == -1) break; 
 
@@ -1701,11 +1697,12 @@ ZeroMQ an das Environment zurück. Abbildung \ref{fig:teeworlds_env} zeigt eine 
 Architektur.
 \begin{figure}[htp]
   \centering
-  \includegraphics[scale=0.5]{res/teeworlds_env.png}
+  \includegraphics[scale=0.58]{res/teeworlds_env.png}
   \caption{Teeworlds Environment Aufbau}
   \label{fig:teeworlds_env}
 \end{figure}
-\noindent
+
+
 Weiterhin wurden diverse Änderungen an Server und Client vorgenommen, wie das Entfernen
 unnötiger Statusanzeigen, auf die der Agent fälschlicherweise achten könnte, oder die
 Möglichkeit verschiedene Level in einem Environment spielen zu können.
@@ -1720,7 +1717,7 @@ das Spiel auch mit einer höheren Geschwindigkeit gespielt werden. \autoref{fig:
 zeigt eine typische Trainingssituation mit vier Workern.
 \begin{figure}[htp]
   \centering
-  \includegraphics[scale=1.0]{res/multi_env.png}
+  \includegraphics[scale=1.4]{res/multi_env.png}
   \caption{Multiple Teeworlds Environments}
   \label{fig:multi_env}
 \end{figure}
@@ -1913,6 +1910,7 @@ Gewichte und Biases nach der im Paper beschriebenen Vorgehensweise initialisiert
 jedem Gewicht ein Wert einer unabhängigen Gleichverteilung
 $\mathcal{U}[-\sqrt{\frac{3}{p}},+\sqrt{\frac{3}{p}}]$ zugewiesen, wobei $p$ der Anzahl der
 Input Nodes des Linear Layers entspricht.
+\newpage
  
 \begin{lstlisting}[language=Python, caption=Reinitialisierung der Gewichte und Biases, 
 label=lst:noisy_reset-params]
@@ -1959,7 +1957,7 @@ Verfahrens (Blau) im Vergleich zur Entwicklung des Vanilla Verfahrens (Rot) vera
 
 \begin{figure}[htp]
 \centering
-\includegraphics[scale=0.38]{res/noisy_dqn.png}
+\includegraphics[scale=0.45]{res/noisy_dqn.png}
 \caption{Avg. Reward: Noisy (Blau) im Vergleich zu Vanilla DQN (Rot)}
 \label{fig:noisy-dqn}
 \end{figure}
@@ -1967,7 +1965,7 @@ Verfahrens (Blau) im Vergleich zur Entwicklung des Vanilla Verfahrens (Rot) vera
 \subsubsection{Double DQN}
 Die nächste Erweiterung zur Vanillaimplementierung von Deep Q-learning befasst sich mit der
 Stabilität des Verfahrens. In dem Paper ''Deep Reinforcement Learning with Double Q-learning''
-von DeepMind\cite{HGD2015} wird das Überbewerten von Q-values bei dem Eintreten definierter % Überwerten Überbewerten?
+von DeepMind\cite{HGD2015} wird das Überbewerten von Q-values bei dem Eintreten definierter
 Zuständen überprüft. In dem Paper werden genau diese Overestimations bei dem Trainieren auf
 Atari 2600 Spielen mittels Vanilla Deep Q-learning festgestellt und es wird eine Lösung mit
 der Bezeichnung \textit{Double Deep Q-learning} vorgestellt.
@@ -2013,7 +2011,7 @@ der bereits behandelten Erweiterung ohne das Double Verfahren visualisiert.
 
 \begin{figure}[htp]
 \centering
-\includegraphics[scale=0.38]{res/double_dqn_results.png}
+\includegraphics[scale=0.34]{res/double_dqn_results.png}
 \caption{Avg. Reward: Double DQN und Noisy (Grün) im Vergleich zu Noisy (Blau)}
 \label{fig:double-dqn}
 \end{figure}
@@ -2028,7 +2026,7 @@ ohne zusätzliche Erweiterungen sinnvoll.
 
 \begin{figure}[htp]
   \centering
-  \includegraphics[scale=0.38]{res/double_dqn_values_mean.png}
+  \includegraphics[scale=0.40]{res/double_dqn_values_mean.png}
   \caption{Avg. values Double DQN}
   \label{fig:double-dqn-value-mean}
 \end{figure}
@@ -2080,6 +2078,8 @@ jeweilige Sample bevorzugt wird.
 
 Um neue Samples hinzuzufügen, wurde die \lstinline!append()! Methode geschrieben, die in
 Listing \ref{lst:prio_buf_append} beschrieben ist.
+\newpage
+
 \begin{lstlisting}[language=Python, caption=append()-Funktion des PrioritizedReplayBuffers,
 label=lst:prio_buf_append]
 class PrioritizedReplayBuffer:
@@ -2179,7 +2179,7 @@ Layern des Netzes zwei distinkte Netze angeschlossen werden. Abbildung
 \ref{fig:dueling_dqn_nets} veranschaulicht die Netzarchitektur.
 \begin{figure}[htp]
   \centering
-  \includegraphics[scale=0.30]{res/dueling_dqn_nets.png}
+  \includegraphics[scale=0.27]{res/dueling_dqn_nets.png}
   \caption{Dueling Netzarchitektur}
   \source{\cite[~S.283 - Chapter 7 - Figure 11]{L2018}}
   \label{fig:dueling_dqn_nets}
@@ -2233,7 +2233,7 @@ dargestellt wird, welcher ebenfalls alle vorhergehenden Erweiterungen benutzt,
 jedoch nicht die DuelingNet Erweiterung umsetzt.
 \begin{figure}[htp]
   \centering
-  \includegraphics[scale=0.25]{res/dueling_dqn_results.png}
+  \includegraphics[scale=0.30]{res/dueling_dqn_results.png}
   \caption{Ergebnisse DuelingNet}
   \label{fig:dueling_dqn_results}
 \end{figure}
@@ -2250,10 +2250,13 @@ Eine zusätzliche Verbesserung kann im Deep Q-learning Verfahren erzielt werden,
 Bellman Equation erneut angepasst wird. Das Verfahren wird im Paper \textit{Learning to
 Predict by the Methods of Temporal Differences} von Richard Sutton\cite{S1988} initial
 vorgestellt und erweitert den herkömmlichen Ansatz zur Berechnung von Q-values um die
-Betrachtung weiterer zukünftiger Schritte. Da die Ausgangsgleichung zur Berechnung der Q
-values (\ref{aln:double-dqn-q-values}) rekursiv formuliert wurde, kann $Q(s_{t+1},
-a_{t+1})$ ebenfalls wie folgt formuliert werden, wobei der Ausdruck in den eckigen
-Klammern einer Auflösung von $Q'$ entspricht \cite[~S.168]{L2018}:
+Betrachtung weiterer zukünftiger Schritte. 
+
+\newpage
+Da die Ausgangsgleichung zur Berechnung der Q values (\ref{aln:double-dqn-q-values})
+rekursiv formuliert wurde, kann $Q(s_{t+1}, a_{t+1})$ ebenfalls wie folgt formuliert
+werden, wobei der Ausdruck in den eckigen Klammern einer Auflösung von $Q'$ entspricht
+\cite[~S.168]{L2018}:
 \begin{align}
 Q(s_t, a_t) = r_t + \gamma \max_{a}[r_{a,t+1}+\gamma\max_{a'}Q(s_{t+2},a')]
 \label{aln:nstep-dqn-q-values-improved}
@@ -2305,7 +2308,7 @@ längere Laufzeit von 52 Stunden notwendig war.
 
 \begin{figure}[htp]
 \centering
-\includegraphics[scale=0.19]{res/six_levels_results.png}
+\includegraphics[scale=0.32]{res/six_levels_results.png}
 \caption{Avg. Reward auf sechs Leveln}
 \label{fig:six_levels_results}
 \end{figure}
@@ -2339,7 +2342,7 @@ jedoch Tendenzen einer Abstraktion zu erkennen, welche durch das gelegentliche �
 von neuen, bisher unbekannten Hindernissen auffallen. Das Level, das für die Evaluierung verwendet wurde, wird
 im Anhang unter \ref{sec:untrained_level_appendix} dargestellt.
 
-
+\newpage
 \subsection{Erkenntnisse}
 \label{sec:results}
 In der finalen Umsetzung des Agenten wurde es bewerkstelligt mehrere Level im Environment
@@ -2378,8 +2381,9 @@ abschließend die Problemstellung des Environments erfolgreich löste.
 
 % TODO dazu noch was schreiben?
 
+\newpage
 \subsection{Ausblick}
-Durch die Implementierung des Teeworld Environments besteht anschließend die Möglichkeit weitere Verfahren
+Durch die Implementierung des Teeworld Environments besteht anschließend die Mög\-lich\-keit weitere Verfahren
 für die Lösung der definierten Problemstellung des Environments umzusetzen. Besonders aufgrund der
 Implementierung der Worker Struktur und dem daraus resultierenden parallelen Sammeln von Trainingsdaten
 wird es möglich on-policy Verfahren wie die Actor-Critic Methode in der bestehenden Realisierung umzusetzen.
@@ -2423,7 +2427,7 @@ Anwendbarkeit im Bezug auf die Größe der Level und deren Komplexität zu ermit
 \subsection{Ergebnisse Pong Environment mit Deep Q-learning}
 \begin{figure}[htp]
 \centering
-\includegraphics[scale=0.35]{res/pong_all_results.png}
+\includegraphics[scale=0.22]{res/pong_all_results.png}
 \caption{Vollständige Ergebnisse mit Deep Q-learning im Pong Environment}
 \label{fig:pong_all_results}
 \end{figure}
@@ -2432,37 +2436,43 @@ Anwendbarkeit im Bezug auf die Größe der Level und deren Komplexität zu ermit
 \label{sec:levels}
 \begin{figure}[htp]
 \centering
-\includegraphics[width=160pt]{res/newlevel_1_full.png}
-\includegraphics[width=160pt]{res/newlevel_2_full.png}
-\newline
-\hspace{10pt}\\
-\includegraphics[width=160pt]{res/newlevel_3_full.png}
-\includegraphics[width=160pt]{res/newlevel_4_full.png}
-
+\includegraphics[width=200pt]{res/newlevel_1_full.png}
+\includegraphics[width=200pt]{res/newlevel_2_full.png}
 \caption{
-  Die Level ''newlevel\_0'', ''newlevel\_1'',
-            ''newlevel\_2'' und ''newlevel\_3''
+  Die Level ''newlevel\_0'', ''newlevel\_1''.
         }
 \end{figure}
 
+\begin{figure}[htp]
+\centering
+\includegraphics[width=200pt]{res/newlevel_3_full.png}
+\includegraphics[width=200pt]{res/newlevel_4_full.png}
+
+\caption{
+  Die Level ''newlevel\_2'' und ''newlevel\_3''.
+        }
+\end{figure}
+
+\newpage
 \subsubsection{Weitere Level}
 \label{sec:six_levels}
 
-\begin{figure}[htp]
+\begin{figure}[h]
 \centering
-\includegraphics[width=160pt]{res/newlevel_5_full.png}
-\includegraphics[width=160pt]{res/newlevel_6_full.png}
+\includegraphics[width=200pt]{res/newlevel_5_full.png}
+\includegraphics[width=200pt]{res/newlevel_6_full.png}
 
 \caption{
   Die Level ''newlevel\_4'', ''newlevel\_5''}
 \end{figure}
+
 
 \subsubsection{Level mit erhöhtem Schwierigkeitsgrad}
 \label{sec:hard_level_appendix}
 
 \begin{figure}[htp]
 \centering
-\includegraphics[width=160pt]{res/hard_level.png}
+\includegraphics[width=200pt]{res/hard_level.png}
 
 \caption{Level mit erhöhtem Schwierigkeitsgrad}
 \end{figure}
@@ -2472,7 +2482,7 @@ Anwendbarkeit im Bezug auf die Größe der Level und deren Komplexität zu ermit
 
 \begin{figure}[htp]
 \centering
-\includegraphics[width=160pt]{res/eval_level_0.png}
+\includegraphics[width=200pt]{res/eval_level_0.png}
 
 \caption{Level zur Evaluierung}
 \end{figure}
@@ -2505,51 +2515,61 @@ Anwendbarkeit im Bezug auf die Größe der Level und deren Komplexität zu ermit
 \end{figure}
 
 \begin{figure}[htp]
+\centering
 \includegraphics[width=280pt]{res/tee_all_newlevels_v02_results.png}
 \caption{Trainingsergebnisse Version 02 der Kalibrierungsexperimente}
 \end{figure}
 
 \begin{figure}[htp]
+\centering
 \includegraphics[width=280pt]{res/tee_all_newlevels_v03_results.png}
 \caption{Trainingsergebnisse Version 03 der Kalibrierungsexperimente}
 \end{figure}
 
 \begin{figure}[htp]
+\centering
 \includegraphics[width=280pt]{res/tee_all_newlevels_v04_results.png}
 \caption{Trainingsergebnisse Version 04 der Kalibrierungsexperimente}
 \end{figure}
 
 \begin{figure}[htp]
+\centering
 \includegraphics[width=280pt]{res/tee_all_newlevels_v05_results.png}
 \caption{Trainingsergebnisse Version 05 der Kalibrierungsexperimente}
 \end{figure}
 
 \begin{figure}[htp]
+\centering
 \includegraphics[width=280pt]{res/tee_all_newlevels_v07_results.png}
 \caption{Trainingsergebnisse Version 07 der Kalibrierungsexperimente}
 \end{figure}
 
 \begin{figure}[htp]
+\centering
 \includegraphics[width=280pt]{res/tee_all_newlevels_v08_results.png}
 \caption{Trainingsergebnisse Version 08 der Kalibrierungsexperimente}
 \end{figure}
 
 \begin{figure}[htp]
+\centering
 \includegraphics[width=280pt]{res/tee_all_newlevels_v09_results.png}
 \caption{Trainingsergebnisse Version 09 der Kalibrierungsexperimente}
 \end{figure}
 
 \begin{figure}[htp]
+\centering
 \includegraphics[width=280pt]{res/tee_all_newlevels_v10_results.png}
 \caption{Trainingsergebnisse Version 10 der Kalibrierungsexperimente}
 \end{figure}
 
 \begin{figure}[htp]
+\centering
 \includegraphics[width=280pt]{res/tee_all_newlevels_v11_results.png}
 \caption{Trainingsergebnisse Version 11 der Kalibrierungsexperimente}
 \end{figure}
 
 \begin{figure}[htp]
+\centering
 \includegraphics[width=280pt]{res/tee_all_newlevels_v12_results.png}
 \caption{Trainingsergebnisse Version 12 der Kalibrierungsexperimente}
 \end{figure}
