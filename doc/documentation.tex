@@ -1,5 +1,4 @@
 % TODO check for the following spelling:
-% TODO Bellman Equation erwähnen?
 % Q-learning (not Q-Learning)
 % Deep Q-learning (not Deep-Q-learning) same for Tabular
 % value iteration (not value-iteration)
@@ -301,6 +300,26 @@ wird als \textit{Policy} bezeichnet. Formal wird diese nach Lapan\cite[~S.22 f.]
 Wahrscheinlichkeitsverteilung über Actions für jeden möglichen Zustand definiert.
 
 \newpage
+\subsubsection{Bellman Equation}
+Im vorhergehenden Abschnitt über den Markow Reward Process \ref{sec:markov_reward_process}
+wurde $V(s)$ der value des States definiert. Im Markov Decision Process wurde dieses
+System um eine Policy ergänzt, die zwischen verschiedenen Actions wählt, um den gewonnen
+Reward zu beeinflussen. Der value einer gewählten Action $a_i$ in einem State $V_0$ ist
+der unmittelbare Reward $r_i$ addiert mit dem value des folgenden States $V_i$
+\cite[~S.167]{L2018}, also gilt $V_0(a=a_i) = r + V_i$. Will man eine Policy bestimmen,
+die einen möglichst hohen total Reward erzeugt, so will man die Action $a_i$ finden, die
+den maximalen Summe aus unmittelbarem und long-term Reward ergibt. Daraus ergibt sich die
+Bellman Equation, die in \ref{aln:bellman_equation} abgebildet ist. Zusätzlich wird hier
+der discount factor $\gamma$ eingeführt, der mit dem long-term Reward multipliziert wird.
+\begin{align}
+  V_0 = \max_{a \in 1\dots N} \left(r_a + \gamma * V_a\right)
+  \label{aln:bellman_equation}
+\end{align}
+\noindent
+Dieser rekursive Zusammenhang der values eines States wird in den folgenden Kapiteln
+verwendet, um Algorithmen zu konzipieren, die versuchen die values der States zu
+approximieren.
+
 \subsection{Weiterführende Taxonomie}
 In diesem Kapitel werden diverse Kategorisierungen für Reinforcement Learning Verfahren beschrieben,
 welche nachfolgend bei der Erläuterung der realisierten Verfahren für deren Einordnung genutzt werden.
@@ -322,7 +341,7 @@ Im Kontrast dazu definiert \textit{on-policy} die Notwendigkeit von immer neu au
 Trainingsdaten, welche nach einem Trainingsdurchlauf wieder verworfen und somit neu gesammelt
 werden müssen.
 
-
+\newpage
 \subsubsection{Model-free - model-based}
 Der Term \textit{model-free} bezieht sich auf Verfahren, welche kein Model der Umgebung oder des Rewards
 während des Trainingsprozesses aufbauen. Es werden ausschließlich durch aktuelle Observations
@@ -334,10 +353,9 @@ wird.
 
 
 \subsection{Exploration und Exploitation}
-In diesem Abschnitt wird der Konflikt zwischen Exploration und Exploitation des
-Reinforcement Learnings erläutert und anhand des k-armed-Bandit Problems veranschaulicht.
-Die dabei realisierten Implementierungen werden beschrieben und deren Ergebnisse
-vorgestellt.
+In diesem Abschnitt wird der Konflikt zwischen Exploration und Exploitation erläutert und
+anhand des k-armed-Bandit Problems veranschaulicht. Die dabei realisierten
+Implementierungen werden beschrieben und deren Ergebnisse vorgestellt.
 
 
 \subsubsection{Das k-armed-Bandit Problem}
@@ -455,7 +473,7 @@ Experimente gemittelt, um ein anschaulicheres Ergebnis zu erhalten.
 \label{fig:karmed_bandit}
 \end{figure}
 
-\noindent
+\newpage
 Auf der linken Seite werden drei unterschiedliche $\epsilon$ greedy Verfahren verglichen.
 Erfolgt ein Vergleich zwischen den Verfahren ohne decay (Blau und Orange), so kann man
 erkennen, dass $\epsilon = 0.1$ zu Beginn besser funktioniert, da mehr Zeit für
@@ -501,6 +519,7 @@ kleinsten Rewards. Deutlich besser funktionierte die erweiterte Version mit deca
 vergleichbar mit dem Verfahren Optimistic Initial Values ist. Am besten schneidet die
 Upper Bound Confidence Action Selection ab.
 
+\newpage
 \subsection{OpenAI Gym}
 Die Python Bibliothek \textit{gym}, welche von der Firma OpenAI umgesetzt wurde umfasst ein
 Toolkit, welches zur Entwicklung und zum Vergleich von Reinforcement Learning Algorithmen
@@ -545,6 +564,7 @@ Analyseinformationen. Das Tupel \textit{observation, reward, done, info} wird an
 an den Aufrufenden zurückgegeben. \autoref{lst:step-method} veranschaulicht eine
 Beispielimplementierung der \textit{step} Methode gegen die von OpenAI bereitgestellte API.
 
+\newpage
 \begin{lstlisting}[language=Python, caption=step method, label=lst:step-method]
 def step(self, action):
 	# executes the action in the environment and validates it
