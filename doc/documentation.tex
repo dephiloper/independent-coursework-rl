@@ -1,4 +1,5 @@
 % TODO check for the following spelling:
+% TODO Bellman Equation erwähnen?
 % Q-learning (not Q-Learning)
 % Deep Q-learning (not Deep-Q-learning) same for Tabular
 % value iteration (not value-iteration)
@@ -149,7 +150,7 @@ werden, welche sich auf die Terminologie dieses Abschnittes beziehen.
 
 \subsection{Reinforcement Learning}
 Reinforcement Learning beschreibt eine Ansammlung von Machine Learning Verfahren, in denen die 
-lernende Entität, auch \textit{Agent}, keine bezeichneten Beispiele für das Lösen eines Problemes 
+lernende Entität, auch \textit{Agent}, keine bezeichneten Beispiele für das Lösen eines Problemes % TODO bezeichneten/Problems?
 erhält. Die einzige Information, welche mitgeteilt wird, ist Feedback zu gewählten Aktionen in Form
 einer Belohnung oder Bestrafung. Diese Art des Feedbacks wird auch als Verstärkung bezeichnet.
 Somit muss vom Lernenden selbstständig eine Strategie entwickelt werden, um das gegebene
@@ -224,7 +225,7 @@ noch größeren negativen Auswirkungen auf den Agenten haben wird.
 
 
 \subsection{Markov Processes}
-Der Makrov Process und seine Erweiterungen bilden das theoretische Konstrukt für Reinforcement Learning
+Der Markov Process und seine Erweiterungen bilden das theoretische Konstrukt für Reinforcement Learning
 Verfahren. Durch die Beleuchtung dieser Prozesse werden weitere Terminologien geklärt, welche ebenfalls
 ihren Einsatz im Reinforcement Learning finden.
 
@@ -235,7 +236,7 @@ beschreibt ein System, welches ausschließlich observiert werden kann, sprich es
 des Systems eingegriffen werden. Jeder Markov Process enthält eine Menge von \textit{States}, zwischen
 denen das System nach den Gesetzlichkeiten der Systemdynamik hin und her wechseln kann. Die Menge aller
 möglichen States wird dabei als \textit{state space} bezeichnet \cite[~S.12]{L2018}. Wird das System
-observiert ergibt sich durch die Wechsel von State zu State eine Folge, welche als \textit{History}
+observiert, ergibt sich durch die Wechsel von State zu State eine Folge, welche als \textit{History}
 bezeichnet wird. 
 
 Damit ein Prozess als Markov Process bezeichnet werden kann muss dieser die \textit{Markov Eigenschaft}
@@ -351,10 +352,10 @@ Der Erwartungswert der hinter der Verteilung einer Action steht, wird als $value
 bezeichnet. Würden die values der einzelnen Actions dem Agenten zur Verfügung stehen, wäre die 
 Wahl der Action einfach, indem die Action mit dem höchsten Erwartungswert gewählt werden 
 könnte. Allgemein ist in Reinforcement Learning Problemen der value einer Action nicht bekannt.
-Stattdessen gibt es ausschließlich Ab-schätzungen bezüglich des values einer Action, die aus den
-gesammelten Erfahrungen hervorgehen. Um den value einer Action besser abschätzen zu können,
-muss diese Action ausprobiert werden. Umso häufiger die Action ausgeführt wurde, umso besser
-ist auch die Abschätzung des values dieser Action.
+Stattdessen gibt es ausschließlich Ab\-schätzungen bezüglich des values einer Action, die
+aus den gesammelten Erfahrungen hervorgehen. Um den value einer Action besser abschätzen
+zu können, muss diese Action ausprobiert werden. Umso häufiger die Action ausgeführt
+wurde, umso besser ist auch die Abschätzung des values dieser Action.
 
 Der Vorgang des Ausprobierens wird $Exploration$ genannt. Im Gegensatz dazu steht die
 $Exploitation$ bei der die gesammelten Erfahrungen genutzt werden, um die Action
@@ -565,7 +566,7 @@ def step(self, action):
 	is_done = self._check_if_done(reward)
     
 	return observation, reward, is_done or not valid, {}
-\end{lstlisting}
+\end{lstlisting} % TODO code
 \noindent
 Die Funktionen \textit{\_take\_action(action)}, \textit{\_get\_reward()} und
 \textit{\_check\_if\_done(reward)} setzen die Kommunikation mit dem Environment um. In
@@ -673,7 +674,7 @@ Observation sowie den Reward für die zuvor ausgeführte Action.
 Diese Schritte werden anschließend solange wiederholt, bis eine Ansammlung an Episoden (siehe 
 \autoref{sec:markov_reward_process}: \nameref{sec:markov_reward_process}), dass heißt eine Folge
 von Observations, Actions und Rewards, gesammelt wurde. Innerhalb jeder Episode wird nun der
-insgesamt erwirtschaftete Reward, der \textit{total eward}, berechnet. Dadurch kann bewertet werden
+insgesamt erwirtschaftete Reward, der \textit{total Reward}, berechnet. Dadurch kann bewertet werden
 wie gut eine Episode im Vergleich zu anderen Episoden ausgefallen ist. Aufgrund der Zufälligkeit
 bei der Selektion von Actions kommt es dazu, dass einige Episoden besser ausfallen als andere.
 Die Cross-Entropy-Method macht sich dieses Verhalten zu nutze, verwirft schlechtere Episoden und
@@ -681,10 +682,10 @@ trainiert ausschließlichen auf besseren Episoden. Das Kernprinzip des Verfahren
 aufgelistet in drei Schritte untergliedert \cite[~S.80 f.]{L2018}:
 
 Initial wird eine definierte Anzahl $N$ an Episoden mit dem aktuellen Model im Environment gespielt
-oder auch wahrgenommen. Anschließend erfolgt die Berechnung des total Rewards für jede gespielte
+oder auch wahrgenommen. Anschließend erfolgt die Berechnung des total Rewards für jede gespielte % TODO oder auch wahrgenommen?
 Episode. Zusätzlich wird in diesem Schritt eine Obergrenze für den Reward festgelegt 
 (\textit{reward boundary}). Daraus folgt, dass die besten 30 Prozent der Episoden behalten werden,
-wohingegen die restlichten schlechteren Episoden verworfen werden. Anschließend wird im letzen Schritt
+wohingegen die restlichen schlechteren Episoden verworfen werden. Anschließend wird im letzen Schritt
 das Model auf den übrigen \textit{elite} Episoden trainiert, wobei eine Observation als Input in das
 Netz gegeben wird und die zuvor gewählten Actions als gewünschter Output vom Netzes gefordert werden.
 Während des Trainingsprozesses werden diese Schritte solange wiederholt bis ein gewünschtes
@@ -1075,7 +1076,7 @@ approximiert werden können.
 
 Dies kann durch die Betrachtung komplizierterer Environments verdeutlicht werden. Lapan
 \cite[~S.192]{L2018} zeigt, dass ein Videospiel mit einer Auflösung von 210x160 Pixeln
-mehr als $10^{70802}$ mögliche States besitzten kann. Daraus ergibt sich für
+mehr als $10^{70802}$ mögliche States besitzen kann. Daraus ergibt sich für
 kompliziertere Environments, dass das Tabular Q-learning nicht praktikabel ist.
 
 
@@ -1301,6 +1302,8 @@ Environments und liefert eine Wahrscheinlichkeitsverteilung der Actions an den A
 zurück. Der Unterschied kommt durch die in \autoref{aln:PG} festgehaltene Definition
 des $PG$ (Policy Gradient) zustande.
 
+% TODO (10) zeigt L nicht PG
+
 \begin{align}
 \mathcal{L}=-Q(s,a)\log\pi(a|s)
 \label{aln:PG}
@@ -1337,7 +1340,7 @@ somit die Verhaltensweise eines random Agents.
 
 \subsubsection{Verfahren}
 Zu Beginn des Verfahrens werden die Parameter des Netzes $\theta$ als zufällige Gewichte
-initialisiert. Nachfolgend werden, genau wie bei der value-based Methode Q-learning, werden
+initialisiert. Nachfolgend werden, genau wie bei der value-based Methode Q-learning,
 multiple Episoden im Environment gespielt, wobei ein Batch an SARS-Tupeln produziert wird.
 Anschließend erfolgt die Berechnung des discounted total Reward für die Folgeschritte eines
 jeden steps. Hierbei entspricht ein step einem SARS-Tupel in einer Episode. Diese Berechnung
@@ -1464,7 +1467,7 @@ advantage Wert die Wahrscheinlichkeiten der gewählten Action mehr in diese Rich
 
 \subsection{Erweiterungen}
 Obwohl das Actor-Critic Verfahren bereits als Erweiterung zum klassischen Policy Gradient Ansatz
-gezählt wird existieren weitere Maßnahmen zur Verbesserung und Beschleunigung der Methode.
+gezählt wird, existieren weitere Maßnahmen zur Verbesserung und Beschleunigung der Methode.
 
 \paragraph*{Entropy Bonus} 
 \noindent
@@ -1525,7 +1528,7 @@ Weiteren enthält die Modifikation die Implementierung einer eigens angefertigte
 durch die Community bereitgestellte Anpassungen.
 
 Die Steuerung der Kernmechaniken im Spiel umfassen das nach links und rechts Drehen des Spielers,
-das Bewegen in die vier Haupthimmelsrichtungen sowie das Abfeuern einer Waffe (sieben diskrete
+das Bewegen in die vier Haupthimmelsrichtungen sowie das Abfeuern einer Waffe (sieben diskrete % TODO sieben diskrete Actions?
 Actions). Die Modifikation des Hauptspiels ist unter \url{https://github.com/mwydmuch/ViZDoom}
 aufrufbar. Zusätzlich wäre auch die Anfertigung eines eigenen Environments in Doom möglich. Dafür
 stehen weitere Portierungen zur Verfügung wie zum Beispiel \url{https://zdoom.org/index}, welches
@@ -1635,7 +1638,7 @@ Echtzeitspielen notwendig ist, werden die letzten vier Bilder des Spiels, ähnli
 Farbkanäle eines Bildes, übereinander gelegt, wie von V. Mnih \cite[~S.5]{mnih2013playing}
 vorgeschlagen. Für die Implementierung wurde eine \lstinline!deque! verwendet, wie in
 Listing \ref{lst:env_observation} gezeigt. Wird das Environment zurückgesetzt, so wird
-ein neues Bild aufgenommen und drei mal in den ImageBuffer geschrieben.
+ein neues Bild aufgenommen und vier mal in den ImageBuffer geschrieben.
 \begin{lstlisting}[language=Python, caption=Observation des Environments,
 label=lst:env_observation]
 class TeeworldsEnv(gym.Env):
@@ -1737,7 +1740,7 @@ Problemstellung als hilfreich, da nicht blockierende Abfragen von dieser Bibliot
 unterstützt werden.
 
 Eine weitere Herausforderung war es den Agenten in mehreren Environments auszuführen, da
-die Multiprocessing Realisierung von Pytorch eine Schwierigkeit darstellte. Auch die
+die Multiprocessing Realisierung mit Pytorch eine Schwierigkeit darstellte. Auch die
 Orientierung im Teeworlds Quelltext und dessen Umarbeitung stellte sich als Hürde dar.
 
 \subsection{Wahl des Verfahrens}
@@ -1963,14 +1966,14 @@ Verfahrens (blau) im Vergleich zur Entwicklung des Vanilla Verfahrens (rot) vera
 \subsubsection{Double DQN}
 Die nächste Erweiterung zur Vanillaimplementierung von Deep Q-learning befasst sich mit der
 Stabilität des Verfahrens. In dem Paper ''Deep Reinforcement Learning with Double Q-learning''
-von DeepMind\cite{HGD2015} wird das Überwerten von Q-values bei dem Eintreten definierter
+von DeepMind\cite{HGD2015} wird das Überbewerten von Q-values bei dem Eintreten definierter % Überwerten Überbewerten?
 Zuständen überprüft. In dem Paper werden genau diese Overestimations bei dem Trainieren auf
 Atari 2600 Spielen mittels Vanilla Deep Q-learning festgestellt und es wird eine Lösung mit
 der Bezeichnung \textit{Double Deep Q-learning} vorgestellt.
 
 Grund für die Überbewertung ist die Nutzung des $\max$ Operators in der Bellman Equation.
 Wie bereits in \autoref{sec:tab-q-learning}:\nameref{sec:tab-q-learning} und \autoref{sec:dqn}:
-\nameref{sec:dqn} behandelt wird diese zur Berechnung der Q-values verwendet. Da beide
+\nameref{sec:dqn} behandelt, wird diese zur Berechnung der Q-values verwendet. Da beide
 Verfahren die gleichen values sowohl zur Auswahl, als auch zur Evaluierung von Actions nutzen,
 ist es laut Hasselt et al.\cite[~S.2]{HGD2015} wahrscheinlicher, dass überbewertete values
 ausgewählt werden, was wiederum zu einer überoptimistischen Schätzung zu\-künf\-ti\-ger values
@@ -2126,9 +2129,9 @@ class PrioritizedReplayBuffer:
 \noindent
 Zuerst werden die Wahrscheinlichkeiten \lstinline!probs!, dass die einzelnen Samples
 trainiert werden aus den Prioritäten berechnet. Anschließend findet das zufällige
-auswählen der Samples mit der Funktion \lstinline!np.random.choice()! statt. Am Ende
+Auswählen der Samples mit der Funktion \lstinline!np.random.choice()! statt. Am Ende
 werden die Gewichte berechnet, mit denen der Loss Wert beim Training skaliert wird. Diese
-Gewichte werden zusammen mit den ausgesuchten samples und deren Indexen zurück gegeben.
+Gewichte werden zusammen mit den ausgesuchten Samples und deren Indexen zurück gegeben.
 Die Indexe werden benötigt, um die Prioritäten der Samples nach dem Training wieder
 anpassen zu können.
 
@@ -2147,7 +2150,7 @@ Stunden ausgeführt, wobei 2.2 Millionen Samples gesammelt wurden.
 Wie zu erkennen ist, hat sich das Ergebnis durch diese Erweiterung verschlechtert. Der
 durchschnittliche Reward ist geringer ausgefallen und nicht alle Levels konnten
 erfolgreich absolviert werden. Es lässt sich vermuten, dass die Priorisierung einzelner
-Samples für das entwickelte Environment nicht eignet ist oder das zufällige Abweichungen
+Samples für das entwickelte Environment nicht geeignet ist oder das zufällige Abweichungen
 beim Trainingsprozess zu einem schlechteren Ergebnis geführt haben.
 
 \subsubsection{Dueling DQN}
@@ -2294,8 +2297,8 @@ der Anlage unter \autoref{sec:further_train_results} zu sehen.
 \subsubsection{Experiment mit 6 Leveln}
 Die nachfolgende Abbildung \ref{fig:six_levels_results} veranschaulicht die Ergebnisse
 eines Experiments mit 6 Leveln. Die benutzten Level sind im Anhang im
-\autoref{sec:six_levels} veranschaulicht. Der Agent konnte abschließend alle sechs Level
-erfolgreich absolvieren.
+\autoref{sec:six_levels} veranschaulicht. Der Agent konnte abschließend nach 50 Stunden
+und 2.8 Millionen Samples alle sechs Level erfolgreich absolvieren.
 
 \begin{figure}[htp]
 \centering
@@ -2327,8 +2330,8 @@ vorher darauf trainiert zu haben. Bei dem Testlauf erhielt der Agent einen durch
 Reward von 2.4, wobei ein Maximalwert von 4 erreicht wurde. Daraus lässt sich schließen,
 dass der Agent die zuvor trainierten Level auswendig lernt, sprich overfitted. Es sind
 jedoch Tendenzen einer Abstraktion zu erkennen, welche durch das gelegentliche Überwinden
-von neuen Hindernissen auffallen. Das Level wird im Anhang unter \ref{sec:untrained_level_appendix}
-dargestellt.
+von neuen Hindernissen auffallen. Das Level, das für die Evaluierung verwendet wurde, wird
+im Anhang unter \ref{sec:untrained_level_appendix} dargestellt.
 
 
 \subsection{Erkenntnisse}
@@ -2366,6 +2369,8 @@ das Environment zu entwerfen.
 
 Mittels des entwickelten Environments wurde ein Agent mit Deep Q-learning trainiert, welcher
 abschließend die Problemstellung des Environments erfolgreich löste.
+
+% TODO dazu noch was schreiben?
 
 \subsection{Ausblick}
 Durch die Implementierung des Teeworld Environments besteht anschließend die Möglichkeit weitere Verfahren
