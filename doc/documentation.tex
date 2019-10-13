@@ -112,7 +112,7 @@
 \newpage
 \tableofcontents
 \newpage
-\section{Introduction}
+\section{Einleitung}
 
 \subsection{Problemstellung}
 Machine Learning Methoden werden zunehmend benutzt, um Probleme in der realen Welt zu
@@ -150,7 +150,7 @@ werden, welche sich auf die Terminologie dieses Abschnittes beziehen.
 
 \subsection{Reinforcement Learning}
 Reinforcement Learning beschreibt eine Ansammlung von Machine Learning Verfahren, in denen die 
-lernende Entität, auch \textit{Agent}, keine bezeichneten Beispiele für das Lösen eines Problemes % TODO bezeichneten/Problems?
+lernende Entität, auch \textit{Agent}, keine bezeichneten Beispiele für das Lösen eines Problems
 erhält. Die einzige Information, welche mitgeteilt wird, ist Feedback zu gewählten Aktionen in Form
 einer Belohnung oder Bestrafung. Diese Art des Feedbacks wird auch als Verstärkung bezeichnet.
 Somit muss vom Lernenden selbstständig eine Strategie entwickelt werden, um das gegebene
@@ -563,7 +563,7 @@ def step(self, action):
 	is_done = self._check_if_done(reward)
     
 	return observation, reward, is_done or not valid, {}
-\end{lstlisting} % TODO code
+\end{lstlisting}
 \noindent
 Die Funktionen \textit{\_take\_action(action)}, \textit{\_get\_reward()} und
 \textit{\_check\_if\_done(reward)} setzen die Kommunikation mit dem Environment um. In
@@ -678,9 +678,8 @@ Die Cross-Entropy-Method macht sich dieses Verhalten zu Nutze, verwirft schlecht
 trainiert ausschließlichen auf besseren Episoden. Das Kernprinzip des Verfahrens wird wie nachfolgend
 aufgelistet in drei Schritte untergliedert \cite[~S.80 f.]{L2018}:
 
-Initial wird eine definierte Anzahl $N$ an Episoden mit dem aktuellen Model im Environment gespielt
-oder auch wahrgenommen. Anschließend erfolgt die Berechnung des total Rewards für jede gespielte % TODO oder auch wahrgenommen?
-Episode. Zusätzlich wird in diesem Schritt eine Obergrenze für den Reward festgelegt 
+Initial wird eine definierte Anzahl $N$ an Episoden mit dem aktuellen Model im Environment gespielt. Anschließend erfolgt die Berechnung des total Rewards für jede gespielte Episode. Zusätzlich wird in 
+diesem Schritt eine Obergrenze für den Reward festgelegt 
 (\textit{reward boundary}). Daraus folgt, dass die besten 30 Prozent der Episoden behalten werden,
 wohingegen die restlichen schlechteren Episoden verworfen werden. Anschließend wird im letzten Schritt
 das Model auf den übrigen \textit{elite} Episoden trainiert, wobei eine Observation als Input in das
@@ -1524,7 +1523,7 @@ Weiteren enthält die Modifikation die Implementierung einer eigens angefertigte
 durch die Community bereitgestellte Anpassungen.
 
 Die Steuerung der Kernmechaniken im Spiel umfassen das nach links und rechts Drehen des Spielers,
-das Bewegen in die vier Haupthimmelsrichtungen sowie das Abfeuern einer Waffe (sieben diskrete % TODO sieben diskrete Actions?
+das Bewegen in die vier Haupthimmelsrichtungen sowie das Abfeuern einer Waffe (sieben diskrete
 Actions). Die Modifikation des Hauptspiels ist unter \url{https://github.com/mwydmuch/ViZDoom}
 aufrufbar. Zusätzlich wäre auch die Anfertigung eines eigenen Environments in Doom möglich. Dafür
 stehen weitere Portierungen zur Verfügung wie zum Beispiel \url{https://zdoom.org/index}, welches
@@ -2379,7 +2378,10 @@ das Environment zu entwerfen.
 Mittels des entwickelten Environments wurde ein Agent mit Deep Q-learning trainiert, welcher
 abschließend die Problemstellung des Environments erfolgreich löste.
 
-% TODO dazu noch was schreiben?
+Somit ist festzustellen, dass die für das Independent Coursework definierte Zielsetzung
+im Bezug auf die Aufabreitung der Grundlagen im Bereich Reinforcement Learning sowie die
+Erstellung eines Environments mit Implementierung eines lauffähigen Agenten in einem
+Echtzeitspiel vollständig erfüllt wurde. 
 
 \newpage
 \subsection{Ausblick}
