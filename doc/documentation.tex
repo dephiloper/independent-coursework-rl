@@ -306,11 +306,12 @@ wurde $V(s)$ der value des States definiert. Im Markov Decision Process wurde di
 System um eine Policy ergänzt, die zwischen verschiedenen Actions wählt, um den gewonnen
 Reward zu beeinflussen. Der value einer gewählten Action $a_i$ in einem State $V_0$ ist
 der unmittelbare Reward $r_i$ addiert mit dem value des folgenden States $V_i$
-\cite[~S.167]{L2018}, also gilt $V_0(a=a_i) = r + V_i$. Will man eine Policy bestimmen,
-die einen möglichst hohen total Reward erzeugt, so will man die Action $a_i$ finden, die
-den maximalen Summe aus unmittelbarem und long-term Reward ergibt. Daraus ergibt sich die
-Bellman Equation, die in \ref{aln:bellman_equation} abgebildet ist. Zusätzlich wird hier
-der discount factor $\gamma$ eingeführt, der mit dem long-term Reward multipliziert wird.
+\cite[~S.167]{L2018}, also gilt $V_0(a=a_i) = r + V_i$. Soll eine Policy bestimmen werden,
+die einen möglichst hohen total Reward erzeugt, muss die Action $a_i$ gefunden werden, die
+die maximale Summe aus unmittelbarem und long-term Reward ergibt. Daraus ergibt sich die
+Bellman Equation, die in \autoref{aln:bellman_equation} abgebildet ist. Zusätzlich wird der
+discount factor $\gamma$ eingeführt, der mit dem long-term Reward multipliziert wird und
+dessen Gewichtung mindert.
 \begin{align}
   V_0 = \max_{a \in 1\dots N} \left(r_a + \gamma * V_a\right)
   \label{aln:bellman_equation}
@@ -1343,7 +1344,7 @@ on-policy, da ausschließlich anhand neu aufgezeichneter Trainingsdaten gelernt 
 Demzufolge kommt das Verfahren ohne die Verwendung eines Replay Buffers (siehe 
 \autoref{sec:deepq-procedure}) aus. Des Weiteren erfolgt die Einordnung als model-free Methode,
 da nicht versucht wird Annahmen zu zukünftigen States oder Rewards zu treffen. Prinzipiell
-basieren alle Policy Gradient Verfahren auf der in Formel \ref{aln:PG} festgelegten Definition,
+basieren alle Policy Gradient Verfahren auf der in Formel \ref{aln:PG-Loss} festgelegten Definition,
 wobei ausschließlich Anpassungen am Kernkonzept des Verfahrens vorgenommen werden
 \cite[~S.244 f.]{L2018}. Anders als die bereits behandelten value-learning Verfahren ist
 kein explizites Explorieren notwendig, da das REINFORCE Verfahren durch die Nutzung einer
@@ -2326,7 +2327,7 @@ absolvieren, wobei eine deutlich längere Laufzeit von 50 Stunden notwendig war.
 
 \begin{figure}[htp]
 \centering
-\includegraphics[scale=0.32]{res/six_levels_results.png}
+\includegraphics[scale=0.28]{res/six_levels_results.png}
 \caption{Avg. Reward auf sechs Leveln}
 \label{fig:six_levels_results}
 \end{figure}
@@ -2338,16 +2339,15 @@ Verfahren mit allen Erweiterungen auf vier Karten veranschaulicht.
 \label{sec:hard_level}
 Es wurde ein weiteres Experiment durchgeführt, bei dem eine kompliziertere Levelstruktur
 benutzt wurde. Das Level wird im Anhang unter \ref{sec:hard_level_appendix} veranschaulicht.
+Im Experiment konnte innerhalb von einer Millionen Frames durchgängig kein Reward erreicht
+werden, weshalb dieses vorzeitig abgebrochen wurde. Der Grund für das Nichtbestehen könnte
+der schwer zu erreichende erste Reward im Level sein. Ein möglicher Lösungsansatz wäre die
+Hinzunahme von weiteren Rewards, wodurch der Agent gegebenenfalls besser durch das Level
+navigieren könnte. Eine weitere Möglichkeit wäre die Betrachtung anderer Verfahren des
+Explorierens. Das Paper \textit{Intrinsically Motivated Reinforcement Learning}\cite{NIPS2004}
+von Chentanez, Barto und Singh definiert einen Ansatz der intrinsisch getriebenen Motivation
+zum Erforschen des Environments.
 
-% TODO Abbildung \ref{fig:hard_level_results} zeigt den Trainingsverlauf des Experiments.
-
-% TODO graph
-% \begin{figure}[htp]
-% \centering
-% \includegraphics[scale=0.19]{res/hard_level_results.png}
-% \caption{Avg. Reward in schwerem Level}
-% \label{fig:hard_level_results}
-% \end{figure}
 
 \subsubsection{Untrainierte Level}
 \label{sec:untrained_level}
@@ -2358,7 +2358,7 @@ Reward von 2.4, wobei ein Maximalwert von 4 erreicht wurde. Daraus lässt sich s
 dass der Agent die zuvor trainierten Level auswendig lernt, sprich overfitted. Es sind
 jedoch Tendenzen einer Abstraktion zu erkennen, welche durch das gelegentliche Überwinden
 von neuen, bisher unbekannten Hindernissen auffallen. Das Level, das für die Evaluierung
-verwendet wurde, wird im Anhang unter \ref{sec:untrained_level_appendix} dargestellt.
+verwendet wurde, ist im Anhang unter \ref{sec:untrained_level_appendix} dargestellt.
 
 \newpage
 \subsection{Erkenntnisse}
@@ -2372,8 +2372,9 @@ lässt sich beurteilen, dass das Verfahren overfitted und die zu spielenden Leve
 lernt.
 
 Aufgrund der Tatsache, dass das in Experiment (\ref{sec:hard_level})
-beschriebene ''schwerere'' Level durchgespielt werden konnte, lässt sich ableiten, dass sich
-das Verfahren ebenfalls in komplizierteren Aufgabenstellungen einsetzen lässt. %TODO das wissen wir noch nicht
+beschriebene ''schwerere'' Level nicht durchgespielt werden konnte, lässt sich ableiten,
+dass für die Lösung von komplizierteren Environments erneute Anpassungen am Verfahren
+vorgenommen werden müssen.
 
 Während der Realisierung des Environments wurden Experimente mit unterschiedlicher Beschleunigung
 des Spiels durchgeführt. Dabei stellte sich heraus, dass eine hohe Beschleunigung des Spiels
@@ -2430,9 +2431,12 @@ sehr schwer einzustufenden, Level. Dieser Prozess könnte fortgesetzt werden, um
 Kapazität an lernbaren Leveln zu ermitteln oder mittels einer Vergrößerung der Levelstruktur, die
 Anwendbarkeit im Bezug auf die Größe der Level und deren Komplexität zu ermitteln.
 
-%TODO mehrere Rechner als Teststrecke
-%TODO weitere Erweiterungen zu DQN
-%TODO grenzen von DQN herausfinden 
+Bereits während der Umsetzung dieser Arbeit wurde versucht, das entwickelte System auf Rechnern der
+Universität auszuführen, um eine Vielzahl weiterer Experimente durchzuführen. Durch die
+Echtzeitkomponente des Spiels ist jedoch eine ausreichend leistungsfähige Rechenarchitektur von Nöten,
+welche durch die Universitätsrechner nicht gegeben war. Würde das beschriebene Off-Screen Rendering
+umgesetzt werden, könnten gegebenenfalls auch Cloud Dienste zur Beschleunigung und Parallelisierung
+des Trainingsprozesses verwendet werden. 
 
 \newpage
 %\bibliographystyle{plain}
