@@ -6,7 +6,7 @@ gym==0.14.0
 Markdown==3.1.1
 mss==4.0.3
 numpy==1.17.2
-opencv-python==4.1.1.26
+opencv-python==4.2.0.32
 Pillow==6.1.0
 protobuf==3.9.1
 pyaml==19.4.1
